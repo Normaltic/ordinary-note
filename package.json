@@ -1,0 +1,19 @@
+{
+  "name": "ordinary-note",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "db:migrate": "pnpm --filter @ordinary-note/server prisma migrate dev",
+    "db:studio": "pnpm --filter @ordinary-note/server prisma studio"
+  },
+  "devDependencies": {
+    "turbo": "^2",
+    "typescript": "^5",
+    "prettier": "^3"
+  }
+}
