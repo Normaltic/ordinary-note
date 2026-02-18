@@ -7,12 +7,166 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─────────────────────────────────────
+// User
+// ─────────────────────────────────────
 model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  profileImage String?
+  googleId     String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  folders       Folder[]
+  notes         Note[]
+  refreshTokens RefreshToken[]
+  sharedBy      NoteShare[]    @relation("SharedBy")
+  sharedTo      NoteShare[]    @relation("SharedTo")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────
+// Folder (self-referencing hierarchy)
+// ─────────────────────────────────────
+model Folder {
   id        String   @id @default(cuid())
-  email     String   @unique
+  userId    String
+  parentId  String?
   name      String
+  sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users")
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children Folder[] @relation("FolderHierarchy")
+  notes    Note[]
+
+  @@index([userId, parentId])
+  @@index([userId, sortOrder])
+  @@map("folders")
+}
+
+// ─────────────────────────────────────
+// Note
+// ─────────────────────────────────────
+model Note {
+  id           String    @id @default(cuid())
+  userId       String
+  folderId     String
+  title        String    @default("")
+  contentPlain String?
+  sortOrder    Int       @default(0)
+  isMarkdown   Boolean   @default(false)
+  isPinned     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  deletedAt    DateTime?
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder      Folder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  yjsDocument YjsDocument?
+  attachments Attachment[]
+  shares      NoteShare[]
+
+  @@index([userId])
+  @@index([folderId, sortOrder])
+  @@index([folderId, updatedAt])
+  @@index([folderId, deletedAt])
+  @@map("notes")
+}
+
+// ─────────────────────────────────────
+// YjsDocument (1:1 with Note)
+// ─────────────────────────────────────
+model YjsDocument {
+  id          String   @id @default(cuid())
+  noteId      String   @unique
+  snapshot    Bytes?
+  stateVector Bytes?
+  updatedAt   DateTime @updatedAt
+
+  note    Note        @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  updates YjsUpdate[]
+
+  @@map("yjs_documents")
+}
+
+// ─────────────────────────────────────
+// YjsUpdate (incremental updates)
+// ─────────────────────────────────────
+model YjsUpdate {
+  id            Int      @id @default(autoincrement())
+  yjsDocumentId String
+  update        Bytes
+  createdAt     DateTime @default(now())
+
+  yjsDocument YjsDocument @relation(fields: [yjsDocumentId], references: [id], onDelete: Cascade)
+
+  @@index([yjsDocumentId, createdAt])
+  @@index([yjsDocumentId, id])
+  @@map("yjs_updates")
+}
+
+// ─────────────────────────────────────
+// Attachment (images/files)
+// ─────────────────────────────────────
+model Attachment {
+  id        String   @id @default(cuid())
+  noteId    String
+  url       String
+  fileName  String
+  fileSize  Int
+  mimeType  String
+  createdAt DateTime @default(now())
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@map("attachments")
+}
+
+// ─────────────────────────────────────
+// NoteShare (link sharing + user sharing)
+// ─────────────────────────────────────
+model NoteShare {
+  id             String    @id @default(cuid())
+  noteId         String
+  token          String    @unique
+  permission     String    @default("READ")
+  sharedByUserId String
+  sharedToUserId String?
+  expiresAt      DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+
+  note     Note  @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  sharedBy User  @relation("SharedBy", fields: [sharedByUserId], references: [id], onDelete: Cascade)
+  sharedTo User? @relation("SharedTo", fields: [sharedToUserId], references: [id], onDelete: SetNull)
+
+  @@index([noteId])
+  @@index([sharedToUserId])
+  @@map("note_shares")
+}
+
+// ─────────────────────────────────────
+// RefreshToken (JWT Token Rotation)
+// ─────────────────────────────────────
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  familyId  String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
 }
