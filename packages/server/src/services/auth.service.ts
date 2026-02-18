@@ -1,5 +1,4 @@
 import { randomUUID, createHash } from 'node:crypto';
-import { OAuth2Client } from 'google-auth-library';
 import { ErrorCode } from '@ordinary-note/shared';
 import type { AuthUser } from '@ordinary-note/shared';
 import type {
@@ -8,14 +7,13 @@ import type {
   RefreshTokenRepository,
 } from '../repositories/index.js';
 import { config } from '../utils/config.js';
+import { verifyGoogleIdToken } from '../utils/google.js';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } from '../utils/jwt.js';
 import { UnauthorizedError } from '../utils/errors.js';
-
-const googleClient = new OAuth2Client(config.google.clientId);
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
@@ -29,11 +27,7 @@ export class AuthService {
 
   async verifyGoogleToken(credential: string): Promise<GoogleProfile> {
     try {
-      const ticket = await googleClient.verifyIdToken({
-        idToken: credential,
-        audience: config.google.clientId,
-      });
-      const payload = ticket.getPayload();
+      const payload = await verifyGoogleIdToken(credential);
       if (!payload) {
         throw new UnauthorizedError(
           ErrorCode.AUTH_GOOGLE_FAILED,
