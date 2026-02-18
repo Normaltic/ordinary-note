@@ -14,7 +14,9 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@ordinary-note/shared": "workspace:*",
     "@prisma/client": "^6",
+    "cookie-parser": "^1.4.7",
     "cors": "^2",
     "express": "^5",
     "helmet": "^8",
@@ -22,6 +24,7 @@
     "pino-http": "^10"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2",
     "@types/express": "^5",
     "pino-pretty": "^13",
