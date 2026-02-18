@@ -11,7 +11,11 @@ import { router } from './routes/index.js';
 
 const app: Express = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  }),
+);
 app.use(
   cors({
     origin: config.clientUrl,

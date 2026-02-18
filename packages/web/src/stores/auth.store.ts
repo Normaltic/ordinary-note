@@ -2,12 +2,20 @@ import { create } from 'zustand';
 import type { AuthUser } from '@ordinary-note/shared';
 import { api } from '../lib/axios';
 
+const CLEAR_STATE = {
+  user: null,
+  accessToken: null,
+  isAuthenticated: false,
+  isLoading: false,
+} as const;
+
 interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   setAuth: (user: AuthUser, accessToken: string) => void;
+  clearAuth: () => void;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
 }
@@ -22,13 +30,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user, accessToken, isAuthenticated: true, isLoading: false });
   },
 
+  clearAuth: () => {
+    set(CLEAR_STATE);
+  },
+
   logout: async () => {
     try {
       await api.post('/api/auth/logout');
     } catch {
       // ignore errors on logout
     }
-    set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+    set(CLEAR_STATE);
   },
 
   restoreSession: async () => {
@@ -47,7 +59,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch {
-      set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+      set(CLEAR_STATE);
     }
   },
 }));
@@ -88,9 +100,9 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Don't retry refresh endpoint itself
-    if (originalRequest.url === '/api/auth/refresh') {
-      useAuthStore.getState().logout();
+    // Don't retry auth endpoints — just clear state
+    if (originalRequest.url?.startsWith('/api/auth/')) {
+      useAuthStore.getState().clearAuth();
       return Promise.reject(error);
     }
 
@@ -117,7 +129,7 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
-      useAuthStore.getState().logout();
+      useAuthStore.getState().clearAuth();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
