@@ -7,40 +7,42 @@ import { logger } from './utils/logger.js';
 import { config } from './utils/config.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import { rateLimiter } from './middlewares/rateLimit.middleware.js';
-import { router } from './routes/index.js';
+import { createRouter, type AppServices } from './routes/index.js';
 
-const app: Express = express();
+export function createApp(services: AppServices): Express {
+  const app = express();
 
-app.use(
-  helmet({
-    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
-  }),
-);
-app.use(
-  cors({
-    origin: config.clientUrl,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }),
-);
-app.use(express.json({ limit: '1mb' }));
-app.use(cookieParser());
-app.use(pinoHttp({ logger }));
+  app.use(
+    helmet({
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    }),
+  );
+  app.use(
+    cors({
+      origin: config.clientUrl,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+  );
+  app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser());
+  app.use(pinoHttp({ logger }));
 
-app.get('/api/health', async (_req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
+  app.get('/api/health', async (_req, res) => {
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
   });
-});
 
-app.use('/api/auth', rateLimiter.auth);
-app.use('/api', rateLimiter.general);
+  app.use('/api/auth', rateLimiter.auth);
+  app.use('/api', rateLimiter.general);
 
-app.use('/api', router);
+  app.use('/api', createRouter(services));
 
-app.use(errorHandler);
+  app.use(errorHandler);
 
-export { app };
+  return app;
+}

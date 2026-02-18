@@ -1,8 +1,15 @@
 import { Router } from 'express';
-import { authRoutes } from './auth.routes.js';
+import type { AuthService } from '../services/auth.service.js';
+import { createAuthRoutes } from './auth.routes.js';
 
-const router: Router = Router();
+export type AppServices = {
+  authService: AuthService;
+};
 
-router.use('/auth', authRoutes);
+export function createRouter(services: AppServices) {
+  const router: Router = Router();
 
-export { router };
+  router.use('/auth', createAuthRoutes(services.authService));
+
+  return router;
+}
