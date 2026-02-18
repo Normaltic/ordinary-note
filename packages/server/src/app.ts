@@ -6,6 +6,7 @@ import { pinoHttp } from 'pino-http';
 import { logger } from './utils/logger.js';
 import { config } from './utils/config.js';
 import { errorHandler } from './middlewares/error.middleware.js';
+import { rateLimiter } from './middlewares/rateLimit.middleware.js';
 import { router } from './routes/index.js';
 
 const app: Express = express();
@@ -30,6 +31,9 @@ app.get('/api/health', async (_req, res) => {
     uptime: process.uptime(),
   });
 });
+
+app.use('/api/auth', rateLimiter.auth);
+app.use('/api', rateLimiter.general);
 
 app.use('/api', router);
 
