@@ -30,7 +30,6 @@ CREATE TABLE "notes" (
     "title" TEXT NOT NULL DEFAULT '',
     "contentPlain" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "isMarkdown" BOOLEAN NOT NULL DEFAULT false,
     "isPinned" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

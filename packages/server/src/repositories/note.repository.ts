@@ -7,7 +7,6 @@ export type NoteRecord = {
   title: string;
   contentPlain: string | null;
   sortOrder: number;
-  isMarkdown: boolean;
   isPinned: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -26,7 +25,6 @@ export type UpdateNoteData = {
   contentPlain?: string | null;
   folderId?: string;
   sortOrder?: number;
-  isMarkdown?: boolean;
   isPinned?: boolean;
 };
 

@@ -181,7 +181,6 @@ export const fixtures = {
     title: 'Test Note',
     contentPlain: 'Some content',
     sortOrder: 0,
-    isMarkdown: false,
     isPinned: false,
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),

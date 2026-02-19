@@ -10,7 +10,6 @@ export const updateNoteSchema = z.object({
   contentPlain: z.string().nullable().optional(),
   folderId: z.string().optional(),
   sortOrder: z.number().int().min(0).optional(),
-  isMarkdown: z.boolean().optional(),
   isPinned: z.boolean().optional(),
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'At least one field must be provided',

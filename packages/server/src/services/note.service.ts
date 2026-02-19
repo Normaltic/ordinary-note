@@ -52,7 +52,6 @@ export class NoteService {
       contentPlain?: string | null;
       folderId?: string;
       sortOrder?: number;
-      isMarkdown?: boolean;
       isPinned?: boolean;
     },
   ): Promise<NoteRecord> {

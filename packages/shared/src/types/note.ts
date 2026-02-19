@@ -4,7 +4,6 @@ export interface NoteSummary {
   contentPreview: string | null;
   sortOrder: number;
   isPinned: boolean;
-  isMarkdown: boolean;
   updatedAt: string;
 }
 
@@ -14,7 +13,6 @@ export interface NoteDetail {
   title: string;
   contentPlain: string | null;
   sortOrder: number;
-  isMarkdown: boolean;
   isPinned: boolean;
   createdAt: string;
   updatedAt: string;
@@ -30,6 +28,5 @@ export interface UpdateNoteRequest {
   contentPlain?: string;
   folderId?: string;
   sortOrder?: number;
-  isMarkdown?: boolean;
   isPinned?: boolean;
 }
