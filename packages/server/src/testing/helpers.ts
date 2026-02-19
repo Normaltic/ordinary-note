@@ -4,6 +4,9 @@ import type {
   RefreshTokenRecord,
   RefreshTokenWithUser,
 } from '../repositories/refreshToken.repository.js';
+import type { AuthService } from '../services/auth.service.js';
+import { generateAccessToken } from '../utils/jwt.js';
+import type { AccessTokenPayload } from '../utils/jwt.js';
 
 // ── Mock Repository Factories ──────────────────────────────────────
 
@@ -22,6 +25,33 @@ export function createMockRefreshTokenRepo() {
     revokeById: vi.fn<(id: string) => Promise<void>>(),
     revokeByFamilyId: vi.fn<(familyId: string) => Promise<void>>(),
   };
+}
+
+// ── Mock AuthService ─────────────────────────────────────────────────
+
+export function createMockAuthService(): {
+  [K in keyof AuthService]: ReturnType<typeof vi.fn>;
+} {
+  return {
+    verifyGoogleToken: vi.fn(),
+    findOrCreateUser: vi.fn(),
+    createTokenPair: vi.fn(),
+    rotateRefreshToken: vi.fn(),
+    revokeRefreshToken: vi.fn(),
+    getUserById: vi.fn(),
+  };
+}
+
+// ── Test Token Generator ─────────────────────────────────────────────
+
+export function generateTestAccessToken(
+  overrides?: Partial<AccessTokenPayload>,
+): string {
+  return generateAccessToken({
+    sub: 'user-1',
+    email: 'test@test.com',
+    ...overrides,
+  });
 }
 
 // ── Fixtures ────────────────────────────────────────────────────────
