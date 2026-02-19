@@ -10,4 +10,20 @@ export type {
   RefreshResponse,
   MeResponse,
   ApiErrorResponse,
+  FolderTreeNode,
+  FolderSummary,
+  FolderDetail,
+  CreateFolderRequest,
+  UpdateFolderRequest,
+  NoteSummary,
+  NoteDetail,
+  CreateNoteRequest,
+  UpdateNoteRequest,
 } from './types/index.js';
+
+export {
+  createFolderSchema,
+  updateFolderSchema,
+  createNoteSchema,
+  updateNoteSchema,
+} from './schemas/index.js';
