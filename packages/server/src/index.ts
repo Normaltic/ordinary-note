@@ -5,8 +5,10 @@ import { logger } from './utils/logger.js';
 import {
   UserRepository,
   RefreshTokenRepository,
+  FolderRepository,
+  NoteRepository,
 } from './repositories/index.js';
-import { AuthService } from './services/index.js';
+import { AuthService, FolderService, NoteService } from './services/index.js';
 import { createApp } from './app.js';
 
 const PORT = process.env.PORT || 3001;
@@ -16,12 +18,16 @@ async function main() {
   logger.info('Database connected, foreign keys enabled');
 
   // Composition root
-  const authService = new AuthService(
-    new UserRepository(),
-    new RefreshTokenRepository(),
-  );
+  const userRepo = new UserRepository();
+  const refreshTokenRepo = new RefreshTokenRepository();
+  const folderRepo = new FolderRepository();
+  const noteRepo = new NoteRepository();
 
-  const app = createApp({ authService });
+  const authService = new AuthService(userRepo, refreshTokenRepo);
+  const folderService = new FolderService(folderRepo);
+  const noteService = new NoteService(noteRepo, folderRepo);
+
+  const app = createApp({ authService, folderService, noteService });
   const httpServer = createServer(app);
 
   httpServer.listen(PORT, () => {

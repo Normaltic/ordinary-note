@@ -32,7 +32,11 @@ describe('Auth Routes', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuthService = createMockAuthService();
-    app = createApp({ authService: mockAuthService as never });
+    app = createApp({
+      authService: mockAuthService as never,
+      folderService: {} as never,
+      noteService: {} as never,
+    });
   });
 
   // ── POST /api/auth/google ───────────────────────────────────────
