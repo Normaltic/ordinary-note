@@ -3,17 +3,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAuthStore } from './stores/auth.store';
 import { LoginPage } from './pages/LoginPage';
 import { AppShell } from './pages/AppShell';
+import { FinderPage } from './pages/FinderPage';
+import { NotePage } from './pages/NotePage';
 import { PrivateRoute } from './components/PrivateRoute';
 import { PublicRoute } from './components/PublicRoute';
-
-function HomePage() {
-  return (
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-900">Welcome to Ordinary Note</h2>
-      <p className="mt-2 text-gray-500">Your simple, powerful note-taking app</p>
-    </div>
-  );
-}
 
 export function App() {
   const restoreSession = useAuthStore((s) => s.restoreSession);
@@ -41,7 +34,9 @@ export function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<HomePage />} />
+          <Route index element={<FinderPage />} />
+          <Route path="folders/:folderId" element={<FinderPage />} />
+          <Route path="notes/:noteId" element={<NotePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
