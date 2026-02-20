@@ -8,6 +8,7 @@ export const createNoteSchema = z.object({
 export const updateNoteSchema = z.object({
   title: z.string().max(500, 'Title is too long').optional(),
   contentPlain: z.string().nullable().optional(),
+  contentHtml: z.string().nullable().optional(),
   folderId: z.string().optional(),
   sortOrder: z.number().int().min(0).optional(),
   isPinned: z.boolean().optional(),

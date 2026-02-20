@@ -59,6 +59,7 @@ model Note {
   folderId     String
   title        String    @default("")
   contentPlain String?
+  contentHtml  String?
   sortOrder    Int       @default(0)
   isPinned     Boolean   @default(false)
   createdAt    DateTime  @default(now())

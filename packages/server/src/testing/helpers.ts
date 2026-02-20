@@ -180,6 +180,7 @@ export const fixtures = {
     folderId: 'folder-1',
     title: 'Test Note',
     contentPlain: 'Some content',
+    contentHtml: null,
     sortOrder: 0,
     isPinned: false,
     createdAt: new Date('2025-01-01'),

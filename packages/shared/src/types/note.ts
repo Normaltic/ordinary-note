@@ -12,6 +12,7 @@ export interface NoteDetail {
   folderId: string;
   title: string;
   contentPlain: string | null;
+  contentHtml: string | null;
   sortOrder: number;
   isPinned: boolean;
   createdAt: string;
@@ -26,6 +27,7 @@ export interface CreateNoteRequest {
 export interface UpdateNoteRequest {
   title?: string;
   contentPlain?: string;
+  contentHtml?: string;
   folderId?: string;
   sortOrder?: number;
   isPinned?: boolean;

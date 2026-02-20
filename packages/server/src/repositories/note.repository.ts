@@ -6,6 +6,7 @@ export type NoteRecord = {
   folderId: string;
   title: string;
   contentPlain: string | null;
+  contentHtml: string | null;
   sortOrder: number;
   isPinned: boolean;
   createdAt: Date;
@@ -23,6 +24,7 @@ export type CreateNoteData = {
 export type UpdateNoteData = {
   title?: string;
   contentPlain?: string | null;
+  contentHtml?: string | null;
   folderId?: string;
   sortOrder?: number;
   isPinned?: boolean;
