@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNoteStore } from '../../../stores/note.store';
 import { useFolderStore } from '../../../stores/folder.store';
@@ -19,8 +19,12 @@ export function useNoteEditor() {
   const addToast = useToastStore((s) => s.addToast);
 
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [contentHtml, setContentHtml] = useState('');
+  const [contentPlain, setContentPlain] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const contentPlainRef = useRef(contentPlain);
+  contentPlainRef.current = contentPlain;
 
   useEffect(() => {
     if (noteId) fetchNote(noteId);
@@ -31,18 +35,28 @@ export function useNoteEditor() {
   useEffect(() => {
     if (note) {
       setTitle(note.title);
-      setContent(note.contentPlain ?? '');
+      setContentHtml(note.contentHtml ?? note.contentPlain ?? '');
+      setContentPlain(note.contentPlain ?? '');
     }
   }, [note?.id]);
+
+  const handleEditorUpdate = useCallback((html: string, plain: string) => {
+    setContentHtml(html);
+    setContentPlain(plain);
+  }, []);
 
   // Auto-save
   useAutoSave(
     () => {
       if (noteId && note) {
-        saveNote(noteId, { title, contentPlain: content });
+        saveNote(noteId, {
+          title,
+          contentHtml,
+          contentPlain: contentPlainRef.current,
+        });
       }
     },
-    [title, content],
+    [title, contentHtml],
     1000,
   );
 
@@ -65,8 +79,8 @@ export function useNoteEditor() {
     saving,
     title,
     setTitle,
-    content,
-    setContent,
+    contentHtml,
+    handleEditorUpdate,
     handleDelete,
     confirmOpen,
     setConfirmOpen,

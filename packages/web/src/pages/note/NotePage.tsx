@@ -1,4 +1,5 @@
 import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { TiptapEditor } from './components/TiptapEditor';
 import { useNoteEditor } from './hooks/useNoteEditor';
 
 export function NotePage() {
@@ -8,8 +9,8 @@ export function NotePage() {
     saving,
     title,
     setTitle,
-    content,
-    setContent,
+    contentHtml,
+    handleEditorUpdate,
     handleDelete,
     confirmOpen,
     setConfirmOpen,
@@ -49,12 +50,11 @@ export function NotePage() {
 
       <hr className="my-4 border-gray-200" />
 
-      {/* Content */}
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="내용을 입력하세요..."
-        className="min-h-[60vh] w-full resize-none border-none bg-transparent text-gray-800 placeholder-gray-300 outline-none"
+      {/* Editor */}
+      <TiptapEditor
+        key={note.id}
+        initialContent={contentHtml}
+        onUpdate={handleEditorUpdate}
       />
 
       {/* Delete confirm */}
