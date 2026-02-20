@@ -4,7 +4,7 @@ import { useAuthStore } from './stores/auth.store';
 import { LoginPage } from './pages/LoginPage';
 import { AppShell } from './pages/AppShell';
 import { FinderPage } from './pages/finder/FinderPage';
-import { NotePage } from './pages/NotePage';
+import { NotePage } from './pages/note/NotePage';
 import { PrivateRoute } from './components/PrivateRoute';
 import { PublicRoute } from './components/PublicRoute';
 
