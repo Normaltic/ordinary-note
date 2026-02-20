@@ -1,36 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useFolderStore } from '../stores/folder.store';
 import { useToastStore } from '../stores/toast.store';
 import { PromptDialog } from '../components/PromptDialog';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { ContextMenu } from '../components/ContextMenu';
+import { formatDate } from '../utils/format';
 import * as noteApi from '../lib/api/notes';
 import type { FolderSummary, NoteSummary } from '@ordinary-note/shared';
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-
-  const isToday =
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate();
-  if (isToday) return '오늘';
-
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const isYesterday =
-    date.getFullYear() === yesterday.getFullYear() &&
-    date.getMonth() === yesterday.getMonth() &&
-    date.getDate() === yesterday.getDate();
-  if (isYesterday) return '어제';
-
-  if (date.getFullYear() === now.getFullYear()) {
-    return `${date.getMonth() + 1}월 ${date.getDate()}일`;
-  }
-
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
-}
 
 export function FinderPage() {
   const { folderId } = useParams<{ folderId: string }>();
@@ -60,7 +37,7 @@ export function FinderPage() {
 
   // Menu state
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const closeMenu = useCallback(() => setOpenMenuId(null), []);
 
   useEffect(() => {
     if (folderId) {
@@ -69,17 +46,6 @@ export function FinderPage() {
       fetchRootContents();
     }
   }, [folderId, fetchContents, fetchRootContents, tree]);
-
-  // Close menu on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpenMenuId(null);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
 
   const handleCreateFolder = () => {
     setPromptTitle('새 폴더');
@@ -189,25 +155,20 @@ export function FinderPage() {
                 >
                   ⋯
                 </button>
-                {openMenuId === folder.id && (
-                  <div
-                    ref={menuRef}
-                    className="absolute right-2 top-10 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                <ContextMenu open={openMenuId === folder.id} onClose={closeMenu}>
+                  <button
+                    onClick={() => handleRenameFolder(folder)}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    <button
-                      onClick={() => handleRenameFolder(folder)}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      이름 변경
-                    </button>
-                    <button
-                      onClick={() => handleDeleteFolder(folder)}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                )}
+                    이름 변경
+                  </button>
+                  <button
+                    onClick={() => handleDeleteFolder(folder)}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    삭제
+                  </button>
+                </ContextMenu>
               </div>
             ))}
           </div>
@@ -252,19 +213,14 @@ export function FinderPage() {
                 >
                   ⋯
                 </button>
-                {openMenuId === note.id && (
-                  <div
-                    ref={menuRef}
-                    className="absolute right-2 top-10 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                <ContextMenu open={openMenuId === note.id} onClose={closeMenu}>
+                  <button
+                    onClick={() => handleDeleteNote(note)}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
                   >
-                    <button
-                      onClick={() => handleDeleteNote(note)}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                )}
+                    삭제
+                  </button>
+                </ContextMenu>
               </div>
             ))}
           </div>

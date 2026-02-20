@@ -38,14 +38,8 @@ export function useAutoSave(
 
   // Flush on unmount
   useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-        saveRef.current();
-      }
-    };
-  }, []);
+    return flush;
+  }, [flush]);
 
   return { flush };
 }

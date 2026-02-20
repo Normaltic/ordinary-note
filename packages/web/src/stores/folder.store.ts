@@ -113,7 +113,7 @@ function findParentId(tree: FolderTreeNode[], targetId: string): string | null {
   for (const node of tree) {
     if (node.children.some((c) => c.id === targetId)) return node.id;
     const found = findParentId(node.children, targetId);
-    if (found !== undefined && found !== null) return found;
+    if (found !== null) return found;
   }
   return null;
 }
