@@ -33,7 +33,9 @@ export function FolderList({
               to={`/folders/${folder.id}`}
               className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover"
             >
-              <span className="text-lg">📁</span>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-secondary">
+                <path d="M2 5.5C2 4.4 2.9 3.5 4 3.5h3.6c.5 0 1 .2 1.4.5l1 1c.4.3.9.5 1.4.5H16c1.1 0 2 .9 2 2v7c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V5.5z" />
+              </svg>
               <span className="flex-1 text-sm font-medium text-text-primary">
                 {folder.name}
               </span>

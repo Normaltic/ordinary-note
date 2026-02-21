@@ -5,15 +5,12 @@ import { useFinderContents } from './hooks/useFinderContents';
 import { useFinderActions } from './hooks/useFinderActions';
 import { FolderList } from './FolderList';
 import { NoteList } from './NoteList';
-import { FinderActions } from './FinderActions';
 
 export function FinderPage() {
   const { folderId, folders, notes, isLoading } = useFinderContents();
   const {
-    handleCreateFolder,
     handleRenameFolder,
     handleDeleteFolder,
-    handleCreateNote,
     handleDeleteNote,
     promptDialogProps,
     confirmDialogProps,
@@ -37,7 +34,7 @@ export function FinderPage() {
   const isEmpty = folders.length === 0 && notes.length === 0;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6">
+    <div className="mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6">
       <FolderList
         folders={folders}
         openMenuId={openMenuId}
@@ -60,12 +57,6 @@ export function FinderPage() {
           이 폴더는 비어 있습니다
         </div>
       )}
-
-      <FinderActions
-        folderId={folderId}
-        onCreateFolder={handleCreateFolder}
-        onCreateNote={handleCreateNote}
-      />
 
       <PromptDialog
         open={promptDialogProps.open}
