@@ -14,28 +14,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   const groups: ToolbarButton[][] = [
     [
       {
-        label: 'B',
-        action: () => editor.chain().focus().toggleBold().run(),
-        isActive: editor.isActive('bold'),
-      },
-      {
-        label: 'I',
-        action: () => editor.chain().focus().toggleItalic().run(),
-        isActive: editor.isActive('italic'),
-      },
-      {
-        label: 'S',
-        action: () => editor.chain().focus().toggleStrike().run(),
-        isActive: editor.isActive('strike'),
-      },
-      {
-        label: 'Code',
-        action: () => editor.chain().focus().toggleCode().run(),
-        isActive: editor.isActive('code'),
-      },
-    ],
-    [
-      {
         label: 'H1',
         action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
         isActive: editor.isActive('heading', { level: 1 }),
@@ -78,22 +56,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         label: 'HR',
         action: () => editor.chain().focus().setHorizontalRule().run(),
         isActive: false,
-      },
-    ],
-    [
-      {
-        label: 'Link',
-        action: () => {
-          if (editor.isActive('link')) {
-            editor.chain().focus().unsetLink().run();
-            return;
-          }
-          const url = window.prompt('URL을 입력하세요:');
-          if (url) {
-            editor.chain().focus().setLink({ href: url }).run();
-          }
-        },
-        isActive: editor.isActive('link'),
       },
     ],
   ];

@@ -13,6 +13,7 @@
   "dependencies": {
     "@ordinary-note/shared": "workspace:*",
     "@react-oauth/google": "^0.13.4",
+    "@tiptap/extension-bubble-menu": "^3.20.0",
     "@tiptap/extension-link": "^3.20.0",
     "@tiptap/extension-placeholder": "^3.20.0",
     "@tiptap/react": "^3.20.0",

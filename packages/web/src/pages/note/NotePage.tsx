@@ -25,7 +25,7 @@ export function NotePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6">
+    <div className="mx-auto w-full max-w-[var(--max-editor-width)] px-6 py-6">
       {/* Toolbar */}
       <div className="mb-4 flex items-center justify-between">
         <span className="text-xs text-text-muted">
