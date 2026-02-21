@@ -13,14 +13,14 @@ export function FinderActions({
     <div className="flex gap-2">
       <button
         onClick={onCreateFolder}
-        className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+        className="rounded-pill border border-border-default px-4 py-2 text-sm text-text-secondary hover:bg-bg-hover"
       >
         + 새 폴더
       </button>
       {folderId && (
         <button
           onClick={onCreateNote}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          className="rounded-pill bg-accent px-4 py-2 text-sm text-text-inverse hover:bg-accent-hover"
         >
           + 새 노트
         </button>

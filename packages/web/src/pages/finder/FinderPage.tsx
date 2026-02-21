@@ -29,7 +29,7 @@ export function FinderPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <span className="text-gray-400">로딩 중...</span>
+        <span className="text-text-muted">로딩 중...</span>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export function FinderPage() {
       />
 
       {isEmpty && (
-        <div className="py-20 text-center text-gray-400">
+        <div className="py-20 text-center text-text-muted">
           이 폴더는 비어 있습니다
         </div>
       )}

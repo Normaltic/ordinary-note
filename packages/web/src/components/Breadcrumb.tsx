@@ -26,19 +26,19 @@ export function Breadcrumb({ segments, currentLabel }: BreadcrumbProps) {
   }
 
   return (
-    <nav className="flex items-center gap-1 text-sm text-gray-500">
-      <Link to="/" className="hover:text-gray-900">
+    <nav className="flex items-center gap-1 text-sm text-text-secondary">
+      <Link to="/" className="transition-colors hover:text-text-primary">
         홈
       </Link>
       {displayItems.map((item, i) => (
         <span key={i} className="flex items-center gap-1">
-          <span>/</span>
+          <span className="text-text-muted">›</span>
           {item.to && i < displayItems.length - 1 ? (
-            <Link to={item.to} className="hover:text-gray-900">
+            <Link to={item.to} className="transition-colors hover:text-text-primary">
               {item.label}
             </Link>
           ) : (
-            <span className="text-gray-900 font-medium">{item.label}</span>
+            <span className="font-medium text-text-primary">{item.label}</span>
           )}
         </span>
       ))}

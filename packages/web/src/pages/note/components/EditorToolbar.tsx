@@ -99,10 +99,10 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-gray-200 pb-2">
+    <div className="flex flex-wrap items-center gap-1 border-b border-border-default pb-2">
       {groups.map((group, gi) => (
         <div key={gi} className="flex items-center gap-0.5">
-          {gi > 0 && <span className="mx-1 text-gray-300">|</span>}
+          {gi > 0 && <span className="mx-1 text-text-muted">|</span>}
           {group.map((btn) => (
             <button
               key={btn.label}
@@ -110,8 +110,8 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
               onClick={btn.action}
               className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
                 btn.isActive
-                  ? 'bg-gray-200 text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-bg-active text-text-primary'
+                  : 'text-text-secondary hover:bg-bg-hover'
               }`}
             >
               {btn.label}

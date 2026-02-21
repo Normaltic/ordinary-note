@@ -16,7 +16,7 @@ export function ContextMenu({ open, onClose, children }: ContextMenuProps) {
   return (
     <div
       ref={ref}
-      className="absolute right-2 top-10 z-10 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+      className="absolute right-2 top-10 z-[var(--z-index-context-menu)] w-36 rounded-lg border border-border-default bg-bg-card py-1 shadow-md"
     >
       {children}
     </div>

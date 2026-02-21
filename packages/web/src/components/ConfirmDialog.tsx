@@ -18,20 +18,20 @@ export function ConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">{title}</h3>
-        <p className="mb-4 text-sm text-gray-600">{message}</p>
+    <div className="fixed inset-0 z-[var(--z-index-overlay)] flex items-center justify-center bg-bg-overlay">
+      <div className="w-full max-w-sm rounded-xl border border-border-default bg-bg-card p-6 shadow-lg">
+        <h3 className="mb-2 text-lg font-semibold text-text-primary">{title}</h3>
+        <p className="mb-4 text-sm text-text-secondary">{message}</p>
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded-md px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+            className="rounded-pill px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-hover"
           >
             취소
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+            className="rounded-pill bg-danger px-4 py-2 text-sm text-text-inverse transition-colors hover:bg-danger-hover"
           >
             {confirmLabel}
           </button>

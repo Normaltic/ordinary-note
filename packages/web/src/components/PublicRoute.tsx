@@ -8,7 +8,7 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-text-secondary">Loading...</div>
       </div>
     );
   }

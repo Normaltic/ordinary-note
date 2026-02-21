@@ -40,9 +40,9 @@ export function PromptDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">{title}</h3>
+    <div className="fixed inset-0 z-[var(--z-index-overlay)] flex items-center justify-center bg-bg-overlay">
+      <div className="w-full max-w-sm rounded-xl border border-border-default bg-bg-card p-6 shadow-lg">
+        <h3 className="mb-4 text-lg font-semibold text-text-primary">{title}</h3>
         <input
           ref={inputRef}
           type="text"
@@ -50,19 +50,19 @@ export function PromptDialog({
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full rounded-md border border-border-default bg-bg-page px-3 py-2 text-sm text-text-primary transition-colors focus:border-accent focus:outline-none"
         />
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded-md px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+            className="rounded-pill px-4 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-hover"
           >
             취소
           </button>
           <button
             onClick={() => value.trim() && onConfirm(value.trim())}
             disabled={!value.trim()}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-pill bg-accent px-4 py-2 text-sm text-text-inverse transition-colors hover:bg-accent-hover disabled:opacity-40"
           >
             {confirmLabel}
           </button>
