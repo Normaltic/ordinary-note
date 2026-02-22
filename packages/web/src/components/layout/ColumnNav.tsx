@@ -9,8 +9,6 @@ interface ColumnNavProps {
 }
 
 export function ColumnNav({ open, onClose, columns }: ColumnNavProps) {
-  const hasColumns = columns.length > 0;
-
   return (
     <>
       {/* Overlay (mobile/tablet) */}
@@ -29,25 +27,16 @@ export function ColumnNav({ open, onClose, columns }: ColumnNavProps) {
       >
         <IconRail />
 
-        {hasColumns ? (
-          <>
-            {/* Second-to-last column: hidden on lg, visible on xl */}
-            {columns.length >= 2 && (
-              <div className="hidden xl:flex">
-                <NavColumn column={columns[columns.length - 2]} onNavigate={onClose} />
-              </div>
-            )}
-
-            {/* Last column: always visible */}
-            <NavColumn column={columns[columns.length - 1]} onNavigate={onClose} />
-          </>
-        ) : (
-          /* Root level branding */
-          <div className="flex w-40 shrink-0 items-center justify-center border-r border-border-default bg-bg-sidebar">
-            <span className="font-heading text-sm font-bold tracking-tight text-text-muted">
-              ordinary note
-            </span>
+        {/* Second-to-last column: hidden on lg, visible on xl */}
+        {columns.length >= 2 && (
+          <div className="hidden xl:flex">
+            <NavColumn column={columns[columns.length - 2]} onNavigate={onClose} />
           </div>
+        )}
+
+        {/* Last column */}
+        {columns.length >= 1 && (
+          <NavColumn column={columns[columns.length - 1]} onNavigate={onClose} />
         )}
       </aside>
     </>
