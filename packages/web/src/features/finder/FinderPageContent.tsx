@@ -23,7 +23,7 @@ export function FinderPageContent() {
 
   return (
     <div className={inlineNoteId ? 'flex' : 'mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6'}>
-      <div className={inlineNoteId ? 'flex-1 px-6 py-6' : undefined}>
+      <div className={inlineNoteId ? 'w-[35rem] shrink-0 px-6 py-6' : undefined}>
         <FinderView onNoteClick={handleNoteClick} activeNoteId={inlineNoteId} />
       </div>
       {inlineNoteId && (
