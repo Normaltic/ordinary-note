@@ -11,15 +11,19 @@ export function FinderPageContent() {
     setSearchParams((prev) => {
       prev.delete('note');
       return prev;
-    }, { replace: true });
+    });
   }, [setSearchParams]);
 
   const handleNoteClick = useCallback((e: React.MouseEvent, noteId: string) => {
     if (window.matchMedia('(min-width: 1280px)').matches) {
       e.preventDefault();
-      setSearchParams({ note: noteId }, { replace: true });
+      if (inlineNoteId === noteId) {
+        closeEditor();
+      } else {
+        setSearchParams({ note: noteId });
+      }
     }
-  }, [setSearchParams]);
+  }, [setSearchParams, inlineNoteId, closeEditor]);
 
   return (
     <div className={inlineNoteId ? 'flex' : 'mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6'}>
