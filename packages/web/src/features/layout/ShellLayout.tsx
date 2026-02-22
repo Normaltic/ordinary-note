@@ -1,11 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useEffect, useState, useCallback, type ReactNode } from 'react';
 import { useFolderStore } from '../../stores/folder.store';
 import { ColumnNavContainer } from './ColumnNavContainer';
 import { MainHeaderContainer } from './MainHeaderContainer';
 import { Toast } from '../../components/Toast';
 
-export function ShellLayout() {
+interface ShellLayoutProps {
+  children: ReactNode;
+}
+
+export function ShellLayout({ children }: ShellLayoutProps) {
   const fetchTree = useFolderStore((s) => s.fetchTree);
   useEffect(() => {
     fetchTree();
@@ -21,7 +24,7 @@ export function ShellLayout() {
 
       <main className="min-w-0 flex-1 bg-bg-page">
         <MainHeaderContainer onToggleNav={toggleNav} />
-        <Outlet />
+        {children}
       </main>
 
       <Toast />
