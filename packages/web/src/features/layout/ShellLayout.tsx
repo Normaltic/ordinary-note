@@ -1,52 +1,30 @@
+import { useEffect, useState, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
-import { useAppShell } from './hooks/useAppShell';
-import { ColumnNav } from './components/ColumnNav';
-import { MainHeader } from './components/MainHeader';
+import { useFolderStore } from '../../stores/folder.store';
+import { ColumnNavContainer } from './ColumnNavContainer';
+import { MainHeaderContainer } from './MainHeaderContainer';
 import { Toast } from '../../components/Toast';
-import { PromptDialog } from '../../components/PromptDialog';
 
 export function ShellLayout() {
-  const {
-    folderId,
-    segments,
-    columns,
-    noteLabel,
-    navOpen,
-    closeNav,
-    toggleNav,
-    folderPromptOpen,
-    handleCreateFolder,
-    handleCreateNote,
-    handleFolderPromptConfirm,
-    handleFolderPromptCancel,
-  } = useAppShell();
+  const fetchTree = useFolderStore((s) => s.fetchTree);
+  useEffect(() => {
+    fetchTree();
+  }, [fetchTree]);
+
+  const [navOpen, setNavOpen] = useState(false);
+  const closeNav = useCallback(() => setNavOpen(false), []);
+  const toggleNav = useCallback(() => setNavOpen((v) => !v), []);
 
   return (
     <div className="flex min-h-dvh">
-      <ColumnNav open={navOpen} onClose={closeNav} columns={columns} />
+      <ColumnNavContainer open={navOpen} onClose={closeNav} />
 
       <main className="min-w-0 flex-1 bg-bg-page">
-        <MainHeader
-          segments={segments}
-          noteLabel={noteLabel}
-          folderId={folderId}
-          onCreateFolder={handleCreateFolder}
-          onCreateNote={handleCreateNote}
-          onToggleNav={toggleNav}
-        />
-
+        <MainHeaderContainer onToggleNav={toggleNav} />
         <Outlet />
       </main>
 
       <Toast />
-
-      <PromptDialog
-        open={folderPromptOpen}
-        title="새 폴더"
-        placeholder="폴더 이름을 입력하세요"
-        onConfirm={handleFolderPromptConfirm}
-        onCancel={handleFolderPromptCancel}
-      />
     </div>
   );
 }

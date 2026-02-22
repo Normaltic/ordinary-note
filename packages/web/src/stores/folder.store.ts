@@ -109,6 +109,31 @@ export const useFolderStore = create<FolderState>((set, get) => ({
   },
 }));
 
+function buildParentMap(tree: FolderTreeNode[], map: Map<string, string | null>) {
+  for (const node of tree) {
+    map.set(node.id, node.parentId);
+    buildParentMap(node.children, map);
+  }
+}
+
+export function selectAncestorPath(folderId: string | null) {
+  return (state: FolderState): string[] => {
+    if (!folderId || state.tree.length === 0) return [];
+
+    const parentMap = new Map<string, string | null>();
+    buildParentMap(state.tree, parentMap);
+
+    const path: string[] = [];
+    let currentId: string | null = folderId;
+    while (currentId) {
+      if (!parentMap.has(currentId)) break;
+      path.unshift(currentId);
+      currentId = parentMap.get(currentId) ?? null;
+    }
+    return path;
+  };
+}
+
 function findParentId(tree: FolderTreeNode[], targetId: string): string | null {
   for (const node of tree) {
     if (node.children.some((c) => c.id === targetId)) return node.id;

@@ -1,14 +1,16 @@
-import type { ColumnData } from '../hooks/useAncestorColumns';
 import { IconRail } from './IconRail';
-import { NavColumn } from './NavColumn';
+import { FolderContentColumn } from './FolderContentColumn';
 
 interface ColumnNavProps {
   open: boolean;
   onClose: () => void;
-  columns: ColumnData[];
+  ancestorPath: string[];
 }
 
-export function ColumnNav({ open, onClose, columns }: ColumnNavProps) {
+export function ColumnNav({ open, onClose, ancestorPath }: ColumnNavProps) {
+  // Columns show parents only (exclude the current folder itself)
+  const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
+
   return (
     <>
       {/* Overlay (mobile/tablet) */}
@@ -28,15 +30,23 @@ export function ColumnNav({ open, onClose, columns }: ColumnNavProps) {
         <IconRail />
 
         {/* Second-to-last column: hidden on lg, visible on xl */}
-        {columns.length >= 2 && (
+        {columnIds.length >= 2 && (
           <div className="hidden xl:flex">
-            <NavColumn column={columns[columns.length - 2]} onNavigate={onClose} />
+            <FolderContentColumn
+              folderId={columnIds[columnIds.length - 2]}
+              activeId={columnIds[columnIds.length - 1]}
+              onNavigate={onClose}
+            />
           </div>
         )}
 
         {/* Last column */}
-        {columns.length >= 1 && (
-          <NavColumn column={columns[columns.length - 1]} onNavigate={onClose} />
+        {columnIds.length >= 1 && (
+          <FolderContentColumn
+            folderId={columnIds[columnIds.length - 1]}
+            activeId={ancestorPath[ancestorPath.length - 1]}
+            onNavigate={onClose}
+          />
         )}
       </aside>
     </>
