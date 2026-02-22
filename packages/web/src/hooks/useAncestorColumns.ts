@@ -64,16 +64,10 @@ export function useAncestorColumns(folderId: string | null): ColumnData[] {
     // No parent → no columns (root-level folder or not found)
     if (path.length <= 1) return [];
 
+    // Skip root-level column (parentId=null) — root folders are already
+    // accessible from FinderPage at "/". Start from each actual folder ancestor.
+    // depth 2 → 1 column, depth 3 → 2 columns, ...
     const columns: ColumnData[] = [];
-
-    // Root column: root-level siblings with path[0] highlighted
-    columns.push({
-      parentId: null,
-      items: findChildren(tree, null),
-      activeId: path[0],
-    });
-
-    // Column for each ancestor except the last (current folder)
     for (let i = 0; i < path.length - 1; i++) {
       columns.push({
         parentId: path[i],
