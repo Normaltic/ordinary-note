@@ -61,13 +61,12 @@ export function useAncestorColumns(folderId: string | null): ColumnData[] {
       currentId = entry.parentId;
     }
 
-    if (path.length === 0) return [];
+    // No parent → no columns (root-level folder or not found)
+    if (path.length <= 1) return [];
 
-    // Each ancestor (including virtual root) becomes a column
-    // Column for root level (parentId=null) showing root folders, active = path[0]
     const columns: ColumnData[] = [];
 
-    // Root column
+    // Root column: root-level siblings with path[0] highlighted
     columns.push({
       parentId: null,
       items: findChildren(tree, null),
