@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { LoginPage } from './pages/LoginPage';
-import { AppShell } from './pages/AppShell';
-import { FinderPage } from './pages/finder/FinderPage';
-import { NotePage } from './pages/note/NotePage';
-import { PrivateRoute } from './components/PrivateRoute';
-import { PublicRoute } from './components/PublicRoute';
-import { GlobalErrorHandler } from './components/GlobalErrorHandler';
+import { AppShell } from './pages/_layout';
+import { LoginPage } from './pages/login';
+import { IndexPage } from './pages/index';
+import { FolderPage } from './pages/folders/[folderId]';
+import { NotePage } from './pages/notes/[noteId]';
+import { PrivateRoute } from './features/auth/components/PrivateRoute';
+import { PublicRoute } from './features/auth/components/PublicRoute';
+import { GlobalErrorHandler } from './features/auth/components/GlobalErrorHandler';
 
 export function App() {
   return (
@@ -28,8 +29,8 @@ export function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<FinderPage />} />
-          <Route path="folders/:folderId" element={<FinderPage />} />
+          <Route index element={<IndexPage />} />
+          <Route path="folders/:folderId" element={<FolderPage />} />
           <Route path="notes/:noteId" element={<NotePage />} />
         </Route>
       </Routes>

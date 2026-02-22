@@ -2,7 +2,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { TiptapEditor } from './components/TiptapEditor';
 import { useNoteEditor } from './hooks/useNoteEditor';
 
-export function NotePage() {
+export function EditorView() {
   const {
     note,
     loading,
@@ -25,7 +25,7 @@ export function NotePage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[var(--max-editor-width)] px-6 py-6">
+    <>
       {/* Toolbar */}
       <div className="mb-4 flex items-center justify-between">
         <span className="text-xs text-text-muted">
@@ -65,6 +65,6 @@ export function NotePage() {
         onConfirm={handleDelete}
         onCancel={() => setConfirmOpen(false)}
       />
-    </div>
+    </>
   );
 }

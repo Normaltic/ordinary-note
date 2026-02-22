@@ -1,9 +1,9 @@
 import { useState, useRef, useCallback } from 'react';
-import { useAuthStore } from '../../stores/auth.store';
-import { api } from '../../lib/axios';
-import { useClickOutside } from '../../hooks/useClickOutside';
-import { Breadcrumb } from '../Breadcrumb';
-import type { BreadcrumbSegment } from '../../hooks/useFolderPath';
+import { useAuthStore } from '../../../stores/auth.store';
+import { useAuth } from '../../auth/hooks/useAuth';
+import { useClickOutside } from '../../../hooks/useClickOutside';
+import { Breadcrumb } from '../../../components/Breadcrumb';
+import type { BreadcrumbSegment } from '../hooks/useFolderPath';
 
 interface MainHeaderProps {
   segments: BreadcrumbSegment[];
@@ -23,19 +23,12 @@ export function MainHeader({
   onToggleNav,
 }: MainHeaderProps) {
   const user = useAuthStore((s) => s.user);
+  const { logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const closeDropdown = useCallback(() => setDropdownOpen(false), []);
   useClickOutside(dropdownRef, closeDropdown);
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/api/auth/logout');
-    } finally {
-      useAuthStore.getState().clearAuth();
-    }
-  };
 
   return (
     <div className="flex items-center justify-between border-b border-border-light px-4 py-3">
@@ -92,7 +85,7 @@ export function MainHeader({
                 </div>
                 <hr className="border-border-light" />
                 <button
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="w-full px-3 py-2 text-left text-sm text-text-secondary transition-colors hover:bg-bg-hover"
                 >
                   로그아웃

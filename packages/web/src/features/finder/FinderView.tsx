@@ -3,10 +3,10 @@ import { PromptDialog } from '../../components/PromptDialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { useFinderContents } from './hooks/useFinderContents';
 import { useFinderActions } from './hooks/useFinderActions';
-import { FolderList } from './FolderList';
-import { NoteList } from './NoteList';
+import { FolderList } from './components/FolderList';
+import { NoteList } from './components/NoteList';
 
-export function FinderPage() {
+export function FinderView() {
   const { folderId, folders, notes, isLoading } = useFinderContents();
   const {
     handleRenameFolder,
@@ -34,7 +34,7 @@ export function FinderPage() {
   const isEmpty = folders.length === 0 && notes.length === 0;
 
   return (
-    <div className="mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6">
+    <>
       <FolderList
         folders={folders}
         openMenuId={openMenuId}
@@ -73,6 +73,6 @@ export function FinderPage() {
         onConfirm={confirmDialogProps.onConfirm}
         onCancel={confirmDialogProps.onCancel}
       />
-    </div>
+    </>
   );
 }

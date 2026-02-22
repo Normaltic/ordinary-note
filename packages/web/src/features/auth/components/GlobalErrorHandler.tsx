@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { isAxiosError } from 'axios';
-import { useAuthStore } from '../stores/auth.store';
-import { CancelledError } from '../lib/axios';
+import { useAuthStore } from '../../../stores/auth.store';
+import { CancelledError } from '../../../lib/axios';
 
 export function GlobalErrorHandler({ children }: { children: React.ReactNode }) {
   useEffect(() => {

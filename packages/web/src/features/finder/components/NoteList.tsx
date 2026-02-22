@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ContextMenu } from '../../components/ContextMenu';
-import { formatDate } from '../../utils/format';
+import { ContextMenu } from '../../../components/ContextMenu';
+import { formatDate } from '../../../utils/format';
 import type { NoteSummary } from '@ordinary-note/shared';
 
 interface NoteListProps {

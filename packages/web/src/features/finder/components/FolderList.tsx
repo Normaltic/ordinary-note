@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ContextMenu } from '../../components/ContextMenu';
+import { ContextMenu } from '../../../components/ContextMenu';
 import type { FolderSummary } from '@ordinary-note/shared';
 
 interface FolderListProps {

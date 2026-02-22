@@ -1,4 +1,4 @@
-import type { ColumnData } from '../../hooks/useAncestorColumns';
+import type { ColumnData } from '../hooks/useAncestorColumns';
 import { IconRail } from './IconRail';
 import { NavColumn } from './NavColumn';
 

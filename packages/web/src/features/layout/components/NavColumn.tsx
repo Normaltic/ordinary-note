@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { ColumnData } from '../../hooks/useAncestorColumns';
+import type { ColumnData } from '../hooks/useAncestorColumns';
 
 interface NavColumnProps {
   column: ColumnData;

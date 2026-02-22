@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { FolderTreeNode } from '@ordinary-note/shared';
-import { useFolderStore } from '../stores/folder.store';
+import { useFolderStore } from '../../../stores/folder.store';
 
 export interface ColumnItem {
   id: string;

@@ -1,5 +1,9 @@
 import { Link } from 'react-router-dom';
-import type { BreadcrumbSegment } from '../hooks/useFolderPath';
+
+export interface BreadcrumbSegment {
+  id: string;
+  name: string;
+}
 
 interface BreadcrumbProps {
   segments: BreadcrumbSegment[];
