@@ -31,11 +31,13 @@ export function FinderPageContent() {
         <FinderView onNoteClick={handleNoteClick} activeNoteId={inlineNoteId} />
       </div>
       {inlineNoteId && (
-        <InlineEditorPanel
-          key={inlineNoteId}
-          noteId={inlineNoteId}
-          onClose={closeEditor}
-        />
+        <div className="hidden xl:block min-w-0 flex-1">
+          <InlineEditorPanel
+            key={inlineNoteId}
+            noteId={inlineNoteId}
+            onClose={closeEditor}
+          />
+        </div>
       )}
     </div>
   );

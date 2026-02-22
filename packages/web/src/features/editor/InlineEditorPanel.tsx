@@ -74,7 +74,7 @@ export function InlineEditorPanel({ noteId, onClose }: InlineEditorPanelProps) {
 
   if (loading) {
     return (
-      <div className="hidden xl:flex flex-col items-center justify-center min-w-0 flex-1 border-l border-border-default px-6 py-6">
+      <div className="flex flex-col items-center justify-center min-w-0 flex-1 border-l border-border-default px-6 py-6">
         <span className="text-text-muted">로딩 중...</span>
       </div>
     );
@@ -82,14 +82,14 @@ export function InlineEditorPanel({ noteId, onClose }: InlineEditorPanelProps) {
 
   if (!note) {
     return (
-      <div className="hidden xl:flex flex-col items-center justify-center min-w-0 flex-1 border-l border-border-default px-6 py-6">
+      <div className="flex flex-col items-center justify-center min-w-0 flex-1 border-l border-border-default px-6 py-6">
         <span className="text-text-muted">노트를 불러올 수 없습니다</span>
       </div>
     );
   }
 
   return (
-    <div className="hidden xl:flex flex-col min-w-0 flex-1 border-l border-border-default px-6 py-6">
+    <div className="flex flex-col border-l border-border-default px-6 py-6">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <span className="text-xs text-text-muted">
