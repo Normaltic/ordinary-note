@@ -7,7 +7,6 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const setAuth = useAuthStore((s) => s.setAuth);
 
   const handleSuccess = async (credentialResponse: { credential?: string }) => {
     if (!credentialResponse.credential) return;
@@ -16,7 +15,7 @@ export function LoginPage() {
       const { data } = await api.post('/api/auth/google', {
         credential: credentialResponse.credential,
       });
-      setAuth(data.user, data.accessToken);
+      useAuthStore.getState().setAuth(data.user, data.accessToken);
       navigate('/', { replace: true });
     } catch {
       // TODO: show error toast

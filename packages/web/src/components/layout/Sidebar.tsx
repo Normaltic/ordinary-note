@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth.store';
+import { api } from '../../lib/axios';
 import { useFolderStore } from '../../stores/folder.store';
 import { SidebarFolderTree } from './SidebarFolderTree';
 
@@ -12,8 +13,15 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose, onCreateFolder, onCreateNote }: SidebarProps) {
   const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
   const tree = useFolderStore((s) => s.tree);
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/api/auth/logout');
+    } finally {
+      useAuthStore.getState().clearAuth();
+    }
+  };
 
   return (
     <>
@@ -52,7 +60,7 @@ export function Sidebar({ open, onClose, onCreateFolder, onCreateNote }: Sidebar
               {user.name}
             </span>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="shrink-0 text-xs text-text-muted transition-colors hover:text-text-primary"
             >
               로그아웃
