@@ -6,7 +6,12 @@ import { useFinderActions } from './hooks/useFinderActions';
 import { FolderList } from './components/FolderList';
 import { NoteList } from './components/NoteList';
 
-export function FinderView() {
+interface FinderViewProps {
+  onNoteClick?: (e: React.MouseEvent, noteId: string) => void;
+  activeNoteId?: string | null;
+}
+
+export function FinderView({ onNoteClick, activeNoteId }: FinderViewProps = {}) {
   const { folderId, folders, notes, isLoading } = useFinderContents();
   const {
     handleRenameFolder,
@@ -50,6 +55,8 @@ export function FinderView() {
         onMenuToggle={toggleMenu}
         onMenuClose={closeMenu}
         onDelete={(n) => { closeMenu(); handleDeleteNote(n); }}
+        onNoteClick={onNoteClick}
+        activeNoteId={activeNoteId}
       />
 
       {isEmpty && (

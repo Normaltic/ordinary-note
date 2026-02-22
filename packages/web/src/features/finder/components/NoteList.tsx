@@ -9,6 +9,8 @@ interface NoteListProps {
   onMenuToggle: (id: string) => void;
   onMenuClose: () => void;
   onDelete: (note: NoteSummary) => void;
+  onNoteClick?: (e: React.MouseEvent, noteId: string) => void;
+  activeNoteId?: string | null;
 }
 
 export function NoteList({
@@ -17,6 +19,8 @@ export function NoteList({
   onMenuToggle,
   onMenuClose,
   onDelete,
+  onNoteClick,
+  activeNoteId,
 }: NoteListProps) {
   if (notes.length === 0) return null;
 
@@ -30,7 +34,8 @@ export function NoteList({
           <div key={note.id} className="group relative">
             <Link
               to={`/notes/${note.id}`}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover"
+              onClick={onNoteClick ? (e) => onNoteClick(e, note.id) : undefined}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover${activeNoteId === note.id ? ' bg-bg-active' : ''}`}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-secondary">
                 <path d="M6 2h5l5 5v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
