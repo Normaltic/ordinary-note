@@ -26,12 +26,12 @@ export function FinderPageContent() {
   }, [setSearchParams, inlineNoteId, closeEditor]);
 
   return (
-    <div className={inlineNoteId ? 'flex' : 'mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6'}>
-      <div className={inlineNoteId ? 'w-[35rem] shrink-0 px-6 py-6' : undefined}>
+    <div className={inlineNoteId ? 'flex h-full' : 'mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6'}>
+      <div className={inlineNoteId ? 'w-[35rem] shrink-0 overflow-y-auto px-6 py-6' : undefined}>
         <FinderView onNoteClick={handleNoteClick} activeNoteId={inlineNoteId} />
       </div>
       {inlineNoteId && (
-        <div className="hidden xl:block min-w-0 flex-1">
+        <div className="hidden min-w-0 flex-1 overflow-y-auto border-l border-border-default xl:block">
           <InlineEditorPanel
             key={inlineNoteId}
             noteId={inlineNoteId}

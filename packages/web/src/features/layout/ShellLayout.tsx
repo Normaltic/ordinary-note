@@ -19,12 +19,12 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const toggleNav = useCallback(() => setNavOpen((v) => !v), []);
 
   return (
-    <div className="flex min-h-dvh">
+    <div className="flex h-dvh">
       <ColumnNavContainer open={navOpen} onClose={closeNav} />
 
-      <main className="min-w-0 flex-1 bg-bg-page">
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-bg-page">
         <MainHeaderContainer onToggleNav={toggleNav} />
-        {children}
+        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
       </main>
 
       <Toast />
