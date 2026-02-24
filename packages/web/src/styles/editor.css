@@ -1,6 +1,7 @@
 .tiptap {
   outline: none;
   min-height: 60vh;
+  color: var(--text-primary);
 }
 
 .tiptap h1 {
