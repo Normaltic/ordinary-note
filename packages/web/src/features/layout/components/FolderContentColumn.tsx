@@ -45,7 +45,7 @@ export function FolderContentColumn({ folderId, activeId, onNavigate }: FolderCo
 
   return (
     <div className="flex w-40 shrink-0 flex-col border-r border-border-default bg-bg-sidebar">
-      <nav className="flex-1 overflow-y-auto py-2">
+      <nav className="flex-1 overflow-y-auto">
         {folders.map((folder) => {
           const isActive = folder.id === activeId;
           return (
