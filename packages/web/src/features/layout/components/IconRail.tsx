@@ -21,7 +21,7 @@ function DisabledRailIcon({ label, children }: RailIconProps) {
 
 export function IconRail() {
   return (
-    <div className="flex w-12 shrink-0 flex-col items-center border-r border-border-default bg-bg-sidebar py-3 gap-1">
+    <div className="flex w-12 shrink-0 flex-col items-center bg-bg-frame py-3 gap-1">
       {/* Finder — active */}
       <Link
         to="/"

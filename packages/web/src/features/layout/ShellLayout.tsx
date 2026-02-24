@@ -19,7 +19,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const toggleNav = useCallback(() => setNavOpen((v) => !v), []);
 
   return (
-    <div className="flex h-dvh">
+    <div className="flex h-dvh lg:bg-bg-frame lg:py-3 lg:pr-3">
       <ColumnNavContainer open={navOpen} onClose={closeNav} />
 
       <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-bg-page">

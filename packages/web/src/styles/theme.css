@@ -1,6 +1,7 @@
 /* --- Light Mode --- */
 :root {
   /* Background */
+  --bg-frame: #E5E1DA;
   --bg-page: #FAF8F5;
   --bg-sidebar: #F3F0EB;
   --bg-card: #FFFFFF;
@@ -35,9 +36,10 @@
 /* --- Dark Mode --- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-page: #1E1E1C;
-    --bg-sidebar: #181816;
-    --bg-card: #272724;
+    --bg-frame: #131311;
+    --bg-page: #1E1C1A;
+    --bg-sidebar: #1A1917;
+    --bg-card: #262420;
     --bg-hover: #302F2B;
     --bg-active: #3A3935;
     --bg-overlay: rgba(0, 0, 0, 0.6);
@@ -66,6 +68,7 @@
 /* --- Tailwind Theme --- */
 @theme {
   /* Color */
+  --color-bg-frame: var(--bg-frame);
   --color-bg-page: var(--bg-page);
   --color-bg-sidebar: var(--bg-sidebar);
   --color-bg-card: var(--bg-card);
