@@ -5,9 +5,10 @@ interface ColumnNavProps {
   open: boolean;
   onClose: () => void;
   ancestorPath: string[];
+  standalone?: boolean;
 }
 
-export function ColumnNav({ open, onClose, ancestorPath }: ColumnNavProps) {
+export function ColumnNav({ open, onClose, ancestorPath, standalone }: ColumnNavProps) {
   // Columns show parents only (exclude the current folder itself)
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
 
@@ -29,24 +30,28 @@ export function ColumnNav({ open, onClose, ancestorPath }: ColumnNavProps) {
       >
         <IconRail />
 
-        {/* Second-to-last column: hidden on lg, visible on xl */}
-        {columnIds.length >= 2 && (
-          <div className="hidden xl:flex">
-            <FolderContentColumn
-              folderId={columnIds[columnIds.length - 2]}
-              activeId={columnIds[columnIds.length - 1]}
-              onNavigate={onClose}
-            />
-          </div>
-        )}
+        {!standalone && (
+          <>
+            {/* Second-to-last column: hidden on lg, visible on xl */}
+            {columnIds.length >= 2 && (
+              <div className="hidden xl:flex">
+                <FolderContentColumn
+                  folderId={columnIds[columnIds.length - 2]}
+                  activeId={columnIds[columnIds.length - 1]}
+                  onNavigate={onClose}
+                />
+              </div>
+            )}
 
-        {/* Last column */}
-        {columnIds.length >= 1 && (
-          <FolderContentColumn
-            folderId={columnIds[columnIds.length - 1]}
-            activeId={ancestorPath[ancestorPath.length - 1]}
-            onNavigate={onClose}
-          />
+            {/* Last column */}
+            {columnIds.length >= 1 && (
+              <FolderContentColumn
+                folderId={columnIds[columnIds.length - 1]}
+                activeId={ancestorPath[ancestorPath.length - 1]}
+                onNavigate={onClose}
+              />
+            )}
+          </>
         )}
       </aside>
     </>

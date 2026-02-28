@@ -1,4 +1,5 @@
 import { useShallow } from 'zustand/react/shallow';
+import { useSearchParams } from 'react-router-dom';
 import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
 import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { ColumnNav } from './components/ColumnNav';
@@ -11,6 +12,8 @@ interface ColumnNavContainerProps {
 export function ColumnNavContainer({ open, onClose }: ColumnNavContainerProps) {
   const folderId = useCurrentFolderId();
   const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId)));
+  const [searchParams] = useSearchParams();
+  const standalone = searchParams.has('standalone');
 
-  return <ColumnNav open={open} onClose={onClose} ancestorPath={ancestorPath} />;
+  return <ColumnNav open={open} onClose={onClose} ancestorPath={ancestorPath} standalone={standalone} />;
 }
