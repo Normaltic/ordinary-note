@@ -2,16 +2,13 @@ import { useState, useCallback } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { useFolderStore } from '../../stores/folder.store';
 import { useNoteStore } from '../../stores/note.store';
+import { useNavStore } from '../../stores/nav.store';
 import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { useFolderPath } from './hooks/useFolderPath';
 import { MainHeader } from './components/MainHeader';
 import { PromptDialog } from '../../components/PromptDialog';
 
-interface MainHeaderContainerProps {
-  onToggleNav: () => void;
-}
-
-export function MainHeaderContainer({ onToggleNav }: MainHeaderContainerProps) {
+export function MainHeaderContainer() {
   const folderId = useCurrentFolderId();
   const segments = useFolderPath(folderId);
   const noteMatch = useMatch('/notes/:noteId');
@@ -20,6 +17,7 @@ export function MainHeaderContainer({ onToggleNav }: MainHeaderContainerProps) {
 
   const createFolder = useFolderStore((s) => s.createFolder);
   const navigate = useNavigate();
+  const toggle = useNavStore((s) => s.toggle);
 
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
 
@@ -54,7 +52,7 @@ export function MainHeaderContainer({ onToggleNav }: MainHeaderContainerProps) {
         folderId={folderId}
         onCreateFolder={handleCreateFolder}
         onCreateNote={handleCreateNote}
-        onToggleNav={onToggleNav}
+        onToggleNav={toggle}
       />
 
       <PromptDialog

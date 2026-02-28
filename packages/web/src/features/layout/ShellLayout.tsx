@@ -1,8 +1,11 @@
-import { useEffect, useState, useCallback, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useFolderStore } from '../../stores/folder.store';
-import { ColumnNavContainer } from './ColumnNavContainer';
-import { MainHeaderContainer } from './MainHeaderContainer';
+import { useShallow } from 'zustand/react/shallow';
+import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
+import { useNavStore } from '../../stores/nav.store';
+import { useCurrentFolderId } from './hooks/useCurrentFolderId';
+import { Sidebar } from './components/Sidebar';
+import { FolderContentColumn } from './components/FolderContentColumn';
 import { Toast } from '../../components/Toast';
 
 interface ShellLayoutProps {
@@ -15,21 +18,37 @@ export function ShellLayout({ children }: ShellLayoutProps) {
     fetchTree();
   }, [fetchTree]);
 
+  const folderId = useCurrentFolderId();
+  const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId)));
+  const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
+
   const [searchParams] = useSearchParams();
   const standalone = searchParams.has('standalone');
 
-  const [navOpen, setNavOpen] = useState(false);
-  const closeNav = useCallback(() => setNavOpen(false), []);
-  const toggleNav = useCallback(() => setNavOpen((v) => !v), []);
-
   return (
     <div className="flex h-dvh lg:bg-bg-frame lg:py-3 lg:pr-3">
-      <ColumnNavContainer open={navOpen} onClose={closeNav} />
+      <Sidebar>
+        {!standalone && columnIds.length >= 2 && (
+          <FolderContentColumn
+            folderId={columnIds[columnIds.length - 2]}
+            activeId={columnIds[columnIds.length - 1]}
+            className="w-40"
+            onNavigate={useNavStore.getState().close}
+          />
+        )}
+        {!standalone && columnIds.length >= 1 && (
+          <FolderContentColumn
+            folderId={columnIds[columnIds.length - 1]}
+            activeId={ancestorPath[ancestorPath.length - 1]}
+            className="w-40"
+            onNavigate={useNavStore.getState().close}
+          />
+        )}
+      </Sidebar>
 
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden bg-bg-page">
-        {!standalone && <MainHeaderContainer onToggleNav={toggleNav} />}
-        <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
-      </main>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-bg-page">
+        {children}
+      </div>
 
       <Toast />
     </div>
