@@ -1,5 +1,4 @@
-import { useCallback } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useFolderContents } from '../../finder/hooks/useFolderContents';
 
 interface FolderContentColumnProps {
@@ -27,21 +26,6 @@ function NoteIcon() {
 
 export function FolderContentColumn({ folderId, activeId, onNavigate }: FolderContentColumnProps) {
   const { folders, notes } = useFolderContents(folderId);
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const currentNoteId = searchParams.get('note');
-
-  const handleNoteClick = useCallback((e: React.MouseEvent, noteId: string) => {
-    if (window.matchMedia('(min-width: 1280px)').matches) {
-      e.preventDefault();
-      if (currentNoteId === noteId) {
-        navigate(`/folders/${folderId}`);
-      } else {
-        navigate(`/folders/${folderId}?note=${noteId}`);
-      }
-    }
-    onNavigate?.();
-  }, [navigate, folderId, onNavigate, currentNoteId]);
 
   return (
     <div className="flex w-40 shrink-0 flex-col border-r border-border-default bg-bg-sidebar">
@@ -73,7 +57,7 @@ export function FolderContentColumn({ folderId, activeId, onNavigate }: FolderCo
             <Link
               key={note.id}
               to={`/notes/${note.id}`}
-              onClick={(e) => handleNoteClick(e, note.id)}
+              onClick={onNavigate}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm transition-colors select-none ${
                 isActive
                   ? 'bg-accent-subtle text-accent font-medium'

@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useFolderStore } from '../../../stores/folder.store';
 
-export function useFinderContents() {
-  const { folderId } = useParams<{ folderId: string }>();
+export function useFinderContents(overrideFolderId?: string) {
+  const { folderId: paramFolderId } = useParams<{ folderId: string }>();
+  const folderId = overrideFolderId ?? paramFolderId;
   const folders = useFolderStore((s) => s.folders);
   const notes = useFolderStore((s) => s.notes);
   const treeLoading = useFolderStore((s) => s.treeLoading);

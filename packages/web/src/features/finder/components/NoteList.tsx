@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { ContextMenu } from '../../../components/ContextMenu';
 import { formatDate } from '../../../utils/format';
 import type { NoteSummary } from '@ordinary-note/shared';
@@ -9,8 +9,6 @@ interface NoteListProps {
   onMenuToggle: (id: string) => void;
   onMenuClose: () => void;
   onDelete: (note: NoteSummary) => void;
-  onNoteClick?: (e: React.MouseEvent, noteId: string) => void;
-  activeNoteId?: string | null;
 }
 
 export function NoteList({
@@ -19,8 +17,6 @@ export function NoteList({
   onMenuToggle,
   onMenuClose,
   onDelete,
-  onNoteClick,
-  activeNoteId,
 }: NoteListProps) {
   if (notes.length === 0) return null;
 
@@ -32,10 +28,11 @@ export function NoteList({
       <div className="space-y-1">
         {notes.map((note) => (
           <div key={note.id} className="group relative">
-            <Link
+            <NavLink
               to={`/notes/${note.id}`}
-              onClick={onNoteClick ? (e) => onNoteClick(e, note.id) : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover${activeNoteId === note.id ? ' bg-bg-active' : ''}`}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover${isActive ? ' bg-bg-active' : ''}`
+              }
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-text-secondary">
                 <path d="M6 2h5l5 5v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
@@ -56,7 +53,7 @@ export function NoteList({
               <span className="text-xs text-text-muted shrink-0">
                 {formatDate(note.updatedAt)}
               </span>
-            </Link>
+            </NavLink>
             <button
               onClick={(e) => {
                 e.preventDefault();
