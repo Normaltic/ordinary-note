@@ -29,7 +29,7 @@ export function NotePage() {
       )}
       <div className="min-w-0 flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-[var(--max-editor-width)] px-6 py-6">
-          <div className="mb-2 hidden lg:block">
+          <div className={`mb-2${standalone ? '' : ' hidden lg:block'}`}>
             <button
               onClick={toggleStandalone}
               className="flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
