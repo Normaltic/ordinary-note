@@ -6,9 +6,10 @@ interface ColumnNavProps {
   onClose: () => void;
   ancestorPath: string[];
   standalone?: boolean;
+  compact?: boolean;
 }
 
-export function ColumnNav({ open, onClose, ancestorPath, standalone }: ColumnNavProps) {
+export function ColumnNav({ open, onClose, ancestorPath, standalone, compact }: ColumnNavProps) {
   // Columns show parents only (exclude the current folder itself)
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
 
@@ -39,6 +40,7 @@ export function ColumnNav({ open, onClose, ancestorPath, standalone }: ColumnNav
                   folderId={columnIds[columnIds.length - 2]}
                   activeId={columnIds[columnIds.length - 1]}
                   onNavigate={onClose}
+                  compact={compact}
                 />
               </div>
             )}
@@ -49,6 +51,7 @@ export function ColumnNav({ open, onClose, ancestorPath, standalone }: ColumnNav
                 folderId={columnIds[columnIds.length - 1]}
                 activeId={ancestorPath[ancestorPath.length - 1]}
                 onNavigate={onClose}
+                compact={compact}
               />
             )}
           </>

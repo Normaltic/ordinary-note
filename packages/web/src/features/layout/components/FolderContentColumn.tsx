@@ -5,6 +5,7 @@ interface FolderContentColumnProps {
   folderId: string;
   activeId: string | null;
   onNavigate?: () => void;
+  compact?: boolean;
 }
 
 function FolderIcon() {
@@ -24,11 +25,11 @@ function NoteIcon() {
   );
 }
 
-export function FolderContentColumn({ folderId, activeId, onNavigate }: FolderContentColumnProps) {
+export function FolderContentColumn({ folderId, activeId, onNavigate, compact }: FolderContentColumnProps) {
   const { folders, notes } = useFolderContents(folderId);
 
   return (
-    <div className="flex w-40 shrink-0 flex-col border-r border-border-default bg-bg-sidebar">
+    <div className={`flex shrink-0 flex-col border-r border-border-default bg-bg-sidebar ${compact ? 'w-40' : 'w-80'}`}>
       <nav className="flex-1 overflow-y-auto">
         {folders.map((folder) => {
           const isActive = folder.id === activeId;
