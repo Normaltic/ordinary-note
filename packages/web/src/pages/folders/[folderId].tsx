@@ -1,14 +1,46 @@
-import { useParams } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
 import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
 import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
-import { MainHeaderContainer } from '../../features/layout/MainHeaderContainer';
+import { HamburgerButton } from '../../components/HamburgerButton';
+import { Breadcrumb } from '../../components/Breadcrumb';
+import { useFolderPath } from '../../features/layout/hooks/useFolderPath';
 import { FinderPageContent } from '../../features/finder/FinderPageContent';
+import { PromptDialog } from '../../components/PromptDialog';
 
 export function FolderPage() {
   const { folderId } = useParams();
   const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId ?? null)));
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
+  const segments = useFolderPath(folderId ?? null);
+  const navigate = useNavigate();
+
+  const createFolder = useFolderStore((s) => s.createFolder);
+  const [folderPromptOpen, setFolderPromptOpen] = useState(false);
+
+  const handleCreateFolder = useCallback(() => {
+    setFolderPromptOpen(true);
+  }, []);
+
+  const handleCreateNote = useCallback(async () => {
+    if (!folderId) return;
+    const { createNote } = await import('../../lib/api/notes');
+    const newNote = await createNote({ folderId });
+    navigate(`/notes/${newNote.id}`);
+  }, [folderId, navigate]);
+
+  const handleFolderPromptConfirm = useCallback(
+    async (name: string) => {
+      setFolderPromptOpen(false);
+      await createFolder(name, folderId);
+    },
+    [createFolder, folderId],
+  );
+
+  const handleFolderPromptCancel = useCallback(() => {
+    setFolderPromptOpen(false);
+  }, []);
 
   return (
     <div className="flex h-full">
@@ -32,13 +64,46 @@ export function FolderPage() {
         </div>
       )}
 
-      {/* Content area (header + finder) */}
+      {/* Content area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <MainHeaderContainer />
+        {/* Toolbar */}
+        <div className="flex items-center justify-between border-b border-border-light px-4 py-3 lg:border-b-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="lg:hidden">
+              <HamburgerButton />
+            </div>
+            <div className="lg:hidden">
+              <Breadcrumb segments={segments} />
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={handleCreateFolder}
+              className="rounded-pill border border-border-default px-3 py-1.5 text-sm text-text-secondary transition-colors hover:bg-bg-hover"
+            >
+              + 새 폴더
+            </button>
+            <button
+              onClick={handleCreateNote}
+              className="rounded-pill bg-accent px-3 py-1.5 text-sm text-text-inverse transition-colors hover:bg-accent-hover"
+            >
+              + 새 노트
+            </button>
+          </div>
+        </div>
+
         <div className="min-h-0 flex-1 overflow-y-auto">
           <FinderPageContent />
         </div>
       </div>
+
+      <PromptDialog
+        open={folderPromptOpen}
+        title="새 폴더"
+        placeholder="폴더 이름을 입력하세요"
+        onConfirm={handleFolderPromptConfirm}
+        onCancel={handleFolderPromptCancel}
+      />
     </div>
   );
 }

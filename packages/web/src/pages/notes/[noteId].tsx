@@ -4,14 +4,20 @@ import { useShallow } from 'zustand/react/shallow';
 import { useNoteStore } from '../../stores/note.store';
 import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
 import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
-import { MainHeaderContainer } from '../../features/layout/MainHeaderContainer';
+import { HamburgerButton } from '../../components/HamburgerButton';
+import { Breadcrumb } from '../../components/Breadcrumb';
+import { useFolderPath } from '../../features/layout/hooks/useFolderPath';
 import { FinderView } from '../../features/finder/FinderView';
 import { EditorView } from '../../features/editor/EditorView';
 
 export function NotePage() {
   const folderId = useNoteStore((s) => s.note?.folderId ?? null);
+  const note = useNoteStore((s) => s.note);
   const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId)));
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
+  const segments = useFolderPath(folderId);
+  const noteLabel = note?.title || '제목 없음';
+
   const [searchParams, setSearchParams] = useSearchParams();
   const standalone = searchParams.has('standalone');
 
@@ -56,27 +62,25 @@ export function NotePage() {
         </>
       )}
 
-      {/* Content area (header + editor) */}
+      {/* Content area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {!standalone && <MainHeaderContainer />}
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-[var(--max-editor-width)] px-6 py-6">
-            <div className={`mb-2${standalone ? '' : ' hidden lg:block'}`}>
+        {/* Toolbar */}
+        <div className="flex items-center border-b border-border-light px-4 py-3 lg:border-b-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="lg:hidden">
+              <HamburgerButton />
+            </div>
+            <div className="hidden lg:block">
               <button
                 onClick={toggleStandalone}
                 className="flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
                 aria-label={standalone ? '사이드바 열기' : '사이드바 닫기'}
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  {standalone ? (
+                  <rect x="2" y="2" width="14" height="14" rx="2" />
+                  <line x1="7" y1="2" x2="7" y2="16" />
+                  {!standalone && (
                     <>
-                      <rect x="2" y="2" width="14" height="14" rx="2" />
-                      <line x1="7" y1="2" x2="7" y2="16" />
-                    </>
-                  ) : (
-                    <>
-                      <rect x="2" y="2" width="14" height="14" rx="2" />
-                      <line x1="7" y1="2" x2="7" y2="16" />
                       <line x1="7" y1="9" x2="2" y2="5" />
                       <line x1="7" y1="9" x2="2" y2="13" />
                     </>
@@ -84,6 +88,12 @@ export function NotePage() {
                 </svg>
               </button>
             </div>
+            <Breadcrumb segments={segments} currentLabel={noteLabel} />
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[var(--max-editor-width)] px-6 py-6">
             <EditorView />
           </div>
         </div>
