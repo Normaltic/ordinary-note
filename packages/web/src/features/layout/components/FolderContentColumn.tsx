@@ -1,28 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useFolderContents } from '../../finder/hooks/useFolderContents';
+import FolderIcon from '../../../components/icons/folder.svg?react';
+import FileIcon from '../../../components/icons/file.svg?react';
 
 interface FolderContentColumnProps {
   folderId: string;
   activeId: string | null;
   onNavigate?: () => void;
   className?: string;
-}
-
-function FolderIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-      <path d="M3 4h4l2 2h8v10H3V4z" />
-    </svg>
-  );
-}
-
-function NoteIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-      <path d="M6 2h5l5 5v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
-      <polyline points="11 2 11 7 16 7" />
-    </svg>
-  );
 }
 
 export function FolderContentColumn({ folderId, activeId, onNavigate, className }: FolderContentColumnProps) {
@@ -44,7 +29,7 @@ export function FolderContentColumn({ folderId, activeId, onNavigate, className 
                   : 'text-text-primary hover:bg-bg-hover'
               }`}
             >
-              <FolderIcon />
+              <FolderIcon className="size-3.5 shrink-0" />
               <span className="min-w-0 flex-1 truncate">{folder.name}</span>
               {folder.noteCount > 0 && (
                 <span className="shrink-0 text-xs text-text-muted">{folder.noteCount}</span>
@@ -65,7 +50,7 @@ export function FolderContentColumn({ folderId, activeId, onNavigate, className 
                   : 'text-text-primary hover:bg-bg-hover'
               }`}
             >
-              <NoteIcon />
+              <FileIcon className="size-3.5 shrink-0" />
               <span className="min-w-0 flex-1 truncate">{note.title || '제목 없음'}</span>
             </Link>
           );
