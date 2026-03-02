@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAncestorPath } from '../../hooks/queries/useFolderTree';
+import { useAncestorPath } from '../../hooks/queries/useFolder';
 import { useNavStore } from '../../stores/nav.store';
 import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { Sidebar } from './components/Sidebar';

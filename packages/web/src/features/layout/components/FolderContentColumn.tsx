@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useFolderChildren } from '../../../hooks/queries/useFolderChildren';
+import { useFolderChildren } from '../../../hooks/queries/useFolder';
 import FolderIcon from '../../../components/icons/folder.svg?react';
 import FileIcon from '../../../components/icons/file.svg?react';
 

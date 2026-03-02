@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useCreateFolder } from '../hooks/queries/useFolderMutations';
+import { useCreateFolder } from '../hooks/queries/useFolder';
 import { HamburgerButton } from '../components/HamburgerButton';
 import { FinderPageContent } from '../features/finder/FinderPageContent';
 import { PromptDialog } from '../components/PromptDialog';
