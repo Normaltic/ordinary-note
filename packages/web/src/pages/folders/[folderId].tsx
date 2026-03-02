@@ -1,41 +1,56 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useShallow } from 'zustand/react/shallow';
-import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
+import { useAncestorPath } from '../../hooks/queries/useFolderTree';
+import { useCreateFolder } from '../../hooks/queries/useFolderMutations';
+import { useCreateNote } from '../../hooks/queries/useNote';
 import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { useFolderPath } from '../../features/layout/hooks/useFolderPath';
 import { FinderPageContent } from '../../features/finder/FinderPageContent';
 import { PromptDialog } from '../../components/PromptDialog';
+import { useToastStore } from '../../stores/toast.store';
 
 export function FolderPage() {
   const { folderId } = useParams();
-  const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId ?? null)));
+  const { data: ancestorPath = [] } = useAncestorPath(folderId ?? null);
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
   const segments = useFolderPath(folderId ?? null);
   const navigate = useNavigate();
+  const addToast = useToastStore((s) => s.addToast);
 
-  const createFolder = useFolderStore((s) => s.createFolder);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
+
+  const createFolder = useCreateFolder();
+  const createNote = useCreateNote();
 
   const handleCreateFolder = useCallback(() => {
     setFolderPromptOpen(true);
   }, []);
 
-  const handleCreateNote = useCallback(async () => {
+  const handleCreateNote = useCallback(() => {
     if (!folderId) return;
-    const { createNote } = await import('../../lib/api/notes');
-    const newNote = await createNote({ folderId });
-    navigate(`/notes/${newNote.id}`);
-  }, [folderId, navigate]);
+    createNote.mutate(
+      { folderId },
+      {
+        onSuccess: (note) => navigate(`/notes/${note.id}`),
+        onError: () => addToast('error', '노트 생성에 실패했습니다'),
+      },
+    );
+  }, [folderId, createNote, navigate, addToast]);
 
   const handleFolderPromptConfirm = useCallback(
-    async (name: string) => {
+    (name: string) => {
       setFolderPromptOpen(false);
-      await createFolder(name, folderId);
+      createFolder.mutate(
+        { name, parentId: folderId },
+        {
+          onSuccess: () => addToast('success', '폴더가 생성되었습니다'),
+          onError: () => addToast('error', '폴더 생성에 실패했습니다'),
+        },
+      );
     },
-    [createFolder, folderId],
+    [createFolder, folderId, addToast],
   );
 
   const handleFolderPromptCancel = useCallback(() => {

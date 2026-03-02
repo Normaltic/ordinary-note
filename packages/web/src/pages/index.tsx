@@ -1,23 +1,32 @@
 import { useState, useCallback } from 'react';
-import { useFolderStore } from '../stores/folder.store';
+import { useCreateFolder } from '../hooks/queries/useFolderMutations';
 import { HamburgerButton } from '../components/HamburgerButton';
 import { FinderPageContent } from '../features/finder/FinderPageContent';
 import { PromptDialog } from '../components/PromptDialog';
+import { useToastStore } from '../stores/toast.store';
 
 export function IndexPage() {
-  const createFolder = useFolderStore((s) => s.createFolder);
+  const addToast = useToastStore((s) => s.addToast);
   const [folderPromptOpen, setFolderPromptOpen] = useState(false);
+
+  const createFolder = useCreateFolder();
 
   const handleCreateFolder = useCallback(() => {
     setFolderPromptOpen(true);
   }, []);
 
   const handleFolderPromptConfirm = useCallback(
-    async (name: string) => {
+    (name: string) => {
       setFolderPromptOpen(false);
-      await createFolder(name);
+      createFolder.mutate(
+        { name },
+        {
+          onSuccess: () => addToast('success', '폴더가 생성되었습니다'),
+          onError: () => addToast('error', '폴더 생성에 실패했습니다'),
+        },
+      );
     },
-    [createFolder],
+    [createFolder, addToast],
   );
 
   const handleFolderPromptCancel = useCallback(() => {

@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useShallow } from 'zustand/react/shallow';
-import { useNoteStore } from '../../stores/note.store';
-import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { useNoteQuery } from '../../hooks/queries/useNote';
+import { useAncestorPath } from '../../hooks/queries/useFolderTree';
 import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
@@ -13,9 +12,10 @@ import SidebarIcon from '../../components/icons/sidebar.svg?react';
 import SidebarCollapseIcon from '../../components/icons/sidebar-collapse.svg?react';
 
 export function NotePage() {
-  const folderId = useNoteStore((s) => s.note?.folderId ?? null);
-  const note = useNoteStore((s) => s.note);
-  const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId)));
+  const { noteId } = useParams<{ noteId: string }>();
+  const { data: note } = useNoteQuery(noteId ?? null);
+  const folderId = note?.folderId ?? null;
+  const { data: ancestorPath = [] } = useAncestorPath(folderId);
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
   const segments = useFolderPath(folderId);
   const noteLabel = note?.title || '제목 없음';

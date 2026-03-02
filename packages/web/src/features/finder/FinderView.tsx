@@ -1,20 +1,23 @@
 import { useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { PromptDialog } from '../../components/PromptDialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { useFinderContents } from './hooks/useFinderContents';
+import { useFolderChildren } from '../../hooks/queries/useFolderChildren';
 import { useFinderActions } from './hooks/useFinderActions';
 import { FolderList } from './components/FolderList';
 import { NoteList } from './components/NoteList';
 
 export function FinderView({ folderId: propFolderId }: { folderId?: string } = {}) {
-  const { folderId, folders, notes, isLoading } = useFinderContents(propFolderId);
+  const { folderId: paramFolderId } = useParams<{ folderId: string }>();
+  const folderId = propFolderId ?? paramFolderId ?? null;
+  const { folders, notes, isLoading } = useFolderChildren(folderId);
   const {
     handleRenameFolder,
     handleDeleteFolder,
     handleDeleteNote,
     promptDialogProps,
     confirmDialogProps,
-  } = useFinderActions(folderId);
+  } = useFinderActions(folderId ?? undefined);
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const toggleMenu = useCallback(

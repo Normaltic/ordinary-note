@@ -1,21 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useNoteStore } from '../../../stores/note.store';
-import { useFolderStore } from '../../../stores/folder.store';
+import { useNoteQuery, useSaveNote, useDeleteNote } from '../../../hooks/queries/useNote';
 import { useToastStore } from '../../../stores/toast.store';
 import { useAutoSave } from '../../../hooks/useAutoSave';
-import * as noteApi from '../../../lib/api/notes';
 
 export function useNoteEditor() {
   const { noteId } = useParams<{ noteId: string }>();
   const navigate = useNavigate();
-  const note = useNoteStore((s) => s.note);
-  const loading = useNoteStore((s) => s.loading);
-  const saving = useNoteStore((s) => s.saving);
-  const fetchNote = useNoteStore((s) => s.fetchNote);
-  const saveNote = useNoteStore((s) => s.saveNote);
-  const clearNote = useNoteStore((s) => s.clearNote);
-  const invalidate = useFolderStore((s) => s.invalidate);
+  const { data: note, isLoading: loading } = useNoteQuery(noteId ?? null);
+  const saveNoteMutation = useSaveNote();
+  const deleteNoteMutation = useDeleteNote();
   const addToast = useToastStore((s) => s.addToast);
 
   const [title, setTitle] = useState('');
@@ -25,11 +19,6 @@ export function useNoteEditor() {
 
   const contentPlainRef = useRef(contentPlain);
   contentPlainRef.current = contentPlain;
-
-  useEffect(() => {
-    if (noteId) fetchNote(noteId);
-    return () => clearNote();
-  }, [noteId, fetchNote, clearNote]);
 
   // Initialize local state when note loads
   useEffect(() => {
@@ -49,10 +38,13 @@ export function useNoteEditor() {
   useAutoSave(
     () => {
       if (noteId && note) {
-        saveNote(noteId, {
-          title,
-          contentHtml,
-          contentPlain: contentPlainRef.current,
+        saveNoteMutation.mutate({
+          id: noteId,
+          data: {
+            title,
+            contentHtml,
+            contentPlain: contentPlainRef.current,
+          },
         });
       }
     },
@@ -60,23 +52,27 @@ export function useNoteEditor() {
     1000,
   );
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     setConfirmOpen(false);
     if (!noteId || !note) return;
-    try {
-      await noteApi.deleteNote(noteId);
-      addToast('success', '노트가 삭제되었습니다');
-      await invalidate(note.folderId);
-      navigate(`/folders/${note.folderId}`);
-    } catch {
-      addToast('error', '노트 삭제에 실패했습니다');
-    }
+    deleteNoteMutation.mutate(
+      { id: noteId, folderId: note.folderId },
+      {
+        onSuccess: () => {
+          addToast('success', '노트가 삭제되었습니다');
+          navigate(`/folders/${note.folderId}`);
+        },
+        onError: () => {
+          addToast('error', '노트 삭제에 실패했습니다');
+        },
+      },
+    );
   };
 
   return {
-    note,
+    note: note ?? null,
     loading,
-    saving,
+    saving: saveNoteMutation.isPending,
     title,
     setTitle,
     contentHtml,

@@ -1,7 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useShallow } from 'zustand/react/shallow';
-import { useFolderStore, selectAncestorPath } from '../../stores/folder.store';
+import { useAncestorPath } from '../../hooks/queries/useFolderTree';
 import { useNavStore } from '../../stores/nav.store';
 import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { Sidebar } from './components/Sidebar';
@@ -13,13 +12,8 @@ interface ShellLayoutProps {
 }
 
 export function ShellLayout({ children }: ShellLayoutProps) {
-  const fetchTree = useFolderStore((s) => s.fetchTree);
-  useEffect(() => {
-    fetchTree();
-  }, [fetchTree]);
-
   const folderId = useCurrentFolderId();
-  const ancestorPath = useFolderStore(useShallow(selectAncestorPath(folderId)));
+  const { data: ancestorPath = [] } = useAncestorPath(folderId);
   const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
 
   const [searchParams] = useSearchParams();

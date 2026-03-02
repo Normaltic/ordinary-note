@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useFolderStore } from '../../../stores/folder.store';
 import { useToastStore } from '../../../stores/toast.store';
-import * as noteApi from '../../../lib/api/notes';
+import { useCreateFolder, useRenameFolder, useDeleteFolder } from '../../../hooks/queries/useFolderMutations';
+import { useCreateNote, useDeleteNote } from '../../../hooks/queries/useNote';
 import type { FolderSummary, NoteSummary } from '@ordinary-note/shared';
 
 interface PromptDialogState {
@@ -19,14 +19,16 @@ interface ConfirmDialogState {
 
 export function useFinderActions(folderId: string | undefined) {
   const navigate = useNavigate();
-  const createFolder = useFolderStore((s) => s.createFolder);
-  const renameFolder = useFolderStore((s) => s.renameFolder);
-  const deleteFolder = useFolderStore((s) => s.deleteFolder);
-  const fetchContents = useFolderStore((s) => s.fetchContents);
   const addToast = useToastStore((s) => s.addToast);
 
   const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
+
+  const createFolder = useCreateFolder();
+  const renameFolder = useRenameFolder();
+  const deleteFolder = useDeleteFolder();
+  const createNote = useCreateNote();
+  const deleteNote = useDeleteNote();
 
   const handleCreateFolder = () => {
     setPromptDialog({
@@ -34,7 +36,13 @@ export function useFinderActions(folderId: string | undefined) {
       defaultValue: '',
       onConfirm: (name: string) => {
         setPromptDialog(null);
-        createFolder(name, folderId);
+        createFolder.mutate(
+          { name, parentId: folderId },
+          {
+            onSuccess: () => addToast('success', '폴더가 생성되었습니다'),
+            onError: () => addToast('error', '폴더 생성에 실패했습니다'),
+          },
+        );
       },
     });
   };
@@ -45,7 +53,13 @@ export function useFinderActions(folderId: string | undefined) {
       defaultValue: folder.name,
       onConfirm: (name: string) => {
         setPromptDialog(null);
-        renameFolder(folder.id, name);
+        renameFolder.mutate(
+          { id: folder.id, name, parentId: folderId ?? null },
+          {
+            onSuccess: () => addToast('success', '폴더 이름이 변경되었습니다'),
+            onError: () => addToast('error', '폴더 이름 변경에 실패했습니다'),
+          },
+        );
       },
     });
   };
@@ -56,36 +70,41 @@ export function useFinderActions(folderId: string | undefined) {
       message: `"${folder.name}" 폴더와 하위 항목이 모두 삭제됩니다. 계속하시겠습니까?`,
       onConfirm: () => {
         setConfirmDialog(null);
-        deleteFolder(folder.id);
+        deleteFolder.mutate(
+          { id: folder.id, parentId: folderId ?? null },
+          {
+            onSuccess: () => addToast('success', '폴더가 삭제되었습니다'),
+            onError: () => addToast('error', '폴더 삭제에 실패했습니다'),
+          },
+        );
       },
     });
   };
 
-  const handleCreateNote = async () => {
+  const handleCreateNote = () => {
     if (!folderId) return;
-    try {
-      const note = await noteApi.createNote({ folderId });
-      navigate(`/notes/${note.id}`);
-    } catch {
-      addToast('error', '노트 생성에 실패했습니다');
-    }
+    createNote.mutate(
+      { folderId },
+      {
+        onSuccess: (note) => navigate(`/notes/${note.id}`),
+        onError: () => addToast('error', '노트 생성에 실패했습니다'),
+      },
+    );
   };
 
   const handleDeleteNote = (note: NoteSummary) => {
     setConfirmDialog({
       title: '노트 삭제',
       message: `"${note.title}" 노트를 삭제하시겠습니까?`,
-      onConfirm: async () => {
+      onConfirm: () => {
         setConfirmDialog(null);
-        try {
-          await noteApi.deleteNote(note.id);
-          if (folderId) {
-            await fetchContents(folderId);
-          }
-          addToast('success', '노트가 삭제되었습니다');
-        } catch {
-          addToast('error', '노트 삭제에 실패했습니다');
-        }
+        deleteNote.mutate(
+          { id: note.id, folderId: folderId! },
+          {
+            onSuccess: () => addToast('success', '노트가 삭제되었습니다'),
+            onError: () => addToast('error', '노트 삭제에 실패했습니다'),
+          },
+        );
       },
     });
   };

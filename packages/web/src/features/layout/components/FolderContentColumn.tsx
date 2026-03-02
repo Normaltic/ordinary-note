@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useFolderContents } from '../../finder/hooks/useFolderContents';
+import { useFolderChildren } from '../../../hooks/queries/useFolderChildren';
 import FolderIcon from '../../../components/icons/folder.svg?react';
 import FileIcon from '../../../components/icons/file.svg?react';
 
@@ -11,7 +11,7 @@ interface FolderContentColumnProps {
 }
 
 export function FolderContentColumn({ folderId, activeId, onNavigate, className }: FolderContentColumnProps) {
-  const { folders, notes } = useFolderContents(folderId);
+  const { folders, notes } = useFolderChildren(folderId);
 
   return (
     <div className={`flex shrink-0 flex-col border-r border-border-default bg-bg-sidebar ${className ?? 'w-40'}`}>

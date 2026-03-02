@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/query-client';
 import { AppShell } from './pages/_layout';
 import { LoginPage } from './pages/login';
 import { IndexPage } from './pages/index';
@@ -10,6 +12,7 @@ import { GlobalErrorHandler } from './features/auth/components/GlobalErrorHandle
 
 export function App() {
   return (
+    <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <GlobalErrorHandler>
       <Routes>
@@ -36,5 +39,6 @@ export function App() {
       </Routes>
       </GlobalErrorHandler>
     </BrowserRouter>
+    </QueryClientProvider>
   );
 }
