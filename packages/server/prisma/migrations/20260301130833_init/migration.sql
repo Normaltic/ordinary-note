@@ -29,6 +29,7 @@ CREATE TABLE "notes" (
     "folderId" TEXT NOT NULL,
     "title" TEXT NOT NULL DEFAULT '',
     "contentPlain" TEXT,
+    "contentHtml" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "isPinned" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
