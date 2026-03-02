@@ -1,16 +1,17 @@
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { TiptapEditor } from './components/TiptapEditor';
+import { ConnectionStatus } from './components/ConnectionStatus';
 import { useNoteEditor } from './hooks/useNoteEditor';
 
 export function EditorView() {
   const {
     note,
     loading,
-    saving,
     title,
     setTitle,
-    contentHtml,
-    handleEditorUpdate,
+    ydoc,
+    synced,
+    connectionStatus,
     handleDelete,
     confirmOpen,
     setConfirmOpen,
@@ -28,9 +29,7 @@ export function EditorView() {
     <>
       {/* Toolbar */}
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-xs text-text-muted">
-          {saving ? '저장 중...' : '저장 완료'}
-        </span>
+        <ConnectionStatus status={connectionStatus} synced={synced} />
         <button
           onClick={() => setConfirmOpen(true)}
           className="rounded-pill px-3 py-1.5 text-sm text-danger hover:bg-bg-hover"
@@ -51,11 +50,7 @@ export function EditorView() {
       <hr className="my-4 border-border-default" />
 
       {/* Editor */}
-      <TiptapEditor
-        key={note.id}
-        initialContent={contentHtml}
-        onUpdate={handleEditorUpdate}
-      />
+      {ydoc && <TiptapEditor key={note.id} ydoc={ydoc} />}
 
       {/* Delete confirm */}
       <ConfirmDialog

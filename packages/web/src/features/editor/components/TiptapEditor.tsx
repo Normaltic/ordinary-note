@@ -3,24 +3,22 @@ import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
+import Collaboration from '@tiptap/extension-collaboration';
+import type { Doc } from 'yjs';
 import { EditorToolbar } from './EditorToolbar';
 
 interface TiptapEditorProps {
-  initialContent: string;
-  onUpdate: (html: string, plainText: string) => void;
+  ydoc: Doc;
 }
 
-export function TiptapEditor({ initialContent, onUpdate }: TiptapEditorProps) {
+export function TiptapEditor({ ydoc }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ undoRedo: false }),
       Placeholder.configure({ placeholder: '내용을 입력하세요...' }),
       Link.configure({ openOnClick: false }),
+      Collaboration.configure({ document: ydoc }),
     ],
-    content: initialContent,
-    onUpdate: ({ editor }) => {
-      onUpdate(editor.getHTML(), editor.getText());
-    },
   });
 
   if (!editor) return null;

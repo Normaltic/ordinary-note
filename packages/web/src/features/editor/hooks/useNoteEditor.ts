@@ -1,8 +1,13 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Doc } from 'yjs';
+import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useNoteQuery, useSaveNote, useDeleteNote } from '../../../hooks/queries/useNote';
 import { useToastStore } from '../../../stores/toast.store';
 import { useAutoSave } from '../../../hooks/useAutoSave';
+import { auth } from '../../../lib/auth';
+
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';
 
 export function useNoteEditor() {
   const { noteId } = useParams<{ noteId: string }>();
@@ -13,46 +18,72 @@ export function useNoteEditor() {
   const addToast = useToastStore((s) => s.addToast);
 
   const [title, setTitle] = useState('');
-  const [contentHtml, setContentHtml] = useState('');
-  const [contentPlain, setContentPlain] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [ydoc, setYdoc] = useState<Doc | null>(null);
+  const [synced, setSynced] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
 
-  const contentPlainRef = useRef(contentPlain);
-  contentPlainRef.current = contentPlain;
+  const providerRef = useRef<HocuspocusProvider | null>(null);
 
   // Initialize local state when note loads
   useEffect(() => {
     if (note) {
       setTitle(note.title);
-      setContentHtml(note.contentHtml ?? note.contentPlain ?? '');
-      setContentPlain(note.contentPlain ?? '');
     }
   }, [note?.id]);
 
-  const handleEditorUpdate = useCallback((html: string, plain: string) => {
-    setContentHtml(html);
-    setContentPlain(plain);
-  }, []);
+  // Yjs / Hocuspocus provider lifecycle
+  useEffect(() => {
+    if (!noteId) return;
 
-  // Auto-save
+    const doc = new Doc();
+    const token = auth.getAccessToken();
+
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = import.meta.env.VITE_WS_URL || `${wsProtocol}//${window.location.hostname}:3001`;
+
+    const provider = new HocuspocusProvider({
+      url: `${wsHost}/collaboration`,
+      name: noteId,
+      document: doc,
+      token: token ?? '',
+      onSynced({ state }) {
+        setSynced(state);
+      },
+      onStatus({ status }) {
+        setConnectionStatus(status as ConnectionStatus);
+      },
+      onAuthenticationFailed({ reason }) {
+        console.error('Collaboration auth failed:', reason);
+        addToast('error', '실시간 동기화 인증에 실패했습니다');
+      },
+    });
+
+    setYdoc(doc);
+    providerRef.current = provider;
+
+    return () => {
+      provider.destroy();
+      doc.destroy();
+      setYdoc(null);
+      setSynced(false);
+      setConnectionStatus('connecting');
+      providerRef.current = null;
+    };
+  }, [noteId]);
+
+  // Title auto-save (REST)
   useAutoSave(
     () => {
       if (noteId && note) {
-        saveNoteMutation.mutate({
-          id: noteId,
-          data: {
-            title,
-            contentHtml,
-            contentPlain: contentPlainRef.current,
-          },
-        });
+        saveNoteMutation.mutate({ id: noteId, data: { title } });
       }
     },
-    [title, contentHtml],
+    [title],
     1000,
   );
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     setConfirmOpen(false);
     if (!noteId || !note) return;
     deleteNoteMutation.mutate(
@@ -67,16 +98,16 @@ export function useNoteEditor() {
         },
       },
     );
-  };
+  }, [noteId, note, deleteNoteMutation, addToast, navigate]);
 
   return {
     note: note ?? null,
     loading,
-    saving: saveNoteMutation.isPending,
     title,
     setTitle,
-    contentHtml,
-    handleEditorUpdate,
+    ydoc,
+    synced,
+    connectionStatus,
     handleDelete,
     confirmOpen,
     setConfirmOpen,
