@@ -54,6 +54,7 @@ export function createMockNoteRepo() {
     update: vi.fn<(id: string, data: unknown) => Promise<NoteRecord>>(),
     findByFolderId: vi.fn<(folderId: string) => Promise<NoteRecord[]>>(),
     softDelete: vi.fn<(id: string) => Promise<void>>(),
+    createYjsDocument: vi.fn<(noteId: string) => Promise<void>>(),
     getMaxSortOrder: vi.fn<(folderId: string) => Promise<number>>(),
   };
 }
@@ -180,7 +181,6 @@ export const fixtures = {
     folderId: 'folder-1',
     title: 'Test Note',
     contentPlain: 'Some content',
-    contentHtml: null,
     sortOrder: 0,
     isPinned: false,
     createdAt: new Date('2025-01-01'),

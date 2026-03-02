@@ -36,12 +36,16 @@ export class NoteService {
 
     const maxSort = await this.noteRepo.getMaxSortOrder(data.folderId);
 
-    return this.noteRepo.create({
+    const note = await this.noteRepo.create({
       userId,
       folderId: data.folderId,
       title: data.title,
       sortOrder: maxSort + 1,
     });
+
+    await this.noteRepo.createYjsDocument(note.id);
+
+    return note;
   }
 
   async update(
@@ -49,8 +53,6 @@ export class NoteService {
     noteId: string,
     data: {
       title?: string;
-      contentPlain?: string | null;
-      contentHtml?: string | null;
       folderId?: string;
       sortOrder?: number;
       isPinned?: boolean;

@@ -6,7 +6,6 @@ export type NoteRecord = {
   folderId: string;
   title: string;
   contentPlain: string | null;
-  contentHtml: string | null;
   sortOrder: number;
   isPinned: boolean;
   createdAt: Date;
@@ -23,8 +22,6 @@ export type CreateNoteData = {
 
 export type UpdateNoteData = {
   title?: string;
-  contentPlain?: string | null;
-  contentHtml?: string | null;
   folderId?: string;
   sortOrder?: number;
   isPinned?: boolean;
@@ -59,6 +56,10 @@ export class NoteRepository {
       where: { id },
       data: { deletedAt: new Date() },
     });
+  }
+
+  async createYjsDocument(noteId: string): Promise<void> {
+    await prisma.yjsDocument.create({ data: { noteId } });
   }
 
   async getMaxSortOrder(folderId: string): Promise<number> {

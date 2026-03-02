@@ -10,6 +10,7 @@ import {
 } from './repositories/index.js';
 import { AuthService, FolderService, NoteService } from './services/index.js';
 import { createApp } from './app.js';
+import { setupHocuspocus } from './hocuspocus/index.js';
 
 const PORT = process.env.PORT || 3001;
 
@@ -29,6 +30,8 @@ async function main() {
 
   const app = createApp({ authService, folderService, noteService });
   const httpServer = createServer(app);
+
+  setupHocuspocus(httpServer);
 
   httpServer.listen(PORT, () => {
     logger.info({ port: PORT }, 'Server started');
