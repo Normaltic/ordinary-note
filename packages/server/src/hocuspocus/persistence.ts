@@ -64,19 +64,20 @@ export class PrismaPeristence implements Extension {
         return;
       }
 
-      await prisma.yjsUpdate.create({
-        data: {
-          yjsDocumentId: yjsDoc.id,
-          update: Buffer.from(diff),
-        },
-      });
+      await prisma.$transaction([
+        prisma.yjsUpdate.create({
+          data: {
+            yjsDocumentId: yjsDoc.id,
+            update: Buffer.from(diff),
+          },
+        }),
+        prisma.yjsDocument.update({
+          where: { id: yjsDoc.id },
+          data: { stateVector: Buffer.from(newStateVector) },
+        }),
+      ]);
 
-      await prisma.yjsDocument.update({
-        where: { id: yjsDoc.id },
-        data: { stateVector: Buffer.from(newStateVector) },
-      });
-
-      // Extract plain text and update note
+      // Best-effort: 미리보기용 파생 데이터 갱신
       const plainText = extractPlainText(document);
       await prisma.note.update({
         where: { id: documentName },
