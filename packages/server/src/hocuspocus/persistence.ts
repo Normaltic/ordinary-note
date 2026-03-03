@@ -39,59 +39,63 @@ export class PrismaPeristence implements Extension {
   }
 
   async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
-    const yjsDoc = await prisma.yjsDocument.findUnique({
-      where: { noteId: documentName },
-      select: { id: true, stateVector: true },
-    });
+    try {
+      const yjsDoc = await prisma.yjsDocument.findUnique({
+        where: { noteId: documentName },
+        select: { id: true, stateVector: true },
+      });
 
-    if (!yjsDoc) {
-      logger.warn({ documentName }, 'YjsDocument not found on store, skipping');
-      return;
-    }
+      if (!yjsDoc) {
+        logger.warn({ documentName }, 'YjsDocument not found on store, skipping');
+        return;
+      }
 
-    const newStateVector = Y.encodeStateVector(document);
+      const newStateVector = Y.encodeStateVector(document);
 
-    let diff: Uint8Array;
-    if (yjsDoc.stateVector) {
-      diff = Y.encodeStateAsUpdate(document, yjsDoc.stateVector);
-    } else {
-      diff = Y.encodeStateAsUpdate(document);
-    }
+      let diff: Uint8Array;
+      if (yjsDoc.stateVector) {
+        diff = Y.encodeStateAsUpdate(document, yjsDoc.stateVector);
+      } else {
+        diff = Y.encodeStateAsUpdate(document);
+      }
 
-    // Skip empty updates
-    if (diff.byteLength <= 2) {
-      return;
-    }
+      // Skip empty updates
+      if (diff.byteLength <= 2) {
+        return;
+      }
 
-    await prisma.yjsUpdate.create({
-      data: {
-        yjsDocumentId: yjsDoc.id,
-        update: Buffer.from(diff),
-      },
-    });
+      await prisma.yjsUpdate.create({
+        data: {
+          yjsDocumentId: yjsDoc.id,
+          update: Buffer.from(diff),
+        },
+      });
 
-    await prisma.yjsDocument.update({
-      where: { id: yjsDoc.id },
-      data: { stateVector: Buffer.from(newStateVector) },
-    });
+      await prisma.yjsDocument.update({
+        where: { id: yjsDoc.id },
+        data: { stateVector: Buffer.from(newStateVector) },
+      });
 
-    // Extract plain text and update note
-    const plainText = extractPlainText(document);
-    await prisma.note.update({
-      where: { id: documentName },
-      data: {
-        contentPlain: plainText,
-        updatedAt: new Date(),
-      },
-    });
+      // Extract plain text and update note
+      const plainText = extractPlainText(document);
+      await prisma.note.update({
+        where: { id: documentName },
+        data: {
+          contentPlain: plainText,
+          updatedAt: new Date(),
+        },
+      });
 
-    // Check compaction
-    const updateCount = await prisma.yjsUpdate.count({
-      where: { yjsDocumentId: yjsDoc.id },
-    });
+      // Check compaction
+      const updateCount = await prisma.yjsUpdate.count({
+        where: { yjsDocumentId: yjsDoc.id },
+      });
 
-    if (updateCount > COMPACTION_THRESHOLD) {
-      await this.compact(yjsDoc.id, document);
+      if (updateCount > COMPACTION_THRESHOLD) {
+        await this.compact(yjsDoc.id, document);
+      }
+    } catch (err) {
+      logger.error({ err, documentName }, 'Failed to store document — will retry on next debounce cycle');
     }
   }
 
