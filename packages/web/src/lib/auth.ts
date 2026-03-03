@@ -4,6 +4,7 @@ const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
 class Auth {
+  private refreshPromise: Promise<string | null> | null = null;
   getAccessToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }
@@ -28,6 +29,32 @@ class Auth {
   clear(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+  }
+
+  async refreshAccessToken(): Promise<string | null> {
+    if (this.refreshPromise) return this.refreshPromise;
+
+    this.refreshPromise = this.doRefresh();
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  private async doRefresh(): Promise<string | null> {
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (!res.ok) return null;
+      const { accessToken } = await res.json();
+      this.setAccessToken(accessToken);
+      return accessToken;
+    } catch {
+      return null;
+    }
   }
 }
 

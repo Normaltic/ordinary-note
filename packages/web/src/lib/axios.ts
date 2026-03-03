@@ -69,17 +69,19 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await api.post('/api/auth/refresh');
-      const newToken = data.accessToken;
+      const newToken = await auth.refreshAccessToken();
 
-      auth.setAccessToken(newToken);
+      if (!newToken) {
+        processQueue(new CancelledError(), null);
+        return Promise.reject(error);
+      }
+
       processQueue(null, newToken);
 
       originalRequest.headers.Authorization = `Bearer ${newToken}`;
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(new CancelledError(), null);
-      auth.clear();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

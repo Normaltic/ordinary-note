@@ -4,6 +4,7 @@ import { Doc } from 'yjs';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useNoteQuery, useSaveNote, useDeleteNote } from '../../../hooks/queries/useNote';
 import { useToastStore } from '../../../stores/toast.store';
+import { useAuthStore } from '../../../stores/auth.store';
 import { useAutoSave } from '../../../hooks/useAutoSave';
 import { auth } from '../../../lib/auth';
 
@@ -54,7 +55,11 @@ export function useNoteEditor() {
       },
       onAuthenticationFailed({ reason }) {
         console.error('Collaboration auth failed:', reason);
-        addToast('error', '실시간 동기화 인증에 실패했습니다');
+        auth.refreshAccessToken().then((token) => {
+          if (!token) {
+            useAuthStore.getState().clearAuth();
+          }
+        });
       },
     });
 
