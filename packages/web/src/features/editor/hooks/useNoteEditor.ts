@@ -37,7 +37,6 @@ export function useNoteEditor() {
     if (!noteId) return;
 
     const doc = new Doc();
-    const token = auth.getAccessToken();
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = import.meta.env.VITE_WS_URL || `${wsProtocol}//${window.location.hostname}:3001`;
@@ -46,7 +45,7 @@ export function useNoteEditor() {
       url: `${wsHost}/collaboration`,
       name: noteId,
       document: doc,
-      token: token ?? '',
+      token: () => auth.getAccessToken() ?? '',
       onSynced({ state }) {
         setSynced(state);
       },
