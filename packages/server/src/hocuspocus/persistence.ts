@@ -21,7 +21,7 @@ function extractPlainText(ydoc: Y.Doc): string {
   return collectText(ydoc.getXmlFragment('default'));
 }
 
-export class PrismaPeristence implements Extension {
+export class PrismaPersistence implements Extension {
   async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
     const yjsDoc = await prisma.yjsDocument.findUnique({
       where: { noteId: documentName },

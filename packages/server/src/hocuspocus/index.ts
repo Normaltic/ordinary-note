@@ -3,7 +3,7 @@ import { Hocuspocus } from '@hocuspocus/server';
 import { WebSocketServer } from 'ws';
 import { config } from '../utils/config.js';
 import { logger } from '../utils/logger.js';
-import { PrismaPeristence } from './persistence.js';
+import { PrismaPersistence } from './persistence.js';
 import { onAuthenticate } from './auth.js';
 
 export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<void> } {
@@ -12,7 +12,7 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
     maxDebounce: 10000,
     quiet: true,
     onAuthenticate,
-    extensions: [new PrismaPeristence()],
+    extensions: [new PrismaPersistence()],
   });
 
   const wss = new WebSocketServer({ noServer: true, maxPayload: 1 * 1024 * 1024 });
