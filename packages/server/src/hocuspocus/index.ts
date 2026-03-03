@@ -6,7 +6,7 @@ import { logger } from '../utils/logger.js';
 import { PrismaPeristence } from './persistence.js';
 import { onAuthenticate } from './auth.js';
 
-export function setupHocuspocus(httpServer: HTTPServer): Hocuspocus {
+export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<void> } {
   const hocuspocus = new Hocuspocus({
     debounce: 2000,
     maxDebounce: 10000,
@@ -39,5 +39,22 @@ export function setupHocuspocus(httpServer: HTTPServer): Hocuspocus {
 
   logger.info('Hocuspocus WebSocket server attached on /collaboration');
 
-  return hocuspocus;
+  return {
+    async destroy() {
+      hocuspocus.closeConnections();
+      await new Promise<void>((resolve) => {
+        if (hocuspocus.getDocumentsCount() === 0) {
+          resolve();
+          return;
+        }
+        const interval = setInterval(() => {
+          if (hocuspocus.getDocumentsCount() === 0) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+      });
+      logger.info('Hocuspocus destroyed, pending documents flushed');
+    },
+  };
 }

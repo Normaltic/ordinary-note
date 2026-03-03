@@ -31,7 +31,7 @@ async function main() {
   const app = createApp({ authService, folderService, noteService });
   const httpServer = createServer(app);
 
-  setupHocuspocus(httpServer);
+  const hocuspocus = setupHocuspocus(httpServer);
 
   httpServer.listen(PORT, () => {
     logger.info({ port: PORT }, 'Server started');
@@ -39,6 +39,7 @@ async function main() {
 
   async function shutdown(signal: string) {
     logger.info({ signal }, 'Shutdown signal received');
+    await hocuspocus.destroy();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
     logger.info('HTTP server closed');
     await prisma.$disconnect();
