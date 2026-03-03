@@ -5,9 +5,20 @@ import { logger } from '../utils/logger.js';
 
 const COMPACTION_THRESHOLD = 500;
 
+function collectText(node: Y.XmlFragment | Y.XmlElement): string {
+  const parts: string[] = [];
+  for (const child of node.toArray()) {
+    if (child instanceof Y.XmlText) {
+      parts.push(child.toJSON());
+    } else if (child instanceof Y.XmlElement) {
+      parts.push(collectText(child));
+    }
+  }
+  return parts.join('\n');
+}
+
 function extractPlainText(ydoc: Y.Doc): string {
-  const xmlFragment = ydoc.getXmlFragment('default');
-  return xmlFragment.toJSON();
+  return collectText(ydoc.getXmlFragment('default'));
 }
 
 export class PrismaPeristence implements Extension {
