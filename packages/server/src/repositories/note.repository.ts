@@ -29,7 +29,11 @@ export type UpdateNoteData = {
 
 export class NoteRepository {
   async create(data: CreateNoteData): Promise<NoteRecord> {
-    return prisma.note.create({ data });
+    return prisma.$transaction(async (tx) => {
+      const note = await tx.note.create({ data });
+      await tx.yjsDocument.create({ data: { noteId: note.id } });
+      return note;
+    });
   }
 
   async findById(id: string): Promise<NoteRecord | null> {
@@ -56,10 +60,6 @@ export class NoteRepository {
       where: { id },
       data: { deletedAt: new Date() },
     });
-  }
-
-  async createYjsDocument(noteId: string): Promise<void> {
-    await prisma.yjsDocument.create({ data: { noteId } });
   }
 
   async getMaxSortOrder(folderId: string): Promise<number> {
