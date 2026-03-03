@@ -15,7 +15,7 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
     extensions: [new PrismaPeristence()],
   });
 
-  const wss = new WebSocketServer({ noServer: true });
+  const wss = new WebSocketServer({ noServer: true, maxPayload: 1 * 1024 * 1024 });
   const allowedOrigin = new URL(config.clientUrl).origin;
 
   httpServer.on('upgrade', (request, socket, head) => {
