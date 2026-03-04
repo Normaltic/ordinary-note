@@ -4,7 +4,7 @@ import {
   createMockFolderRepo,
   fixtures,
 } from '../testing/helpers.js';
-import { NotFoundError, ForbiddenError } from '../utils/errors.js';
+import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors.js';
 
 vi.mock('../utils/config.js', () => ({
   config: {
@@ -181,7 +181,7 @@ describe('FolderService', () => {
       folderRepo.findById.mockResolvedValue(fixtures.folder({ id: 'folder-1' }));
 
       await expect(service.update('user-1', 'folder-1', { parentId: 'folder-1' }))
-        .rejects.toThrow(NotFoundError);
+        .rejects.toThrow(ValidationError);
     });
 
     it('폴더가 없으면 NotFoundError', async () => {
