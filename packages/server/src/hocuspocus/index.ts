@@ -22,7 +22,7 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
     const url = request.url ?? '';
     const origin = request.headers.origin;
 
-    if (origin && origin !== allowedOrigin) {
+    if (origin !== allowedOrigin) {
       logger.warn({ origin, allowedOrigin }, 'WebSocket upgrade rejected: origin mismatch');
       socket.destroy();
       return;
