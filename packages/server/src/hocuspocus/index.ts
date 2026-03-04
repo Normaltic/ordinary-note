@@ -47,8 +47,14 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
           resolve();
           return;
         }
+        const timeout = setTimeout(() => {
+          clearInterval(interval);
+          logger.warn('Hocuspocus destroy timed out, proceeding with shutdown');
+          resolve();
+        }, 30_000);
         const interval = setInterval(() => {
           if (hocuspocus.getDocumentsCount() === 0) {
+            clearTimeout(timeout);
             clearInterval(interval);
             resolve();
           }
