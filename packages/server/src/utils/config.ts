@@ -12,8 +12,8 @@ function optional(key: string, fallback: string): string {
 
 export const config = {
   port: Number(optional('PORT', '3001')),
-  nodeEnv: optional('NODE_ENV', 'development'),
-  clientUrl: optional('CLIENT_URL', 'http://localhost:5173'),
+  nodeEnv: required('NODE_ENV'),
+  clientUrl: required('CLIENT_URL'),
   google: {
     clientId: required('GOOGLE_CLIENT_ID'),
   },
