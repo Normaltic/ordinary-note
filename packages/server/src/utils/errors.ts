@@ -8,6 +8,7 @@ export class AppError extends Error {
     public details?: unknown,
   ) {
     super(message);
+    this.name = this.constructor.name;
   }
 }
 
