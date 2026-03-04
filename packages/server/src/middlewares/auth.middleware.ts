@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { TokenExpiredError } from 'jsonwebtoken';
 import { ErrorCode } from '@ordinary-note/shared';
 import { verifyAccessToken } from '../utils/jwt.js';
 import { UnauthorizedError } from '../utils/errors.js';
@@ -13,7 +14,10 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
   try {
     req.user = verifyAccessToken(token);
     next();
-  } catch {
-    throw new UnauthorizedError(ErrorCode.AUTH_TOKEN_EXPIRED, 'Access token has expired');
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      throw new UnauthorizedError(ErrorCode.AUTH_TOKEN_EXPIRED, 'Access token has expired');
+    }
+    throw new UnauthorizedError(ErrorCode.AUTH_INVALID_TOKEN, 'Invalid access token');
   }
 }
