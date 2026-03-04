@@ -7,17 +7,9 @@ export type {
   ApiErrorResponse,
 } from './auth.js';
 
-export type {
-  FolderTreeNode,
-  FolderSummary,
-  FolderDetail,
-  CreateFolderRequest,
-  UpdateFolderRequest,
-} from './folder.js';
+export type { FolderTreeNode, FolderSummary, FolderDetail } from './folder.js';
+export type { NoteSummary, NoteDetail } from './note.js';
 
-export type {
-  NoteSummary,
-  NoteDetail,
-  CreateNoteRequest,
-  UpdateNoteRequest,
-} from './note.js';
+// DTO 타입 re-export (schemas에서)
+export type { CreateFolderRequest, UpdateFolderRequest } from '../schemas/folder.schema.js';
+export type { CreateNoteRequest, UpdateNoteRequest } from '../schemas/note.schema.js';

@@ -1,36 +1,27 @@
+import type { Folder } from '../schemas/folder.schema.js';
+
 export interface FolderTreeNode {
-  id: string;
-  name: string;
-  parentId: string | null;
-  sortOrder: number;
+  id: Folder['id'];
+  name: Folder['name'];
+  parentId: Folder['parentId'];
+  sortOrder: Folder['sortOrder'];
   children: FolderTreeNode[];
   noteCount: number;
 }
 
 export interface FolderSummary {
-  id: string;
-  name: string;
-  sortOrder: number;
+  id: Folder['id'];
+  name: Folder['name'];
+  sortOrder: Folder['sortOrder'];
   childCount: number;
   noteCount: number;
 }
 
 export interface FolderDetail {
-  id: string;
-  name: string;
-  parentId: string | null;
-  sortOrder: number;
+  id: Folder['id'];
+  name: Folder['name'];
+  parentId: Folder['parentId'];
+  sortOrder: Folder['sortOrder'];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface CreateFolderRequest {
-  name: string;
-  parentId?: string;
-}
-
-export interface UpdateFolderRequest {
-  name?: string;
-  parentId?: string | null;
-  sortOrder?: number;
 }

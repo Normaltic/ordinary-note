@@ -1,31 +1,21 @@
+import type { Note } from '../schemas/note.schema.js';
+
 export interface NoteSummary {
-  id: string;
-  title: string;
+  id: Note['id'];
+  title: Note['title'];
   contentPreview: string | null;
-  sortOrder: number;
-  isPinned: boolean;
+  sortOrder: Note['sortOrder'];
+  isPinned: Note['isPinned'];
   updatedAt: string;
 }
 
 export interface NoteDetail {
-  id: string;
-  folderId: string;
-  title: string;
-  contentPlain: string | null;
-  sortOrder: number;
-  isPinned: boolean;
+  id: Note['id'];
+  folderId: Note['folderId'];
+  title: Note['title'];
+  contentPlain: Note['contentPlain'];
+  sortOrder: Note['sortOrder'];
+  isPinned: Note['isPinned'];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface CreateNoteRequest {
-  folderId: string;
-  title?: string;
-}
-
-export interface UpdateNoteRequest {
-  title?: string;
-  folderId?: string;
-  sortOrder?: number;
-  isPinned?: boolean;
 }
