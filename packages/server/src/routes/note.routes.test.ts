@@ -89,7 +89,7 @@ describe('Note Routes', () => {
       const res = await request(app)
         .post('/api/notes')
         .set('Authorization', `Bearer ${token}`)
-        .send({ folderId: 'folder-1' });
+        .send({ folderId: '00000000-0000-4000-8000-000000000001' });
 
       expect(res.status).toBe(201);
       expect(res.body.note).toBeDefined();
@@ -112,7 +112,7 @@ describe('Note Routes', () => {
       const res = await request(app)
         .post('/api/notes')
         .set('Authorization', `Bearer ${token}`)
-        .send({ folderId: 'folder-1' });
+        .send({ folderId: '00000000-0000-4000-8000-000000000001' });
 
       expect(res.status).toBe(403);
       expect(res.body.error.code).toBe(ErrorCode.RESOURCE_FORBIDDEN);

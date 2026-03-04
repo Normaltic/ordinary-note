@@ -199,13 +199,13 @@ describe('Auth Routes', () => {
       expect(res.body.error.code).toBe(ErrorCode.AUTH_INVALID_TOKEN);
     });
 
-    it('실패: 유효하지 않은 accessToken → 401 AUTH_TOKEN_EXPIRED', async () => {
+    it('실패: 변조된 accessToken → 401 AUTH_INVALID_TOKEN', async () => {
       const res = await request(app)
         .post('/api/auth/logout')
         .set('Authorization', 'Bearer invalid-token');
 
       expect(res.status).toBe(401);
-      expect(res.body.error.code).toBe(ErrorCode.AUTH_TOKEN_EXPIRED);
+      expect(res.body.error.code).toBe(ErrorCode.AUTH_INVALID_TOKEN);
     });
   });
 
@@ -255,13 +255,13 @@ describe('Auth Routes', () => {
       expect(res.body.error.code).toBe(ErrorCode.AUTH_INVALID_TOKEN);
     });
 
-    it('실패: 유효하지 않은 accessToken → 401 AUTH_TOKEN_EXPIRED', async () => {
+    it('실패: 변조된 accessToken → 401 AUTH_INVALID_TOKEN', async () => {
       const res = await request(app)
         .get('/api/auth/me')
         .set('Authorization', 'Bearer invalid-token');
 
       expect(res.status).toBe(401);
-      expect(res.body.error.code).toBe(ErrorCode.AUTH_TOKEN_EXPIRED);
+      expect(res.body.error.code).toBe(ErrorCode.AUTH_INVALID_TOKEN);
     });
   });
 });
