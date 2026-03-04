@@ -73,8 +73,9 @@ export function createFolderRoutes(
 
   // DELETE /api/folders/:id — delete folder
   router.delete('/:id', async (req: Request, res: Response) => {
-    await folderService.delete(req.user!.sub, req.params.id as string);
-    res.json({ success: true });
+    const id = req.params.id as string;
+    await folderService.delete(req.user!.sub, id);
+    res.json({ id });
   });
 
   return router;

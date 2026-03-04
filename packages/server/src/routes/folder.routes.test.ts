@@ -185,7 +185,7 @@ describe('Folder Routes', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ success: true });
+      expect(res.body).toEqual({ id: 'folder-1' });
     });
 
     it('실패: 폴더 NotFound → 404', async () => {

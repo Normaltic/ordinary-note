@@ -170,7 +170,7 @@ describe('Note Routes', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ success: true });
+      expect(res.body).toEqual({ id: 'note-1' });
     });
 
     it('실패: 노트 NotFound → 404', async () => {
