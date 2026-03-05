@@ -1,13 +1,23 @@
 import type { Request, Response, NextFunction } from 'express';
-import { TokenExpiredError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+
 import { ErrorCode } from '@ordinary-note/shared';
 import { verifyAccessToken } from '../utils/jwt.js';
 import { UnauthorizedError } from '../utils/errors.js';
 
-export function authenticate(req: Request, _res: Response, next: NextFunction): void {
+const { TokenExpiredError } = jwt;
+
+export function authenticate(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
-    throw new UnauthorizedError(ErrorCode.AUTH_INVALID_TOKEN, 'Missing or invalid authorization header');
+    throw new UnauthorizedError(
+      ErrorCode.AUTH_INVALID_TOKEN,
+      'Missing or invalid authorization header',
+    );
   }
 
   const token = header.slice(7);
@@ -16,8 +26,14 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
     next();
   } catch (error) {
     if (error instanceof TokenExpiredError) {
-      throw new UnauthorizedError(ErrorCode.AUTH_TOKEN_EXPIRED, 'Access token has expired');
+      throw new UnauthorizedError(
+        ErrorCode.AUTH_TOKEN_EXPIRED,
+        'Access token has expired',
+      );
     }
-    throw new UnauthorizedError(ErrorCode.AUTH_INVALID_TOKEN, 'Invalid access token');
+    throw new UnauthorizedError(
+      ErrorCode.AUTH_INVALID_TOKEN,
+      'Invalid access token',
+    );
   }
 }

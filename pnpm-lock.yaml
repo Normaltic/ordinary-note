@@ -71,6 +71,9 @@ importers:
       pino-http:
         specifier: ^10
         version: 10.5.0
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
       yjs:
         specifier: ^13.6.29
         version: 13.6.29
