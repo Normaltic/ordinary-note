@@ -7,7 +7,9 @@ import { useFinderActions } from './hooks/useFinderActions';
 import { FolderList } from './components/FolderList';
 import { NoteList } from './components/NoteList';
 
-export function FinderView({ folderId: propFolderId }: { folderId?: string } = {}) {
+export function FinderView({
+  folderId: propFolderId,
+}: { folderId?: string } = {}) {
   const { folderId: paramFolderId } = useParams<{ folderId: string }>();
   const folderId = propFolderId ?? paramFolderId ?? null;
   const { folders, notes, isLoading } = useFolderChildren(folderId);
@@ -43,8 +45,14 @@ export function FinderView({ folderId: propFolderId }: { folderId?: string } = {
         openMenuId={openMenuId}
         onMenuToggle={toggleMenu}
         onMenuClose={closeMenu}
-        onRename={(f) => { closeMenu(); handleRenameFolder(f); }}
-        onDelete={(f) => { closeMenu(); handleDeleteFolder(f); }}
+        onRename={(f) => {
+          closeMenu();
+          handleRenameFolder(f);
+        }}
+        onDelete={(f) => {
+          closeMenu();
+          handleDeleteFolder(f);
+        }}
       />
 
       <NoteList
@@ -52,7 +60,10 @@ export function FinderView({ folderId: propFolderId }: { folderId?: string } = {
         openMenuId={openMenuId}
         onMenuToggle={toggleMenu}
         onMenuClose={closeMenu}
-        onDelete={(n) => { closeMenu(); handleDeleteNote(n); }}
+        onDelete={(n) => {
+          closeMenu();
+          handleDeleteNote(n);
+        }}
       />
 
       {isEmpty && (

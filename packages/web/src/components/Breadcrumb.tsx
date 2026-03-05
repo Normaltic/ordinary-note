@@ -38,7 +38,10 @@ export function Breadcrumb({ segments, currentLabel }: BreadcrumbProps) {
         <span key={i} className="flex items-center gap-1">
           <span className="text-text-muted">›</span>
           {item.to && i < displayItems.length - 1 ? (
-            <Link to={item.to} className="transition-colors hover:text-text-primary">
+            <Link
+              to={item.to}
+              className="transition-colors hover:text-text-primary"
+            >
               {item.label}
             </Link>
           ) : (

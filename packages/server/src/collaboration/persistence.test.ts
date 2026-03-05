@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { onLoadDocumentPayload, onStoreDocumentPayload } from '@hocuspocus/server';
+import type {
+  onLoadDocumentPayload,
+  onStoreDocumentPayload,
+} from '@hocuspocus/server';
 import * as Y from 'yjs';
 import { CollaborationPersistence } from './persistence.js';
 import { createMockYjsRepo, createMockNoteRepo } from '../testing/helpers.js';
@@ -36,7 +39,10 @@ describe('CollaborationPersistence', () => {
     vi.clearAllMocks();
     yjsRepo = createMockYjsRepo();
     noteRepo = createMockNoteRepo();
-    persistence = new CollaborationPersistence(yjsRepo as never, noteRepo as never);
+    persistence = new CollaborationPersistence(
+      yjsRepo as never,
+      noteRepo as never,
+    );
   });
 
   // ── onLoadDocument ─────────────────────────────────────────────────
@@ -179,7 +185,10 @@ describe('CollaborationPersistence', () => {
         expect.any(Uint8Array),
         expect.any(Uint8Array),
       );
-      expect(noteRepo.updateContentPlain).toHaveBeenCalledWith('note-1', 'first save');
+      expect(noteRepo.updateContentPlain).toHaveBeenCalledWith(
+        'note-1',
+        'first save',
+      );
     });
 
     it('증분 저장 (stateVector 있음) → diff만 저장 + contentPlain 갱신', async () => {

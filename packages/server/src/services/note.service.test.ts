@@ -47,15 +47,19 @@ describe('NoteService', () => {
     it('삭제된 노트는 NotFoundError', async () => {
       noteRepo.findActiveById.mockResolvedValue(null);
 
-      await expect(service.getById('user-1', 'note-1'))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.getById('user-1', 'note-1')).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it('소유자가 아니면 ForbiddenError', async () => {
-      noteRepo.findActiveById.mockResolvedValue(fixtures.note({ userId: 'other-user' }));
+      noteRepo.findActiveById.mockResolvedValue(
+        fixtures.note({ userId: 'other-user' }),
+      );
 
-      await expect(service.getById('user-1', 'note-1'))
-        .rejects.toThrow(ForbiddenError);
+      await expect(service.getById('user-1', 'note-1')).rejects.toThrow(
+        ForbiddenError,
+      );
     });
   });
 
@@ -75,15 +79,19 @@ describe('NoteService', () => {
     it('폴더가 없으면 NotFoundError', async () => {
       folderRepo.findById.mockResolvedValue(null);
 
-      await expect(service.getByFolderId('user-1', 'no-folder'))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.getByFolderId('user-1', 'no-folder'),
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('폴더 소유자가 아니면 ForbiddenError', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ userId: 'other-user' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ userId: 'other-user' }),
+      );
 
-      await expect(service.getByFolderId('user-1', 'folder-1'))
-        .rejects.toThrow(ForbiddenError);
+      await expect(service.getByFolderId('user-1', 'folder-1')).rejects.toThrow(
+        ForbiddenError,
+      );
     });
   });
 
@@ -116,15 +124,19 @@ describe('NoteService', () => {
     it('폴더가 없으면 NotFoundError', async () => {
       folderRepo.findById.mockResolvedValue(null);
 
-      await expect(service.create('user-1', { folderId: 'no-folder' }))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.create('user-1', { folderId: 'no-folder' }),
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('폴더 소유자가 다르면 ForbiddenError', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ userId: 'other-user' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ userId: 'other-user' }),
+      );
 
-      await expect(service.create('user-1', { folderId: 'folder-1' }))
-        .rejects.toThrow(ForbiddenError);
+      await expect(
+        service.create('user-1', { folderId: 'folder-1' }),
+      ).rejects.toThrow(ForbiddenError);
     });
   });
 
@@ -136,15 +148,21 @@ describe('NoteService', () => {
       const updated = fixtures.note({ title: 'Updated' });
       noteRepo.update.mockResolvedValue(updated);
 
-      const result = await service.update('user-1', 'note-1', { title: 'Updated' });
+      const result = await service.update('user-1', 'note-1', {
+        title: 'Updated',
+      });
 
       expect(result).toEqual(updated);
     });
 
     it('폴더 이동 시 대상 폴더를 검증한다', async () => {
       noteRepo.findActiveById.mockResolvedValue(fixtures.note());
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ id: 'folder-2' }));
-      noteRepo.update.mockResolvedValue(fixtures.note({ folderId: 'folder-2' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'folder-2' }),
+      );
+      noteRepo.update.mockResolvedValue(
+        fixtures.note({ folderId: 'folder-2' }),
+      );
 
       await service.update('user-1', 'note-1', { folderId: 'folder-2' });
 
@@ -154,15 +172,19 @@ describe('NoteService', () => {
     it('노트가 없으면 NotFoundError', async () => {
       noteRepo.findActiveById.mockResolvedValue(null);
 
-      await expect(service.update('user-1', 'note-1', { title: 'X' }))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.update('user-1', 'note-1', { title: 'X' }),
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('소유자가 아니면 ForbiddenError', async () => {
-      noteRepo.findActiveById.mockResolvedValue(fixtures.note({ userId: 'other-user' }));
+      noteRepo.findActiveById.mockResolvedValue(
+        fixtures.note({ userId: 'other-user' }),
+      );
 
-      await expect(service.update('user-1', 'note-1', { title: 'X' }))
-        .rejects.toThrow(ForbiddenError);
+      await expect(
+        service.update('user-1', 'note-1', { title: 'X' }),
+      ).rejects.toThrow(ForbiddenError);
     });
   });
 
@@ -181,15 +203,19 @@ describe('NoteService', () => {
     it('노트가 없으면 NotFoundError', async () => {
       noteRepo.findActiveById.mockResolvedValue(null);
 
-      await expect(service.delete('user-1', 'no-note'))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.delete('user-1', 'no-note')).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it('소유자가 아니면 ForbiddenError', async () => {
-      noteRepo.findActiveById.mockResolvedValue(fixtures.note({ userId: 'other-user' }));
+      noteRepo.findActiveById.mockResolvedValue(
+        fixtures.note({ userId: 'other-user' }),
+      );
 
-      await expect(service.delete('user-1', 'note-1'))
-        .rejects.toThrow(ForbiddenError);
+      await expect(service.delete('user-1', 'note-1')).rejects.toThrow(
+        ForbiddenError,
+      );
     });
   });
 });

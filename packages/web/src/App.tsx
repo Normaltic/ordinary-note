@@ -13,34 +13,34 @@ import { GlobalErrorHandler } from './features/auth/components/GlobalErrorHandle
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <GlobalErrorHandler>
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <AppShell />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<IndexPage />} />
-          <Route path="folders/:folderId" element={<FolderPage />} />
-          <Route path="notes/:noteId" element={<NotePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      </GlobalErrorHandler>
-    </BrowserRouter>
+      <BrowserRouter>
+        <GlobalErrorHandler>
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <AppShell />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<IndexPage />} />
+              <Route path="folders/:folderId" element={<FolderPage />} />
+              <Route path="notes/:noteId" element={<NotePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </GlobalErrorHandler>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

@@ -10,11 +10,18 @@ interface FolderContentColumnProps {
   className?: string;
 }
 
-export function FolderContentColumn({ folderId, activeId, onNavigate, className }: FolderContentColumnProps) {
+export function FolderContentColumn({
+  folderId,
+  activeId,
+  onNavigate,
+  className,
+}: FolderContentColumnProps) {
   const { folders, notes } = useFolderChildren(folderId);
 
   return (
-    <div className={`flex shrink-0 flex-col border-r border-border-default bg-bg-sidebar ${className ?? 'w-40'}`}>
+    <div
+      className={`flex shrink-0 flex-col border-r border-border-default bg-bg-sidebar ${className ?? 'w-40'}`}
+    >
       <nav className="flex-1 overflow-y-auto">
         {folders.map((folder) => {
           const isActive = folder.id === activeId;
@@ -32,7 +39,9 @@ export function FolderContentColumn({ folderId, activeId, onNavigate, className 
               <FolderIcon className="size-3.5 shrink-0" />
               <span className="min-w-0 flex-1 truncate">{folder.name}</span>
               {folder.noteCount > 0 && (
-                <span className="shrink-0 text-xs text-text-muted">{folder.noteCount}</span>
+                <span className="shrink-0 text-xs text-text-muted">
+                  {folder.noteCount}
+                </span>
               )}
             </Link>
           );
@@ -51,7 +60,9 @@ export function FolderContentColumn({ folderId, activeId, onNavigate, className 
               }`}
             >
               <FileIcon className="size-3.5 shrink-0" />
-              <span className="min-w-0 flex-1 truncate">{note.title || '제목 없음'}</span>
+              <span className="min-w-0 flex-1 truncate">
+                {note.title || '제목 없음'}
+              </span>
             </Link>
           );
         })}

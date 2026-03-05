@@ -66,7 +66,10 @@ export class FolderRepository {
     });
   }
 
-  async getMaxSortOrder(userId: string, parentId: string | null): Promise<number> {
+  async getMaxSortOrder(
+    userId: string,
+    parentId: string | null,
+  ): Promise<number> {
     const result = await prisma.folder.aggregate({
       where: { userId, parentId },
       _max: { sortOrder: true },

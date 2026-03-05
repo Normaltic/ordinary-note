@@ -1,4 +1,8 @@
-import type { Extension, onLoadDocumentPayload, onStoreDocumentPayload } from '@hocuspocus/server';
+import type {
+  Extension,
+  onLoadDocumentPayload,
+  onStoreDocumentPayload,
+} from '@hocuspocus/server';
 import * as Y from 'yjs';
 import type { NoteRepository, YjsRepository } from '../repositories/index.js';
 import { logger } from '../utils/logger.js';
@@ -27,11 +31,17 @@ export class CollaborationPersistence implements Extension {
     private readonly noteRepo: NoteRepository,
   ) {}
 
-  async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
+  async onLoadDocument({
+    documentName,
+    document,
+  }: onLoadDocumentPayload): Promise<void> {
     const yjsDoc = await this.yjsRepo.findDocumentWithUpdates(documentName);
 
     if (!yjsDoc) {
-      logger.debug({ documentName }, 'No YjsDocument found, starting with empty doc');
+      logger.debug(
+        { documentName },
+        'No YjsDocument found, starting with empty doc',
+      );
       return;
     }
 
@@ -49,12 +59,18 @@ export class CollaborationPersistence implements Extension {
     );
   }
 
-  async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
+  async onStoreDocument({
+    documentName,
+    document,
+  }: onStoreDocumentPayload): Promise<void> {
     try {
       const yjsDoc = await this.yjsRepo.findDocumentMeta(documentName);
 
       if (!yjsDoc) {
-        logger.warn({ documentName }, 'YjsDocument not found on store, skipping');
+        logger.warn(
+          { documentName },
+          'YjsDocument not found on store, skipping',
+        );
         return;
       }
 
@@ -82,7 +98,10 @@ export class CollaborationPersistence implements Extension {
         await this.compact(yjsDoc.id, document);
       }
     } catch (err) {
-      logger.error({ err, documentName }, 'Failed to store document — will retry on next debounce cycle');
+      logger.error(
+        { err, documentName },
+        'Failed to store document — will retry on next debounce cycle',
+      );
     }
   }
 

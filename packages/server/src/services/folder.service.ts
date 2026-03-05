@@ -4,7 +4,11 @@ import type {
   FolderRecord,
   FolderWithCounts,
 } from '../repositories/index.js';
-import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors.js';
+import {
+  NotFoundError,
+  ForbiddenError,
+  ValidationError,
+} from '../utils/errors.js';
 
 function buildTree(folders: FolderWithCounts[]): FolderTreeNode[] {
   const map = new Map<string, FolderTreeNode>();

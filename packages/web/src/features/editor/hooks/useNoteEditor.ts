@@ -2,7 +2,11 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Doc } from 'yjs';
 import { HocuspocusProvider } from '@hocuspocus/provider';
-import { useNoteQuery, useSaveNote, useDeleteNote } from '../../../hooks/queries/useNote';
+import {
+  useNoteQuery,
+  useSaveNote,
+  useDeleteNote,
+} from '../../../hooks/queries/useNote';
 import { useToastStore } from '../../../stores/toast.store';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useAutoSave } from '../../../hooks/useAutoSave';
@@ -22,7 +26,8 @@ export function useNoteEditor() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [ydoc, setYdoc] = useState<Doc | null>(null);
   const [synced, setSynced] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
+  const [connectionStatus, setConnectionStatus] =
+    useState<ConnectionStatus>('connecting');
 
   const providerRef = useRef<HocuspocusProvider | null>(null);
 
@@ -40,7 +45,9 @@ export function useNoteEditor() {
     const doc = new Doc();
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = import.meta.env.VITE_WS_URL || `${wsProtocol}//${window.location.hostname}:3001`;
+    const wsHost =
+      import.meta.env.VITE_WS_URL ||
+      `${wsProtocol}//${window.location.hostname}:3001`;
 
     const provider = new HocuspocusProvider({
       url: `${wsHost}/collaboration`,

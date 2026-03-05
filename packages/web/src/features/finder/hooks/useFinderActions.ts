@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToastStore } from '../../../stores/toast.store';
-import { useCreateFolder, useRenameFolder, useDeleteFolder } from '../../../hooks/queries/useFolder';
+import {
+  useCreateFolder,
+  useRenameFolder,
+  useDeleteFolder,
+} from '../../../hooks/queries/useFolder';
 import { useCreateNote, useDeleteNote } from '../../../hooks/queries/useNote';
 import type { FolderSummary, NoteSummary } from '@ordinary-note/shared';
 
@@ -21,8 +25,12 @@ export function useFinderActions(folderId: string | undefined) {
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
 
-  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(null);
-  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
+  const [promptDialog, setPromptDialog] = useState<PromptDialogState | null>(
+    null,
+  );
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(
+    null,
+  );
 
   const createFolder = useCreateFolder();
   const renameFolder = useRenameFolder();

@@ -1,5 +1,8 @@
 import { vi } from 'vitest';
-import type { UserRecord, GoogleProfile } from '../repositories/user.repository.js';
+import type {
+  UserRecord,
+  GoogleProfile,
+} from '../repositories/user.repository.js';
 import type {
   RefreshTokenRecord,
   RefreshTokenWithUser,
@@ -31,8 +34,10 @@ export function createMockUserRepo() {
 export function createMockRefreshTokenRepo() {
   return {
     create: vi.fn<(data: unknown) => Promise<RefreshTokenRecord>>(),
-    findByTokenHash: vi.fn<(hash: string) => Promise<RefreshTokenRecord | null>>(),
-    findByTokenHashWithUser: vi.fn<(hash: string) => Promise<RefreshTokenWithUser | null>>(),
+    findByTokenHash:
+      vi.fn<(hash: string) => Promise<RefreshTokenRecord | null>>(),
+    findByTokenHashWithUser:
+      vi.fn<(hash: string) => Promise<RefreshTokenWithUser | null>>(),
     revokeById: vi.fn<(id: string) => Promise<void>>(),
     revokeByFamilyId: vi.fn<(familyId: string) => Promise<void>>(),
   };
@@ -45,8 +50,12 @@ export function createMockFolderRepo() {
     update: vi.fn<(id: string, data: unknown) => Promise<FolderRecord>>(),
     delete: vi.fn<(id: string) => Promise<void>>(),
     findAllByUserId: vi.fn<(userId: string) => Promise<FolderWithCounts[]>>(),
-    findChildrenByParentId: vi.fn<(userId: string, parentId: string) => Promise<FolderWithCounts[]>>(),
-    getMaxSortOrder: vi.fn<(userId: string, parentId: string | null) => Promise<number>>(),
+    findChildrenByParentId:
+      vi.fn<
+        (userId: string, parentId: string) => Promise<FolderWithCounts[]>
+      >(),
+    getMaxSortOrder:
+      vi.fn<(userId: string, parentId: string | null) => Promise<number>>(),
   };
 }
 
@@ -55,9 +64,11 @@ export function createMockNoteRepo() {
     create: vi.fn<(data: unknown) => Promise<NoteRecord>>(),
     findById: vi.fn<(id: string) => Promise<NoteRecord | null>>(),
     findActiveById: vi.fn<(id: string) => Promise<NoteRecord | null>>(),
-    findActiveByIdAndUserId: vi.fn<(id: string, userId: string) => Promise<NoteRecord | null>>(),
+    findActiveByIdAndUserId:
+      vi.fn<(id: string, userId: string) => Promise<NoteRecord | null>>(),
     update: vi.fn<(id: string, data: unknown) => Promise<NoteRecord>>(),
-    updateContentPlain: vi.fn<(id: string, contentPlain: string) => Promise<void>>(),
+    updateContentPlain:
+      vi.fn<(id: string, contentPlain: string) => Promise<void>>(),
     findByFolderId: vi.fn<(folderId: string) => Promise<NoteRecord[]>>(),
     softDelete: vi.fn<(id: string) => Promise<void>>(),
     getMaxSortOrder: vi.fn<(folderId: string) => Promise<number>>(),
@@ -66,11 +77,27 @@ export function createMockNoteRepo() {
 
 export function createMockYjsRepo() {
   return {
-    findDocumentWithUpdates: vi.fn<(noteId: string) => Promise<YjsDocumentWithUpdates | null>>(),
-    findDocumentMeta: vi.fn<(noteId: string) => Promise<YjsDocumentMeta | null>>(),
-    createUpdate: vi.fn<(yjsDocumentId: string, update: Uint8Array, stateVector: Uint8Array) => Promise<void>>(),
+    findDocumentWithUpdates:
+      vi.fn<(noteId: string) => Promise<YjsDocumentWithUpdates | null>>(),
+    findDocumentMeta:
+      vi.fn<(noteId: string) => Promise<YjsDocumentMeta | null>>(),
+    createUpdate:
+      vi.fn<
+        (
+          yjsDocumentId: string,
+          update: Uint8Array,
+          stateVector: Uint8Array,
+        ) => Promise<void>
+      >(),
     countUpdates: vi.fn<(yjsDocumentId: string) => Promise<number>>(),
-    compact: vi.fn<(yjsDocumentId: string, snapshot: Uint8Array, stateVector: Uint8Array) => Promise<void>>(),
+    compact:
+      vi.fn<
+        (
+          yjsDocumentId: string,
+          snapshot: Uint8Array,
+          stateVector: Uint8Array,
+        ) => Promise<void>
+      >(),
   };
 }
 
@@ -147,7 +174,9 @@ export const fixtures = {
     ...overrides,
   }),
 
-  refreshToken: (overrides?: Partial<RefreshTokenRecord>): RefreshTokenRecord => ({
+  refreshToken: (
+    overrides?: Partial<RefreshTokenRecord>,
+  ): RefreshTokenRecord => ({
     id: 'rt-1',
     userId: 'user-1',
     tokenHash: 'hashed-token',

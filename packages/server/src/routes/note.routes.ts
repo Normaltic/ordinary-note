@@ -10,7 +10,10 @@ export function createNoteRoutes(noteService: NoteService) {
 
   // GET /api/notes/:id — get note detail
   router.get('/:id', async (req: Request, res: Response) => {
-    const note = await noteService.getById(req.user!.sub, req.params.id as string);
+    const note = await noteService.getById(
+      req.user!.sub,
+      req.params.id as string,
+    );
     res.json({ note });
   });
 
@@ -24,7 +27,11 @@ export function createNoteRoutes(noteService: NoteService) {
   // PATCH /api/notes/:id — update note
   router.patch('/:id', async (req: Request, res: Response) => {
     const data = validate(updateNoteSchema, req.body);
-    const note = await noteService.update(req.user!.sub, req.params.id as string, data);
+    const note = await noteService.update(
+      req.user!.sub,
+      req.params.id as string,
+      data,
+    );
     res.json({ note });
   });
 

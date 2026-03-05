@@ -20,7 +20,9 @@ export function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-[var(--z-index-overlay)] flex items-center justify-center bg-bg-overlay">
       <div className="w-full max-w-sm rounded-xl border border-border-default bg-bg-card p-6 shadow-lg">
-        <h3 className="mb-2 text-lg font-semibold text-text-primary">{title}</h3>
+        <h3 className="mb-2 text-lg font-semibold text-text-primary">
+          {title}
+        </h3>
         <p className="mb-4 text-sm text-text-secondary">{message}</p>
         <div className="flex justify-end gap-2">
           <button

@@ -1,10 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 
-export function useAutoSave(
-  save: () => void,
-  deps: unknown[],
-  delay = 1000,
-) {
+export function useAutoSave(save: () => void, deps: unknown[], delay = 1000) {
   const isFirstRender = useRef(true);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveRef = useRef(save);

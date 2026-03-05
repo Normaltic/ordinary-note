@@ -13,7 +13,10 @@ export class AppError extends Error {
 }
 
 export class UnauthorizedError extends AppError {
-  constructor(code: string = ErrorCode.AUTH_INVALID_TOKEN, message: string = 'Unauthorized') {
+  constructor(
+    code: string = ErrorCode.AUTH_INVALID_TOKEN,
+    message: string = 'Unauthorized',
+  ) {
     super(401, code, message);
   }
 }

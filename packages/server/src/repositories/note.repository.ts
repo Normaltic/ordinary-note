@@ -62,7 +62,10 @@ export class NoteRepository {
     });
   }
 
-  async findActiveByIdAndUserId(id: string, userId: string): Promise<NoteRecord | null> {
+  async findActiveByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<NoteRecord | null> {
     return prisma.note.findFirst({ where: { id, userId, deletedAt: null } });
   }
 

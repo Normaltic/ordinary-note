@@ -1,6 +1,20 @@
-import { useQuery, useMutation, useQueryClient, skipToken } from '@tanstack/react-query';
-import type { NoteDetail, CreateNoteRequest, UpdateNoteRequest } from '@ordinary-note/shared';
-import { fetchNote, createNote, updateNote, deleteNote } from '../../lib/api/notes';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  skipToken,
+} from '@tanstack/react-query';
+import type {
+  NoteDetail,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+} from '@ordinary-note/shared';
+import {
+  fetchNote,
+  createNote,
+  updateNote,
+  deleteNote,
+} from '../../lib/api/notes';
 import { noteKeys, invalidateFolder, invalidateNoteInFolder } from './keys';
 
 export function useNoteQuery(noteId: string | null) {
@@ -14,7 +28,8 @@ export function useNoteQuery(noteId: string | null) {
 export function useSaveNote() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateNoteRequest }) => updateNote(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateNoteRequest }) =>
+      updateNote(id, data),
     onSuccess: (updatedNote) => {
       invalidateNoteInFolder(queryClient, updatedNote.folderId);
     },

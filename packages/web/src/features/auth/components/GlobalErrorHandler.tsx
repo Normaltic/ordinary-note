@@ -3,7 +3,11 @@ import { isAxiosError } from 'axios';
 import { useAuthStore } from '../../../stores/auth.store';
 import { CancelledError } from '../../../lib/axios';
 
-export function GlobalErrorHandler({ children }: { children: React.ReactNode }) {
+export function GlobalErrorHandler({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   useEffect(() => {
     const handler = (event: PromiseRejectionEvent) => {
       if (event.reason instanceof CancelledError) {

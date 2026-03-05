@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAncestorPath, useCreateFolder } from '../../hooks/queries/useFolder';
+import {
+  useAncestorPath,
+  useCreateFolder,
+} from '../../hooks/queries/useFolder';
 import { useCreateNote } from '../../hooks/queries/useNote';
 import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
 import { HamburgerButton } from '../../components/HamburgerButton';

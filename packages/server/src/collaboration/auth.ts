@@ -10,10 +10,16 @@ export function createAuthHandler(noteRepo: NoteRepository) {
   }: onAuthenticatePayload): Promise<{ userId: string }> {
     const payload = verifyAccessToken(token);
 
-    const note = await noteRepo.findActiveByIdAndUserId(documentName, payload.sub);
+    const note = await noteRepo.findActiveByIdAndUserId(
+      documentName,
+      payload.sub,
+    );
 
     if (!note) {
-      logger.warn({ documentName, userId: payload.sub }, 'Collaboration auth failed: note not found or not owned');
+      logger.warn(
+        { documentName, userId: payload.sub },
+        'Collaboration auth failed: note not found or not owned',
+      );
       throw new Error('Unauthorized');
     }
 

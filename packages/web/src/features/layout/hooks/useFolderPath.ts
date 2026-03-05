@@ -1,1 +1,4 @@
-export { useFolderPath, type BreadcrumbSegment } from '../../../hooks/queries/useFolder';
+export {
+  useFolderPath,
+  type BreadcrumbSegment,
+} from '../../../hooks/queries/useFolder';

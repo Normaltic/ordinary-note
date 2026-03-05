@@ -1,5 +1,10 @@
 import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient, skipToken } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  skipToken,
+} from '@tanstack/react-query';
 import type {
   FolderTreeNode,
   FolderSummary,
@@ -17,14 +22,20 @@ import { folderKeys, invalidateFolder } from './keys';
 
 // ── Pure utility functions ──
 
-function buildParentMap(tree: FolderTreeNode[], map: Map<string, string | null>) {
+function buildParentMap(
+  tree: FolderTreeNode[],
+  map: Map<string, string | null>,
+) {
   for (const node of tree) {
     map.set(node.id, node.parentId);
     buildParentMap(node.children, map);
   }
 }
 
-export function buildAncestorPath(tree: FolderTreeNode[], folderId: string | null): string[] {
+export function buildAncestorPath(
+  tree: FolderTreeNode[],
+  folderId: string | null,
+): string[] {
   if (!folderId || tree.length === 0) return [];
 
   const parentMap = new Map<string, string | null>();
@@ -40,7 +51,10 @@ export function buildAncestorPath(tree: FolderTreeNode[], folderId: string | nul
   return path;
 }
 
-export function findParentId(tree: FolderTreeNode[], targetId: string): string | null {
+export function findParentId(
+  tree: FolderTreeNode[],
+  targetId: string,
+): string | null {
   for (const node of tree) {
     if (node.children.some((c) => c.id === targetId)) return node.id;
     const found = findParentId(node.children, targetId);
@@ -64,7 +78,10 @@ export interface BreadcrumbSegment {
   name: string;
 }
 
-function buildFolderPath(tree: FolderTreeNode[], folderId: string | null): BreadcrumbSegment[] {
+function buildFolderPath(
+  tree: FolderTreeNode[],
+  folderId: string | null,
+): BreadcrumbSegment[] {
   if (!folderId) return [];
 
   const map = new Map<string, { name: string; parentId: string | null }>();
@@ -129,12 +146,15 @@ interface FolderChildrenResult {
   isLoading: boolean;
 }
 
-export function useFolderChildren(folderId: string | null): FolderChildrenResult {
+export function useFolderChildren(
+  folderId: string | null,
+): FolderChildrenResult {
   const treeQuery = useFolderTree();
 
   const childrenQuery = useQuery({
     queryKey: folderKeys.children(folderId),
-    queryFn: folderId !== null ? () => fetchFolderChildren(folderId) : skipToken,
+    queryFn:
+      folderId !== null ? () => fetchFolderChildren(folderId) : skipToken,
   });
 
   if (folderId === null) {
@@ -178,7 +198,8 @@ export function useRenameFolder() {
 export function useDeleteFolder() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (vars: { id: string; parentId: string | null }) => deleteFolder(vars.id),
+    mutationFn: (vars: { id: string; parentId: string | null }) =>
+      deleteFolder(vars.id),
     onSuccess: (_data, variables) => {
       invalidateFolder(queryClient, variables.parentId);
     },

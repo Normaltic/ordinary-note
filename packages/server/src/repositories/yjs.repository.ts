@@ -14,7 +14,9 @@ export type YjsDocumentMeta = {
 };
 
 export class YjsRepository {
-  async findDocumentWithUpdates(noteId: string): Promise<YjsDocumentWithUpdates | null> {
+  async findDocumentWithUpdates(
+    noteId: string,
+  ): Promise<YjsDocumentWithUpdates | null> {
     return prisma.yjsDocument.findUnique({
       where: { noteId },
       include: {
@@ -30,7 +32,11 @@ export class YjsRepository {
     });
   }
 
-  async createUpdate(yjsDocumentId: string, update: Uint8Array, stateVector: Uint8Array): Promise<void> {
+  async createUpdate(
+    yjsDocumentId: string,
+    update: Uint8Array,
+    stateVector: Uint8Array,
+  ): Promise<void> {
     await prisma.$transaction([
       prisma.yjsUpdate.create({
         data: { yjsDocumentId, update: Buffer.from(update) },
@@ -48,11 +54,18 @@ export class YjsRepository {
     });
   }
 
-  async compact(yjsDocumentId: string, snapshot: Uint8Array, stateVector: Uint8Array): Promise<void> {
+  async compact(
+    yjsDocumentId: string,
+    snapshot: Uint8Array,
+    stateVector: Uint8Array,
+  ): Promise<void> {
     await prisma.$transaction([
       prisma.yjsDocument.update({
         where: { id: yjsDocumentId },
-        data: { snapshot: Buffer.from(snapshot), stateVector: Buffer.from(stateVector) },
+        data: {
+          snapshot: Buffer.from(snapshot),
+          stateVector: Buffer.from(stateVector),
+        },
       }),
       prisma.yjsUpdate.deleteMany({
         where: { yjsDocumentId },

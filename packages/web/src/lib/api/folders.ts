@@ -16,14 +16,20 @@ export async function fetchFolderTree(): Promise<FolderTreeNode[]> {
 export async function fetchFolderChildren(
   folderId: string,
 ): Promise<{ folders: FolderSummary[]; notes: NoteSummary[] }> {
-  const { data } = await api.get<{ folders: FolderSummary[]; notes: NoteSummary[] }>(
-    `/api/folders/${folderId}/children`,
-  );
+  const { data } = await api.get<{
+    folders: FolderSummary[];
+    notes: NoteSummary[];
+  }>(`/api/folders/${folderId}/children`);
   return data;
 }
 
-export async function createFolder(req: CreateFolderRequest): Promise<FolderDetail> {
-  const { data } = await api.post<{ folder: FolderDetail }>('/api/folders', req);
+export async function createFolder(
+  req: CreateFolderRequest,
+): Promise<FolderDetail> {
+  const { data } = await api.post<{ folder: FolderDetail }>(
+    '/api/folders',
+    req,
+  );
   return data.folder;
 }
 
@@ -31,7 +37,10 @@ export async function updateFolder(
   id: string,
   req: UpdateFolderRequest,
 ): Promise<FolderDetail> {
-  const { data } = await api.patch<{ folder: FolderDetail }>(`/api/folders/${id}`, req);
+  const { data } = await api.patch<{ folder: FolderDetail }>(
+    `/api/folders/${id}`,
+    req,
+  );
   return data.folder;
 }
 

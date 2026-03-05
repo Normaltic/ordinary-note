@@ -31,7 +31,10 @@ export function setupCollaboration(
     extensions: [persistence],
   });
 
-  const wss = new WebSocketServer({ noServer: true, maxPayload: 1 * 1024 * 1024 });
+  const wss = new WebSocketServer({
+    noServer: true,
+    maxPayload: 1 * 1024 * 1024,
+  });
   const allowedOrigin = new URL(config.clientUrl).origin;
 
   httpServer.on('upgrade', (request, socket, head) => {
@@ -39,7 +42,10 @@ export function setupCollaboration(
     const origin = request.headers.origin;
 
     if (origin !== allowedOrigin) {
-      logger.warn({ origin, allowedOrigin }, 'WebSocket upgrade rejected: origin mismatch');
+      logger.warn(
+        { origin, allowedOrigin },
+        'WebSocket upgrade rejected: origin mismatch',
+      );
       socket.destroy();
       return;
     }
@@ -65,7 +71,9 @@ export function setupCollaboration(
         }
         const timeout = setTimeout(() => {
           clearInterval(interval);
-          logger.warn('Collaboration destroy timed out, proceeding with shutdown');
+          logger.warn(
+            'Collaboration destroy timed out, proceeding with shutdown',
+          );
           resolve();
         }, 30_000);
         const interval = setInterval(() => {

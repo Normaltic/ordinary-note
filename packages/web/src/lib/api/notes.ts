@@ -19,7 +19,10 @@ export async function updateNote(
   id: string,
   req: UpdateNoteRequest,
 ): Promise<NoteDetail> {
-  const { data } = await api.patch<{ note: NoteDetail }>(`/api/notes/${id}`, req);
+  const { data } = await api.patch<{ note: NoteDetail }>(
+    `/api/notes/${id}`,
+    req,
+  );
   return data.note;
 }
 

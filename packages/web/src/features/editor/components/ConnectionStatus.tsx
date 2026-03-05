@@ -11,7 +11,8 @@ const statusConfig = {
 
 export function ConnectionStatus({ status, synced }: ConnectionStatusProps) {
   const config = statusConfig[status];
-  const label = status === 'connected' && !synced ? '동기화 중...' : config.label;
+  const label =
+    status === 'connected' && !synced ? '동기화 중...' : config.label;
 
   return (
     <span className="flex items-center gap-1.5 text-xs text-text-muted">

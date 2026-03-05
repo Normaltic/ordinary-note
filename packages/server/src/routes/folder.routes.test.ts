@@ -49,7 +49,16 @@ describe('Folder Routes', () => {
 
   describe('GET /api/folders', () => {
     it('성공: 폴더 트리 반환', async () => {
-      const tree = [{ id: 'f1', name: 'Root', parentId: null, sortOrder: 0, children: [], noteCount: 0 }];
+      const tree = [
+        {
+          id: 'f1',
+          name: 'Root',
+          parentId: null,
+          sortOrder: 0,
+          children: [],
+          noteCount: 0,
+        },
+      ];
       mockFolderService.getTree.mockResolvedValue(tree);
 
       const res = await request(app)
@@ -99,7 +108,10 @@ describe('Folder Routes', () => {
 
   describe('GET /api/folders/:id/children', () => {
     it('성공: 자식 폴더 + 노트 반환', async () => {
-      const childFolder = fixtures.folderWithCounts({ id: 'c1', parentId: 'f1' });
+      const childFolder = fixtures.folderWithCounts({
+        id: 'c1',
+        parentId: 'f1',
+      });
       const note = fixtures.note({ folderId: 'f1' });
       mockFolderService.getChildren.mockResolvedValue([childFolder]);
       mockNoteService.getByFolderId.mockResolvedValue([note]);
@@ -122,8 +134,12 @@ describe('Folder Routes', () => {
 
     it('실패: 폴더 NotFound → 404', async () => {
       const { NotFoundError } = await import('../utils/errors.js');
-      mockFolderService.getChildren.mockRejectedValue(new NotFoundError('Folder'));
-      mockNoteService.getByFolderId.mockRejectedValue(new NotFoundError('Folder'));
+      mockFolderService.getChildren.mockRejectedValue(
+        new NotFoundError('Folder'),
+      );
+      mockNoteService.getByFolderId.mockRejectedValue(
+        new NotFoundError('Folder'),
+      );
 
       const res = await request(app)
         .get('/api/folders/no-folder/children')

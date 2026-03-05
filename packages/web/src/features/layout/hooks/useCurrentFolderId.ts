@@ -7,5 +7,9 @@ export function useCurrentFolderId(): string | null {
   const noteId = noteMatch?.params.noteId ?? null;
   const { data: note } = useNoteQuery(noteId);
 
-  return folderMatch?.params.folderId ?? (noteMatch ? note?.folderId ?? null : null) ?? null;
+  return (
+    folderMatch?.params.folderId ??
+    (noteMatch ? (note?.folderId ?? null) : null) ??
+    null
+  );
 }

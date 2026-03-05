@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FolderService } from './folder.service.js';
+import { createMockFolderRepo, fixtures } from '../testing/helpers.js';
 import {
-  createMockFolderRepo,
-  fixtures,
-} from '../testing/helpers.js';
-import { NotFoundError, ForbiddenError, ValidationError } from '../utils/errors.js';
+  NotFoundError,
+  ForbiddenError,
+  ValidationError,
+} from '../utils/errors.js';
 
 vi.mock('../utils/config.js', () => ({
   config: {
@@ -51,7 +52,9 @@ describe('FolderService', () => {
         .mockResolvedValueOnce([
           fixtures.folderWithCounts({ name: 'My Notes' }),
         ]);
-      folderRepo.create.mockResolvedValue(fixtures.folder({ name: 'My Notes' }));
+      folderRepo.create.mockResolvedValue(
+        fixtures.folder({ name: 'My Notes' }),
+      );
 
       const tree = await service.getTree('user-1');
 
@@ -69,7 +72,11 @@ describe('FolderService', () => {
         fixtures.folderWithCounts({ id: 'r', parentId: null, name: 'Root' }),
         fixtures.folderWithCounts({ id: 'c1', parentId: 'r', name: 'Child1' }),
         fixtures.folderWithCounts({ id: 'c2', parentId: 'r', name: 'Child2' }),
-        fixtures.folderWithCounts({ id: 'gc', parentId: 'c1', name: 'GrandChild' }),
+        fixtures.folderWithCounts({
+          id: 'gc',
+          parentId: 'c1',
+          name: 'GrandChild',
+        }),
       ];
       folderRepo.findAllByUserId.mockResolvedValue(folders);
 
@@ -87,7 +94,9 @@ describe('FolderService', () => {
   describe('getChildren', () => {
     it('자식 폴더 목록을 반환한다', async () => {
       folderRepo.findById.mockResolvedValue(fixtures.folder());
-      const children = [fixtures.folderWithCounts({ id: 'c1', parentId: 'folder-1' })];
+      const children = [
+        fixtures.folderWithCounts({ id: 'c1', parentId: 'folder-1' }),
+      ];
       folderRepo.findChildrenByParentId.mockResolvedValue(children);
 
       const result = await service.getChildren('user-1', 'folder-1');
@@ -98,15 +107,19 @@ describe('FolderService', () => {
     it('폴더가 없으면 NotFoundError', async () => {
       folderRepo.findById.mockResolvedValue(null);
 
-      await expect(service.getChildren('user-1', 'no-folder'))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.getChildren('user-1', 'no-folder')).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it('소유자가 아니면 ForbiddenError', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ userId: 'other-user' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ userId: 'other-user' }),
+      );
 
-      await expect(service.getChildren('user-1', 'folder-1'))
-        .rejects.toThrow(ForbiddenError);
+      await expect(service.getChildren('user-1', 'folder-1')).rejects.toThrow(
+        ForbiddenError,
+      );
     });
   });
 
@@ -140,7 +153,9 @@ describe('FolderService', () => {
     });
 
     it('parentId가 있으면 부모 폴더를 검증한다', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ id: 'parent-1' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'parent-1' }),
+      );
       folderRepo.getMaxSortOrder.mockResolvedValue(0);
       folderRepo.create.mockResolvedValue(fixtures.folder());
 
@@ -152,15 +167,19 @@ describe('FolderService', () => {
     it('부모 폴더가 없으면 NotFoundError', async () => {
       folderRepo.findById.mockResolvedValue(null);
 
-      await expect(service.create('user-1', { name: 'Sub', parentId: 'no-parent' }))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.create('user-1', { name: 'Sub', parentId: 'no-parent' }),
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('부모 폴더의 소유자가 다르면 ForbiddenError', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ userId: 'other-user' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ userId: 'other-user' }),
+      );
 
-      await expect(service.create('user-1', { name: 'Sub', parentId: 'folder-1' }))
-        .rejects.toThrow(ForbiddenError);
+      await expect(
+        service.create('user-1', { name: 'Sub', parentId: 'folder-1' }),
+      ).rejects.toThrow(ForbiddenError);
     });
   });
 
@@ -172,30 +191,39 @@ describe('FolderService', () => {
       const updated = fixtures.folder({ name: 'Renamed' });
       folderRepo.update.mockResolvedValue(updated);
 
-      const result = await service.update('user-1', 'folder-1', { name: 'Renamed' });
+      const result = await service.update('user-1', 'folder-1', {
+        name: 'Renamed',
+      });
 
       expect(result).toEqual(updated);
     });
 
     it('자기참조를 방지한다', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ id: 'folder-1' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'folder-1' }),
+      );
 
-      await expect(service.update('user-1', 'folder-1', { parentId: 'folder-1' }))
-        .rejects.toThrow(ValidationError);
+      await expect(
+        service.update('user-1', 'folder-1', { parentId: 'folder-1' }),
+      ).rejects.toThrow(ValidationError);
     });
 
     it('폴더가 없으면 NotFoundError', async () => {
       folderRepo.findById.mockResolvedValue(null);
 
-      await expect(service.update('user-1', 'no-folder', { name: 'X' }))
-        .rejects.toThrow(NotFoundError);
+      await expect(
+        service.update('user-1', 'no-folder', { name: 'X' }),
+      ).rejects.toThrow(NotFoundError);
     });
 
     it('소유자가 아니면 ForbiddenError', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ userId: 'other-user' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ userId: 'other-user' }),
+      );
 
-      await expect(service.update('user-1', 'folder-1', { name: 'X' }))
-        .rejects.toThrow(ForbiddenError);
+      await expect(
+        service.update('user-1', 'folder-1', { name: 'X' }),
+      ).rejects.toThrow(ForbiddenError);
     });
   });
 
@@ -214,15 +242,19 @@ describe('FolderService', () => {
     it('폴더가 없으면 NotFoundError', async () => {
       folderRepo.findById.mockResolvedValue(null);
 
-      await expect(service.delete('user-1', 'no-folder'))
-        .rejects.toThrow(NotFoundError);
+      await expect(service.delete('user-1', 'no-folder')).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it('소유자가 아니면 ForbiddenError', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder({ userId: 'other-user' }));
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ userId: 'other-user' }),
+      );
 
-      await expect(service.delete('user-1', 'folder-1'))
-        .rejects.toThrow(ForbiddenError);
+      await expect(service.delete('user-1', 'folder-1')).rejects.toThrow(
+        ForbiddenError,
+      );
     });
   });
 });
