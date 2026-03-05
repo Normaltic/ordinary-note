@@ -62,6 +62,17 @@ export class NoteRepository {
     });
   }
 
+  async findActiveByIdAndUserId(id: string, userId: string): Promise<NoteRecord | null> {
+    return prisma.note.findFirst({ where: { id, userId, deletedAt: null } });
+  }
+
+  async updateContentPlain(id: string, contentPlain: string): Promise<void> {
+    await prisma.note.update({
+      where: { id },
+      data: { contentPlain, updatedAt: new Date() },
+    });
+  }
+
   async getMaxSortOrder(folderId: string): Promise<number> {
     const result = await prisma.note.aggregate({
       where: { folderId, deletedAt: null },

@@ -9,6 +9,10 @@ import type {
   FolderWithCounts,
 } from '../repositories/folder.repository.js';
 import type { NoteRecord } from '../repositories/note.repository.js';
+import type {
+  YjsDocumentWithUpdates,
+  YjsDocumentMeta,
+} from '../repositories/yjs.repository.js';
 import type { AuthService } from '../services/auth.service.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
@@ -51,10 +55,22 @@ export function createMockNoteRepo() {
     create: vi.fn<(data: unknown) => Promise<NoteRecord>>(),
     findById: vi.fn<(id: string) => Promise<NoteRecord | null>>(),
     findActiveById: vi.fn<(id: string) => Promise<NoteRecord | null>>(),
+    findActiveByIdAndUserId: vi.fn<(id: string, userId: string) => Promise<NoteRecord | null>>(),
     update: vi.fn<(id: string, data: unknown) => Promise<NoteRecord>>(),
+    updateContentPlain: vi.fn<(id: string, contentPlain: string) => Promise<void>>(),
     findByFolderId: vi.fn<(folderId: string) => Promise<NoteRecord[]>>(),
     softDelete: vi.fn<(id: string) => Promise<void>>(),
     getMaxSortOrder: vi.fn<(folderId: string) => Promise<number>>(),
+  };
+}
+
+export function createMockYjsRepo() {
+  return {
+    findDocumentWithUpdates: vi.fn<(noteId: string) => Promise<YjsDocumentWithUpdates | null>>(),
+    findDocumentMeta: vi.fn<(noteId: string) => Promise<YjsDocumentMeta | null>>(),
+    createUpdate: vi.fn<(yjsDocumentId: string, update: Uint8Array, stateVector: Uint8Array) => Promise<void>>(),
+    countUpdates: vi.fn<(yjsDocumentId: string) => Promise<number>>(),
+    compact: vi.fn<(yjsDocumentId: string, snapshot: Uint8Array, stateVector: Uint8Array) => Promise<void>>(),
   };
 }
 

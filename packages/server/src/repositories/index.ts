@@ -22,3 +22,9 @@ export type {
   CreateNoteData,
   UpdateNoteData,
 } from './note.repository.js';
+
+export { YjsRepository } from './yjs.repository.js';
+export type {
+  YjsDocumentWithUpdates,
+  YjsDocumentMeta,
+} from './yjs.repository.js';
