@@ -7,10 +7,11 @@ import {
   RefreshTokenRepository,
   FolderRepository,
   NoteRepository,
+  YjsRepository,
 } from './repositories/index.js';
 import { AuthService, FolderService, NoteService } from './services/index.js';
 import { createApp } from './app.js';
-import { setupHocuspocus } from './hocuspocus/index.js';
+import { setupCollaboration } from './collaboration/index.js';
 
 const PORT = process.env.PORT || 3001;
 
@@ -23,6 +24,7 @@ async function main() {
   const refreshTokenRepo = new RefreshTokenRepository();
   const folderRepo = new FolderRepository();
   const noteRepo = new NoteRepository();
+  const yjsRepo = new YjsRepository();
 
   const authService = new AuthService(userRepo, refreshTokenRepo);
   const folderService = new FolderService(folderRepo);
@@ -31,7 +33,7 @@ async function main() {
   const app = createApp({ authService, folderService, noteService });
   const httpServer = createServer(app);
 
-  const hocuspocus = setupHocuspocus(httpServer);
+  const collaboration = setupCollaboration(httpServer, { noteRepo, yjsRepo });
 
   httpServer.listen(PORT, () => {
     logger.info({ port: PORT }, 'Server started');
@@ -39,7 +41,7 @@ async function main() {
 
   async function shutdown(signal: string) {
     logger.info({ signal }, 'Shutdown signal received');
-    await hocuspocus.destroy();
+    await collaboration.destroy();
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
     logger.info('HTTP server closed');
     await prisma.$disconnect();

@@ -1,6 +1,6 @@
 import type { Extension, onLoadDocumentPayload, onStoreDocumentPayload } from '@hocuspocus/server';
 import * as Y from 'yjs';
-import { prisma } from '../utils/prisma.js';
+import type { NoteRepository, YjsRepository } from '../repositories/index.js';
 import { logger } from '../utils/logger.js';
 
 const COMPACTION_THRESHOLD = 500;
@@ -21,14 +21,14 @@ function extractPlainText(ydoc: Y.Doc): string {
   return collectText(ydoc.getXmlFragment('default'));
 }
 
-export class PrismaPersistence implements Extension {
+export class CollaborationPersistence implements Extension {
+  constructor(
+    private readonly yjsRepo: YjsRepository,
+    private readonly noteRepo: NoteRepository,
+  ) {}
+
   async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
-    const yjsDoc = await prisma.yjsDocument.findUnique({
-      where: { noteId: documentName },
-      include: {
-        updates: { orderBy: { id: 'asc' }, select: { update: true } },
-      },
-    });
+    const yjsDoc = await this.yjsRepo.findDocumentWithUpdates(documentName);
 
     if (!yjsDoc) {
       logger.debug({ documentName }, 'No YjsDocument found, starting with empty doc');
@@ -51,10 +51,7 @@ export class PrismaPersistence implements Extension {
 
   async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
     try {
-      const yjsDoc = await prisma.yjsDocument.findUnique({
-        where: { noteId: documentName },
-        select: { id: true, stateVector: true },
-      });
+      const yjsDoc = await this.yjsRepo.findDocumentMeta(documentName);
 
       if (!yjsDoc) {
         logger.warn({ documentName }, 'YjsDocument not found on store, skipping');
@@ -70,38 +67,16 @@ export class PrismaPersistence implements Extension {
         diff = Y.encodeStateAsUpdate(document);
       }
 
-      // Skip empty updates
       if (diff.byteLength <= 2) {
         return;
       }
 
-      await prisma.$transaction([
-        prisma.yjsUpdate.create({
-          data: {
-            yjsDocumentId: yjsDoc.id,
-            update: Buffer.from(diff),
-          },
-        }),
-        prisma.yjsDocument.update({
-          where: { id: yjsDoc.id },
-          data: { stateVector: Buffer.from(newStateVector) },
-        }),
-      ]);
+      await this.yjsRepo.createUpdate(yjsDoc.id, diff, newStateVector);
 
-      // Best-effort: 미리보기용 파생 데이터 갱신
       const plainText = extractPlainText(document);
-      await prisma.note.update({
-        where: { id: documentName },
-        data: {
-          contentPlain: plainText,
-          updatedAt: new Date(),
-        },
-      });
+      await this.noteRepo.updateContentPlain(documentName, plainText);
 
-      // Check compaction
-      const updateCount = await prisma.yjsUpdate.count({
-        where: { yjsDocumentId: yjsDoc.id },
-      });
+      const updateCount = await this.yjsRepo.countUpdates(yjsDoc.id);
 
       if (updateCount > COMPACTION_THRESHOLD) {
         await this.compact(yjsDoc.id, document);
@@ -117,18 +92,7 @@ export class PrismaPersistence implements Extension {
     const snapshot = Y.encodeStateAsUpdate(document);
     const stateVector = Y.encodeStateVector(document);
 
-    await prisma.$transaction([
-      prisma.yjsDocument.update({
-        where: { id: yjsDocId },
-        data: {
-          snapshot: Buffer.from(snapshot),
-          stateVector: Buffer.from(stateVector),
-        },
-      }),
-      prisma.yjsUpdate.deleteMany({
-        where: { yjsDocumentId: yjsDocId },
-      }),
-    ]);
+    await this.yjsRepo.compact(yjsDocId, snapshot, stateVector);
 
     logger.info({ yjsDocId }, 'Compaction complete');
   }

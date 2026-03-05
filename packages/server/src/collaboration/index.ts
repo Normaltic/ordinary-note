@@ -1,18 +1,34 @@
 import type { Server as HTTPServer } from 'node:http';
 import { Hocuspocus } from '@hocuspocus/server';
 import { WebSocketServer } from 'ws';
+import type { NoteRepository, YjsRepository } from '../repositories/index.js';
 import { config } from '../utils/config.js';
 import { logger } from '../utils/logger.js';
-import { PrismaPersistence } from './persistence.js';
-import { onAuthenticate } from './auth.js';
+import { createAuthHandler } from './auth.js';
+import { CollaborationPersistence } from './persistence.js';
 
-export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<void> } {
+export type CollaborationDeps = {
+  noteRepo: NoteRepository;
+  yjsRepo: YjsRepository;
+};
+
+export interface CollaborationServer {
+  destroy(): Promise<void>;
+}
+
+export function setupCollaboration(
+  httpServer: HTTPServer,
+  deps: CollaborationDeps,
+): CollaborationServer {
+  const onAuthenticate = createAuthHandler(deps.noteRepo);
+  const persistence = new CollaborationPersistence(deps.yjsRepo, deps.noteRepo);
+
   const hocuspocus = new Hocuspocus({
     debounce: 2000,
     maxDebounce: 10000,
     quiet: true,
     onAuthenticate,
-    extensions: [new PrismaPersistence()],
+    extensions: [persistence],
   });
 
   const wss = new WebSocketServer({ noServer: true, maxPayload: 1 * 1024 * 1024 });
@@ -37,7 +53,7 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
     }
   });
 
-  logger.info('Hocuspocus WebSocket server attached on /collaboration');
+  logger.info('Collaboration WebSocket server attached on /collaboration');
 
   return {
     async destroy() {
@@ -49,7 +65,7 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
         }
         const timeout = setTimeout(() => {
           clearInterval(interval);
-          logger.warn('Hocuspocus destroy timed out, proceeding with shutdown');
+          logger.warn('Collaboration destroy timed out, proceeding with shutdown');
           resolve();
         }, 30_000);
         const interval = setInterval(() => {
@@ -60,7 +76,7 @@ export function setupHocuspocus(httpServer: HTTPServer): { destroy(): Promise<vo
           }
         }, 100);
       });
-      logger.info('Hocuspocus destroyed, pending documents flushed');
+      logger.info('Collaboration server destroyed, pending documents flushed');
     },
   };
 }
