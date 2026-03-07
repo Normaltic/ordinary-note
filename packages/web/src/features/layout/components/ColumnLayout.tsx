@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useColumnIds } from '../hooks/useColumnIds';
-import { AncestorColumns } from './AncestorColumns';
+import { FolderContentColumn } from '../../finder/components/FolderContentColumn';
 
 interface ColumnLayoutProps {
   folderId: string | null;
@@ -17,11 +17,24 @@ export function ColumnLayout({
 
   return (
     <div className="flex h-full">
-      <AncestorColumns
-        columnIds={columnIds}
-        activeId={ancestorPath[ancestorPath.length - 1] ?? null}
-        columnWidth={columnWidth}
-      />
+      {columnIds.length >= 2 && (
+        <div className="hidden xl:flex">
+          <FolderContentColumn
+            folderId={columnIds[columnIds.length - 2]}
+            activeId={columnIds[columnIds.length - 1]}
+            className={columnWidth}
+          />
+        </div>
+      )}
+      {columnIds.length >= 1 && (
+        <div className="hidden lg:flex">
+          <FolderContentColumn
+            folderId={columnIds[columnIds.length - 1]}
+            activeId={ancestorPath[ancestorPath.length - 1] ?? null}
+            className={columnWidth}
+          />
+        </div>
+      )}
       {children}
     </div>
   );
