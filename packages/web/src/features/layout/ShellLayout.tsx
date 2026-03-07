@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useAncestorPath } from '../../hooks/queries/useFolder';
 import { useNavStore } from '../../stores/nav.store';
 import { useCurrentFolderId } from './hooks/useCurrentFolderId';
+import { useColumnIds } from './hooks/useColumnIds';
+import { useStandalone } from './hooks/useStandalone';
 import { Sidebar } from './components/Sidebar';
 import { FolderContentColumn } from '../finder/components/FolderContentColumn';
 import { Toast } from '../../components/Toast';
@@ -13,11 +13,8 @@ interface ShellLayoutProps {
 
 export function ShellLayout({ children }: ShellLayoutProps) {
   const folderId = useCurrentFolderId();
-  const { data: ancestorPath = [] } = useAncestorPath(folderId);
-  const columnIds = ancestorPath.length > 1 ? ancestorPath.slice(0, -1) : [];
-
-  const [searchParams] = useSearchParams();
-  const standalone = searchParams.has('standalone');
+  const { columnIds, ancestorPath } = useColumnIds(folderId);
+  const { standalone } = useStandalone();
 
   return (
     <div className="flex h-dvh lg:bg-bg-frame lg:py-3 lg:pr-3">
