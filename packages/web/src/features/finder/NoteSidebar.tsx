@@ -1,4 +1,4 @@
-import { FinderView } from '../FinderView';
+import { FinderView } from './FinderView';
 
 interface NoteSidebarProps {
   folderId: string;

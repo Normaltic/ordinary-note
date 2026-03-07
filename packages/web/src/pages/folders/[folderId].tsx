@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { useFolderPath } from '../../hooks/queries/useFolder';
-import { ColumnLayout } from '../../features/layout/components/ColumnLayout';
+import { ColumnLayout } from '../../features/layout/ColumnLayout';
 import { FinderView } from '../../features/finder/FinderView';
 
 export function FolderPage() {

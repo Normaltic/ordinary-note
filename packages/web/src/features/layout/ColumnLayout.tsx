@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { useColumnIds } from '../hooks/useColumnIds';
-import { FolderContentColumn } from '../../finder/components/FolderContentColumn';
+import { useColumnIds } from './hooks/useColumnIds';
+import { FolderContentColumn } from '../finder/FolderContentColumn';
 
 interface ColumnLayoutProps {
   folderId: string | null;

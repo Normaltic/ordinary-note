@@ -4,7 +4,7 @@ import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { useColumnIds } from './hooks/useColumnIds';
 import { useStandalone } from './hooks/useStandalone';
 import { Sidebar } from './components/Sidebar';
-import { FolderContentColumn } from '../finder/components/FolderContentColumn';
+import { FolderContentColumn } from '../finder/FolderContentColumn';
 import { Toast } from '../../components/Toast';
 
 interface ShellLayoutProps {
