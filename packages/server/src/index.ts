@@ -16,8 +16,9 @@ import { setupCollaboration } from './collaboration/index.js';
 const PORT = process.env.PORT || 3001;
 
 async function main() {
+  await prisma.$executeRawUnsafe('PRAGMA journal_mode = WAL');
   await prisma.$executeRawUnsafe('PRAGMA foreign_keys = ON');
-  logger.info('Database connected, foreign keys enabled');
+  logger.info('Database connected, WAL mode and foreign keys enabled');
 
   // Composition root
   const userRepo = new UserRepository();
