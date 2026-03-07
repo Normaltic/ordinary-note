@@ -43,8 +43,9 @@ class Auth {
   }
 
   private async doRefresh(): Promise<string | null> {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
     try {
-      const res = await fetch('/api/auth/refresh', {
+      const res = await fetch(`${apiUrl}/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
       });
