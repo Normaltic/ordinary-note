@@ -1,7 +1,7 @@
 import { useNavStore } from '../../stores/nav.store';
 import MenuIcon from '../../components/icons/menu.svg?react';
 
-export function HamburgerButton() {
+export function SidebarToggle() {
   const toggle = useNavStore((s) => s.toggle);
   return (
     <button

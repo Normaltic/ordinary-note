@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { HamburgerButton } from '../../features/layout/HamburgerButton';
+import { SidebarToggle } from '../../features/layout/SidebarToggle';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { useFolderPath } from '../../hooks/queries/useFolder';
 import { ColumnLayout } from '../../features/layout/ColumnLayout';
@@ -13,7 +13,7 @@ export function FolderPage() {
     <ColumnLayout folderId={folderId ?? null} columnWidth="w-80">
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-2 border-b border-border-light px-4 py-3 lg:hidden">
-          <HamburgerButton />
+          <SidebarToggle />
           <Breadcrumb segments={segments} />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
