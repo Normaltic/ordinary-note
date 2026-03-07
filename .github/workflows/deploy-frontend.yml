@@ -7,6 +7,10 @@ on:
       - 'packages/web/**'
       - 'packages/shared/**'
 
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
