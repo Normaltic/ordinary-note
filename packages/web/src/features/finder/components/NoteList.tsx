@@ -71,7 +71,7 @@ export function NoteList({
                   </div>
                 )}
               </div>
-              <span className="text-xs text-text-muted shrink-0">
+              <span className="text-xs text-text-muted shrink-0 group-hover:hidden">
                 {formatDate(note.updatedAt)}
               </span>
             </NavLink>

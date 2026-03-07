@@ -59,7 +59,7 @@ export function FolderList({
               <span className="flex-1 text-sm font-medium text-text-primary">
                 {folder.name}
               </span>
-              <span className="text-xs text-text-muted">
+              <span className="text-xs text-text-muted shrink-0 group-hover:hidden">
                 {folder.childCount > 0 && `${folder.childCount}개 폴더`}
                 {folder.childCount > 0 && folder.noteCount > 0 && ', '}
                 {folder.noteCount > 0 && `${folder.noteCount}개 노트`}
