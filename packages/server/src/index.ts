@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { createServer } from 'node:http';
 import { prisma } from './utils/prisma.js';
 import { logger } from './utils/logger.js';
