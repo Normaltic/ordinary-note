@@ -14,6 +14,8 @@ export function FinderView({
   const folderId = propFolderId ?? paramFolderId ?? null;
   const { folders, notes, isLoading } = useFolderChildren(folderId);
   const {
+    handleCreateFolder,
+    handleCreateNote,
     handleRenameFolder,
     handleDeleteFolder,
     handleDeleteNote,
@@ -36,8 +38,6 @@ export function FinderView({
     );
   }
 
-  const isEmpty = folders.length === 0 && notes.length === 0;
-
   return (
     <>
       <FolderList
@@ -53,6 +53,7 @@ export function FinderView({
           closeMenu();
           handleDeleteFolder(f);
         }}
+        onCreate={handleCreateFolder}
       />
 
       <NoteList
@@ -64,13 +65,8 @@ export function FinderView({
           closeMenu();
           handleDeleteNote(n);
         }}
+        onCreate={folderId ? handleCreateNote : undefined}
       />
-
-      {isEmpty && (
-        <div className="py-20 text-center text-text-muted">
-          이 폴더는 비어 있습니다
-        </div>
-      )}
 
       <PromptDialog
         open={promptDialogProps.open}

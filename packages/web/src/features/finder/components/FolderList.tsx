@@ -10,6 +10,7 @@ interface FolderListProps {
   onMenuClose: () => void;
   onRename: (folder: FolderSummary) => void;
   onDelete: (folder: FolderSummary) => void;
+  onCreate?: () => void;
 }
 
 export function FolderList({
@@ -19,14 +20,24 @@ export function FolderList({
   onMenuClose,
   onRename,
   onDelete,
+  onCreate,
 }: FolderListProps) {
-  if (folders.length === 0) return null;
-
   return (
     <section className="mb-6">
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-        폴더
-      </h2>
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+          폴더
+        </h2>
+        {onCreate && (
+          <button
+            onClick={onCreate}
+            className="flex h-5 w-5 items-center justify-center rounded text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
+            aria-label="새 폴더"
+          >
+            +
+          </button>
+        )}
+      </div>
       <div className="space-y-1">
         {folders.map((folder) => (
           <div key={folder.id} className="group relative">

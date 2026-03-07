@@ -1,15 +1,21 @@
 import { useParams } from 'react-router-dom';
+import { HamburgerButton } from '../../components/HamburgerButton';
+import { Breadcrumb } from '../../components/Breadcrumb';
+import { useFolderPath } from '../../hooks/queries/useFolder';
 import { ColumnLayout } from '../../features/layout/components/ColumnLayout';
-import { FinderToolbar } from '../../features/finder/components/FinderToolbar';
 import { FinderView } from '../../features/finder/FinderView';
 
 export function FolderPage() {
   const { folderId } = useParams();
+  const segments = useFolderPath(folderId ?? null);
 
   return (
     <ColumnLayout folderId={folderId ?? null} columnWidth="w-80">
       <div className="flex min-w-0 flex-1 flex-col">
-        <FinderToolbar folderId={folderId} showBreadcrumb />
+        <div className="flex items-center gap-2 border-b border-border-light px-4 py-3 lg:hidden">
+          <HamburgerButton />
+          <Breadcrumb segments={segments} />
+        </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6">
             <FinderView />

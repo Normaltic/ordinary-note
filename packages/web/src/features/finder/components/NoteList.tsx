@@ -10,6 +10,7 @@ interface NoteListProps {
   onMenuToggle: (id: string) => void;
   onMenuClose: () => void;
   onDelete: (note: NoteSummary) => void;
+  onCreate?: () => void;
 }
 
 export function NoteList({
@@ -18,14 +19,24 @@ export function NoteList({
   onMenuToggle,
   onMenuClose,
   onDelete,
+  onCreate,
 }: NoteListProps) {
-  if (notes.length === 0) return null;
-
   return (
     <section className="mb-6">
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-        노트
-      </h2>
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+          노트
+        </h2>
+        {onCreate && (
+          <button
+            onClick={onCreate}
+            className="flex h-5 w-5 items-center justify-center rounded text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
+            aria-label="새 노트"
+          >
+            +
+          </button>
+        )}
+      </div>
       <div className="space-y-1">
         {notes.map((note) => (
           <div key={note.id} className="group relative">
