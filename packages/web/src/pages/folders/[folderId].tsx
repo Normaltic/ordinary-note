@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { HamburgerButton } from '../../components/HamburgerButton';
+import { HamburgerButton } from '../../features/layout/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { useFolderPath } from '../../hooks/queries/useFolder';
 import { ColumnLayout } from '../../features/layout/ColumnLayout';

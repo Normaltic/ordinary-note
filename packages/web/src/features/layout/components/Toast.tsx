@@ -1,4 +1,4 @@
-import { useToastStore } from '../stores/toast.store';
+import { useToastStore } from '../../../stores/toast.store';
 
 const typeStyles = {
   success: 'border-l-success',

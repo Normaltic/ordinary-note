@@ -1,4 +1,4 @@
-import { HamburgerButton } from '../components/HamburgerButton';
+import { HamburgerButton } from '../features/layout/HamburgerButton';
 import { FinderView } from '../features/finder/FinderView';
 
 export function IndexPage() {

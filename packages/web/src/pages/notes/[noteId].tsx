@@ -5,7 +5,7 @@ import { useStandalone } from '../../features/layout/hooks/useStandalone';
 import { ColumnLayout } from '../../features/layout/ColumnLayout';
 import { StandaloneToggle } from '../../features/layout/StandaloneToggle';
 import { FinderView } from '../../features/finder/FinderView';
-import { HamburgerButton } from '../../components/HamburgerButton';
+import { HamburgerButton } from '../../features/layout/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { EditorView } from '../../features/editor/EditorView';
 

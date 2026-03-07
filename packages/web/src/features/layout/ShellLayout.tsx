@@ -5,7 +5,7 @@ import { useColumnIds } from './hooks/useColumnIds';
 import { useStandalone } from './hooks/useStandalone';
 import { Sidebar } from './components/Sidebar';
 import { FolderContentColumn } from '../finder/FolderContentColumn';
-import { Toast } from '../../components/Toast';
+import { Toast } from './components/Toast';
 
 interface ShellLayoutProps {
   children: ReactNode;

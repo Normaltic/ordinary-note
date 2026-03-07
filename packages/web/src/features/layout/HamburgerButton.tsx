@@ -1,5 +1,5 @@
-import { useNavStore } from '../stores/nav.store';
-import MenuIcon from './icons/menu.svg?react';
+import { useNavStore } from '../../stores/nav.store';
+import MenuIcon from '../../components/icons/menu.svg?react';
 
 export function HamburgerButton() {
   const toggle = useNavStore((s) => s.toggle);
