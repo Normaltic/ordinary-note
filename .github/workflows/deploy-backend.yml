@@ -56,7 +56,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key ${{ vars.DEPLOY_API_USER }}@${{ vars.DEPLOY_API_HOST }} bash -s <<REMOTE
             set -euo pipefail
             cd ${{ vars.DEPLOY_API_DIR }}
-            pnpm install --frozen-lockfile --prod
+            pnpm install --frozen-lockfile
             cd packages/server
             npx prisma migrate deploy
             cd ../..

@@ -35,7 +35,7 @@ echo "[3/5] Installing dependencies & running migrations..."
 ssh ${SSH_OPTS} "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
   set -euo pipefail
   cd ${REMOTE_DIR}
-  pnpm install --frozen-lockfile --prod
+  pnpm install --frozen-lockfile
   cd packages/server
   npx prisma migrate deploy
 REMOTE
