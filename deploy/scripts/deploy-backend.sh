@@ -4,7 +4,9 @@ set -euo pipefail
 REMOTE_HOST="${DEPLOY_API_HOST:?Must set DEPLOY_API_HOST}"
 REMOTE_USER="${DEPLOY_API_USER:-ubuntu}"
 REMOTE_DIR="${DEPLOY_API_DIR:-/home/${REMOTE_USER}/ordinary-note}"
-SSH_OPTS="-o StrictHostKeyChecking=no"
+
+# Register host key if not already known
+ssh-keyscan -H "${REMOTE_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
 
 echo "=== Backend Deployment ==="
 
@@ -32,7 +34,7 @@ rsync -azP --delete \
 
 # 3. Install dependencies & run migrations
 echo "[3/5] Installing dependencies & running migrations..."
-ssh ${SSH_OPTS} "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
+ssh"${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
   set -euo pipefail
   cd ${REMOTE_DIR}
   pnpm install --frozen-lockfile
@@ -42,7 +44,7 @@ REMOTE
 
 # 4. Restart PM2
 echo "[4/5] Restarting PM2..."
-ssh ${SSH_OPTS} "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
+ssh"${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
   set -euo pipefail
   cd ${REMOTE_DIR}
   pm2 startOrRestart deploy/ecosystem.config.cjs --update-env
@@ -57,7 +59,7 @@ if [ "$HTTP_STATUS" = "200" ]; then
   echo "Health check passed (HTTP $HTTP_STATUS)"
 else
   echo "Health check failed (HTTP $HTTP_STATUS)"
-  ssh ${SSH_OPTS} "${REMOTE_USER}@${REMOTE_HOST}" "pm2 logs ordinary-note-api --lines 20 --nostream"
+  ssh"${REMOTE_USER}@${REMOTE_HOST}" "pm2 logs ordinary-note-api --lines 20 --nostream"
   exit 1
 fi
 
