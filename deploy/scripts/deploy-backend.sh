@@ -53,14 +53,18 @@ REMOTE
 
 # 5. Health check
 echo "[5/5] Health check..."
-sleep 3
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${REMOTE_HOST}/api/health" || echo "000")
-if [ "$HTTP_STATUS" = "200" ]; then
-  echo "Health check passed (HTTP $HTTP_STATUS)"
-else
-  echo "Health check failed (HTTP $HTTP_STATUS)"
-  ssh"${REMOTE_USER}@${REMOTE_HOST}" "pm2 logs ordinary-note-api --lines 20 --nostream"
-  exit 1
-fi
+for i in 1 2 3 4 5; do
+  sleep 3
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${REMOTE_HOST}/api/health" || echo "000")
+  if [ "$HTTP_STATUS" = "200" ]; then
+    echo "Health check passed (attempt $i)"
+    break
+  fi
+  echo "Attempt $i failed (HTTP $HTTP_STATUS), retrying..."
+  if [ "$i" = "5" ]; then
+    echo "Health check failed after 5 attempts"
+    exit 1
+  fi
+done
 
 echo "=== Backend deployment complete ==="
