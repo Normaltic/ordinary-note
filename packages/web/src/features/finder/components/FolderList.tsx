@@ -25,8 +25,8 @@ export function FolderList({
   if (folders.length === 0 && !onCreate) return null;
 
   return (
-    <section className="mb-6">
-      <div className="mb-2 flex items-center justify-between">
+    <section className="mb-10">
+      <div className="mb-4 flex items-center justify-between px-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
           폴더
         </h2>
