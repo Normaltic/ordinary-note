@@ -27,6 +27,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm turbo lint typecheck test --filter=@ordinary-note/web
+
       - run: pnpm turbo build --filter=@ordinary-note/web
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
