@@ -12,6 +12,10 @@ import { createRouter, type AppServices } from './routes/index.js';
 export function createApp(services: AppServices): Express {
   const app = express();
 
+  if (config.nodeEnv === 'production') {
+    app.set('trust proxy', 1);
+  }
+
   app.use(
     helmet({
       crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
