@@ -1,6 +1,6 @@
 import { useStandalone } from './hooks/useStandalone';
-import SidebarIcon from '../../components/icons/sidebar.svg?react';
-import SidebarCollapseIcon from '../../components/icons/sidebar-collapse.svg?react';
+import SidebarIcon from '../../assets/icons/sidebar.svg?react';
+import SidebarCollapseIcon from '../../assets/icons/sidebar-collapse.svg?react';
 
 export function StandaloneToggle() {
   const { standalone, toggleStandalone } = useStandalone();

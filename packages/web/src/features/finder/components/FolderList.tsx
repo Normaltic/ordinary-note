@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ContextMenu } from '../../../components/ContextMenu';
-import FolderDetailedIcon from '../../../components/icons/folder-detailed.svg?react';
+import FolderDetailedIcon from '../../../assets/icons/folder-detailed.svg?react';
 import type { FolderSummary } from '@ordinary-note/shared';
 
 interface FolderListProps {

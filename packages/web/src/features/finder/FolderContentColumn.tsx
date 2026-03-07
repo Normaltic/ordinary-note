@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useFolderChildren } from '../../hooks/queries/useFolder';
 import { usePrefetchNote } from '../../hooks/queries/useNote';
-import FolderIcon from '../../components/icons/folder.svg?react';
-import FileIcon from '../../components/icons/file.svg?react';
+import FolderIcon from '../../assets/icons/folder.svg?react';
+import FileIcon from '../../assets/icons/file.svg?react';
 
 interface FolderContentColumnProps {
   folderId: string;

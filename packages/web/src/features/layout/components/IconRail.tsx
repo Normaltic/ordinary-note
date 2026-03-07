@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClickOutside } from '../../../hooks/useClickOutside';
-import FolderIcon from '../../../components/icons/folder.svg?react';
-import HomeIcon from '../../../components/icons/home.svg?react';
-import PinIcon from '../../../components/icons/pin.svg?react';
-import ClockIcon from '../../../components/icons/clock.svg?react';
-import TrashIcon from '../../../components/icons/trash.svg?react';
+import FolderIcon from '../../../assets/icons/folder.svg?react';
+import HomeIcon from '../../../assets/icons/home.svg?react';
+import PinIcon from '../../../assets/icons/pin.svg?react';
+import ClockIcon from '../../../assets/icons/clock.svg?react';
+import TrashIcon from '../../../assets/icons/trash.svg?react';
 
 interface RailIconProps {
   label: string;

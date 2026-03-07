@@ -1,5 +1,5 @@
 import { useNavStore } from '../../stores/nav.store';
-import MenuIcon from '../../components/icons/menu.svg?react';
+import MenuIcon from '../../assets/icons/menu.svg?react';
 
 export function SidebarToggle() {
   const toggle = useNavStore((s) => s.toggle);

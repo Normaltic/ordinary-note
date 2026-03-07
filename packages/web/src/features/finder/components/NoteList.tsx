@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { ContextMenu } from '../../../components/ContextMenu';
 import { formatDate } from '../../../utils/format';
 import { usePrefetchNote } from '../../../hooks/queries/useNote';
-import FileTextIcon from '../../../components/icons/file-text.svg?react';
+import FileTextIcon from '../../../assets/icons/file-text.svg?react';
 import type { NoteSummary } from '@ordinary-note/shared';
 
 interface NoteListProps {
