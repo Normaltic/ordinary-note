@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REMOTE_HOST="${DEPLOY_HOST:?Must set DEPLOY_HOST}"
-REMOTE_USER="${DEPLOY_USER:-ubuntu}"
-REMOTE_DIR="${DEPLOY_DIR:-/home/${REMOTE_USER}/ordinary-note}"
+REMOTE_HOST="${DEPLOY_API_HOST:?Must set DEPLOY_API_HOST}"
+REMOTE_USER="${DEPLOY_API_USER:-ubuntu}"
+REMOTE_DIR="${DEPLOY_API_DIR:-/home/${REMOTE_USER}/ordinary-note}"
 SSH_OPTS="-o StrictHostKeyChecking=no"
 
 echo "=== Backend Deployment ==="

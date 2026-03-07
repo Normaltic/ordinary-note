@@ -1,0 +1,70 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/server/**'
+      - 'packages/shared/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm turbo build --filter=@ordinary-note/server
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ vars.DEPLOY_API_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync files to server
+        run: |
+          rsync -azP --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            --include='package.json' \
+            --include='pnpm-lock.yaml' \
+            --include='pnpm-workspace.yaml' \
+            --include='packages/' \
+            --include='packages/shared/' \
+            --include='packages/shared/dist/***' \
+            --include='packages/shared/package.json' \
+            --include='packages/server/' \
+            --include='packages/server/dist/***' \
+            --include='packages/server/prisma/***' \
+            --include='packages/server/package.json' \
+            --include='deploy/***' \
+            --exclude='*' \
+            ./ ${{ vars.DEPLOY_API_USER }}@${{ vars.DEPLOY_API_HOST }}:${{ vars.DEPLOY_API_DIR }}/
+
+      - name: Install, migrate & restart
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ vars.DEPLOY_API_USER }}@${{ vars.DEPLOY_API_HOST }} bash -s <<REMOTE
+            set -euo pipefail
+            cd ${{ vars.DEPLOY_API_DIR }}
+            pnpm install --frozen-lockfile --prod
+            cd packages/server
+            npx prisma migrate deploy
+            cd ../..
+            pm2 startOrRestart deploy/ecosystem.config.cjs --update-env
+            pm2 save
+          REMOTE
+
+      - name: Health check
+        run: |
+          sleep 3
+          curl -f https://${{ vars.DEPLOY_API_HOST }}/api/health
