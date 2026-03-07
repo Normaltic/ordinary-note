@@ -6,3 +6,9 @@ dist
 .DS_Store
 packages/server/prisma/dev.db
 packages/server/prisma/dev.db-journal
+
+# Deploy configs (actual values)
+deploy/ecosystem.config.cjs
+deploy/nginx/ordinary-note-api.conf
+deploy/litestream.yml
+deploy/litestream.service

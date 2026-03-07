@@ -1,0 +1,7 @@
+dbs:
+  - path: /home/<user>/ordinary-note/packages/server/prisma/<db-file>
+    replicas:
+      - type: s3
+        bucket: <S3_BACKUP_BUCKET>
+        path: db
+        region: <AWS_REGION>

@@ -56,20 +56,16 @@ if ! command -v aws &>/dev/null; then
 fi
 echo "AWS CLI: $(aws --version)"
 
-# Setup Nginx config
-sudo cp /home/ubuntu/ordinary-note/deploy/nginx/ordinary-note-api.conf /etc/nginx/sites-available/
-sudo ln -sf /etc/nginx/sites-available/ordinary-note-api.conf /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-
-# Setup Litestream service
-sudo cp /home/ubuntu/ordinary-note/deploy/litestream.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable litestream
-
 echo ""
 echo "=== Setup complete ==="
 echo "Next steps:"
-echo "  1. Run: sudo certbot --nginx -d ordinary-note-api.yunji.kim"
-echo "  2. Configure AWS credentials: aws configure"
-echo "  3. Create packages/server/.env with production values"
-echo "  4. Run deploy-backend.sh"
+echo "  1. Copy deploy/*.example.* files, fill in actual values"
+echo "  2. sudo cp deploy/nginx/<your>.conf /etc/nginx/sites-available/"
+echo "  3. sudo ln -sf /etc/nginx/sites-available/<your>.conf /etc/nginx/sites-enabled/"
+echo "  4. sudo rm -f /etc/nginx/sites-enabled/default"
+echo "  5. sudo certbot --nginx -d <API_DOMAIN>"
+echo "  6. sudo cp deploy/litestream.service /etc/systemd/system/"
+echo "  7. sudo systemctl daemon-reload && sudo systemctl enable litestream"
+echo "  8. aws configure"
+echo "  9. Create packages/server/.env with production values"
+echo "  10. Run deploy-backend.sh"

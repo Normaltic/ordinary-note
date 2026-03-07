@@ -1,7 +1,0 @@
-dbs:
-  - path: /home/ubuntu/ordinary-note/packages/server/prisma/dev.db
-    replicas:
-      - type: s3
-        bucket: ordinary-note-backup
-        path: db
-        region: ap-northeast-2

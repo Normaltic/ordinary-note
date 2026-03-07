@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'ordinary-note-api',
       script: 'packages/server/dist/index.js',
-      cwd: '/home/ubuntu/ordinary-note',
+      cwd: '/home/<user>/ordinary-note',
       exec_mode: 'fork',
       instances: 1,
       node_args: '--env-file=packages/server/.env',

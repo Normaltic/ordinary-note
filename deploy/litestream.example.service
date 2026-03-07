@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
-ExecStart=/usr/local/bin/litestream replicate -config /home/ubuntu/ordinary-note/deploy/litestream.yml
+User=<user>
+ExecStart=/usr/local/bin/litestream replicate -config /home/<user>/ordinary-note/deploy/litestream.yml
 Restart=always
 RestartSec=5
 
