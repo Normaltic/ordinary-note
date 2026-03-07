@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { ContextMenu } from '../../../components/ContextMenu';
 import { formatDate } from '../../../utils/format';
+import { usePrefetchNote } from '../../../hooks/queries/useNote';
 import FileTextIcon from '../../../components/icons/file-text.svg?react';
 import type { NoteSummary } from '@ordinary-note/shared';
 
@@ -21,6 +22,8 @@ export function NoteList({
   onDelete,
   onCreate,
 }: NoteListProps) {
+  const prefetchNote = usePrefetchNote();
+
   return (
     <section className="mb-6">
       <div className="mb-2 flex items-center justify-between">
@@ -42,6 +45,7 @@ export function NoteList({
           <div key={note.id} className="group relative">
             <NavLink
               to={`/notes/${note.id}`}
+              onMouseEnter={() => prefetchNote(note.id)}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover${isActive ? ' bg-bg-active' : ''}`
               }

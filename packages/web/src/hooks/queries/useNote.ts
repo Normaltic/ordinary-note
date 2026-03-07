@@ -1,4 +1,7 @@
 import {
+  useCallback,
+} from 'react';
+import {
   useQuery,
   useMutation,
   useQueryClient,
@@ -25,6 +28,19 @@ export function useNoteQuery(noteId: string | null) {
     staleTime: 0,
     placeholderData: keepPreviousData,
   });
+}
+
+export function usePrefetchNote() {
+  const queryClient = useQueryClient();
+  return useCallback(
+    (noteId: string) => {
+      queryClient.prefetchQuery({
+        queryKey: noteKeys.detail(noteId),
+        queryFn: () => fetchNote(noteId),
+      });
+    },
+    [queryClient],
+  );
 }
 
 export function useSaveNote() {

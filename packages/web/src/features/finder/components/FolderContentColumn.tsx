@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useFolderChildren } from '../../../hooks/queries/useFolder';
+import { usePrefetchNote } from '../../../hooks/queries/useNote';
 import FolderIcon from '../../../components/icons/folder.svg?react';
 import FileIcon from '../../../components/icons/file.svg?react';
 
@@ -17,6 +18,7 @@ export function FolderContentColumn({
   className,
 }: FolderContentColumnProps) {
   const { folders, notes } = useFolderChildren(folderId);
+  const prefetchNote = usePrefetchNote();
 
   return (
     <div
@@ -52,6 +54,7 @@ export function FolderContentColumn({
             <Link
               key={note.id}
               to={`/notes/${note.id}`}
+              onMouseEnter={() => prefetchNote(note.id)}
               onClick={onNavigate}
               className={`flex items-center gap-2 px-3 py-1.5 text-sm transition-colors select-none ${
                 isActive
