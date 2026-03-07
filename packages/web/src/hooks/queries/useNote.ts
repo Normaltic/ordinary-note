@@ -3,6 +3,7 @@ import {
   useMutation,
   useQueryClient,
   skipToken,
+  keepPreviousData,
 } from '@tanstack/react-query';
 import type {
   NoteDetail,
@@ -22,6 +23,7 @@ export function useNoteQuery(noteId: string | null) {
     queryKey: noteKeys.detail(noteId ?? ''),
     queryFn: noteId !== null ? () => fetchNote(noteId) : skipToken,
     staleTime: 0,
+    placeholderData: keepPreviousData,
   });
 }
 
