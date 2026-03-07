@@ -22,10 +22,12 @@ export function FolderList({
   onDelete,
   onCreate,
 }: FolderListProps) {
+  if (folders.length === 0 && !onCreate) return null;
+
   return (
     <section className="mb-6">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
           폴더
         </h2>
         {onCreate && (
@@ -38,6 +40,14 @@ export function FolderList({
           </button>
         )}
       </div>
+      {folders.length === 0 && onCreate && (
+        <button
+          onClick={onCreate}
+          className="flex w-full items-center justify-center gap-2 px-3 py-4 text-sm text-text-muted transition-colors hover:border-border-hover hover:bg-bg-hover hover:text-text-secondary"
+        >
+          + 새 폴더 만들기
+        </button>
+      )}
       <div className="space-y-1">
         {folders.map((folder) => (
           <div key={folder.id} className="group relative">

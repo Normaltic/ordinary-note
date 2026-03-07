@@ -24,10 +24,12 @@ export function NoteList({
 }: NoteListProps) {
   const prefetchNote = usePrefetchNote();
 
+  if (notes.length === 0 && !onCreate) return null;
+
   return (
     <section className="mb-6">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
           노트
         </h2>
         {onCreate && (
@@ -40,6 +42,14 @@ export function NoteList({
           </button>
         )}
       </div>
+      {notes.length === 0 && onCreate && (
+        <button
+          onClick={onCreate}
+          className="flex w-full items-center justify-center gap-2 px-3 py-4 text-sm text-text-muted transition-colors hover:border-border-hover hover:bg-bg-hover hover:text-text-secondary"
+        >
+          + 새 노트 만들기
+        </button>
+      )}
       <div className="space-y-1">
         {notes.map((note) => (
           <div key={note.id} className="group relative">
