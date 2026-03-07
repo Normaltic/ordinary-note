@@ -37,7 +37,6 @@ export function createApp(services: AppServices): Express {
     res.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
     });
   });
 
