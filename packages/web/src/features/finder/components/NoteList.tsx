@@ -57,7 +57,7 @@ export function NoteList({
               to={`/notes/${note.id}`}
               onMouseEnter={() => prefetchNote(note.id)}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover${isActive ? ' bg-bg-active' : ''}`
+                `flex items-center gap-3 rounded px-3 py-2.5 hover:bg-bg-hover${isActive ? ' bg-bg-active' : ''}`
               }
             >
               <FileTextIcon className="size-5 shrink-0 text-text-secondary" />

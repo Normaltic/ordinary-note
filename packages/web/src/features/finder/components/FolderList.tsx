@@ -53,7 +53,7 @@ export function FolderList({
           <div key={folder.id} className="group relative">
             <Link
               to={`/folders/${folder.id}`}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-bg-hover"
+              className="flex items-center gap-3 rounded px-3 py-2.5 hover:bg-bg-hover"
             >
               <FolderDetailedIcon className="size-5 shrink-0 text-text-secondary" />
               <span className="flex-1 text-sm font-medium text-text-primary">
