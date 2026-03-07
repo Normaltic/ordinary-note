@@ -3,7 +3,7 @@ import { useNoteQuery } from '../../hooks/queries/useNote';
 import { useFolderPath } from '../../hooks/queries/useFolder';
 import { useStandalone } from '../../features/layout/hooks/useStandalone';
 import { ColumnLayout } from '../../features/layout/ColumnLayout';
-import { NoteSidebar } from '../../features/finder/NoteSidebar';
+import { FinderView } from '../../features/finder/FinderView';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { EditorView } from '../../features/editor/EditorView';
@@ -20,7 +20,11 @@ export function NotePage() {
 
   return (
     <ColumnLayout folderId={standalone ? null : folderId} columnWidth="w-40">
-      {!standalone && folderId && <NoteSidebar folderId={folderId} />}
+      {!standalone && folderId && (
+        <div className="hidden w-80 shrink-0 overflow-y-auto border-r border-border-default px-6 py-6 lg:block">
+          <FinderView folderId={folderId} />
+        </div>
+      )}
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-center border-b border-border-light px-4 py-3 lg:border-b-0">
           <div className="flex min-w-0 items-center gap-2">
