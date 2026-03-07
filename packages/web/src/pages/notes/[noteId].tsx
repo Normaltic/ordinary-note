@@ -3,18 +3,17 @@ import { useNoteQuery } from '../../hooks/queries/useNote';
 import { useFolderPath } from '../../hooks/queries/useFolder';
 import { useStandalone } from '../../features/layout/hooks/useStandalone';
 import { ColumnLayout } from '../../features/layout/ColumnLayout';
+import { StandaloneToggle } from '../../features/layout/StandaloneToggle';
 import { FinderView } from '../../features/finder/FinderView';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { EditorView } from '../../features/editor/EditorView';
-import SidebarIcon from '../../components/icons/sidebar.svg?react';
-import SidebarCollapseIcon from '../../components/icons/sidebar-collapse.svg?react';
 
 export function NotePage() {
   const { noteId } = useParams<{ noteId: string }>();
   const { data: note } = useNoteQuery(noteId ?? null);
   const folderId = note?.folderId ?? null;
-  const { standalone, toggleStandalone } = useStandalone();
+  const { standalone } = useStandalone();
   const segments = useFolderPath(folderId);
   const noteLabel = note?.title || '제목 없음';
 
@@ -32,17 +31,7 @@ export function NotePage() {
               <HamburgerButton />
             </div>
             <div className="hidden lg:block">
-              <button
-                onClick={toggleStandalone}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
-                aria-label={standalone ? '사이드바 열기' : '사이드바 닫기'}
-              >
-                {standalone ? (
-                  <SidebarIcon className="size-[18px]" />
-                ) : (
-                  <SidebarCollapseIcon className="size-[18px]" />
-                )}
-              </button>
+              <StandaloneToggle />
             </div>
             <Breadcrumb segments={segments} currentLabel={noteLabel} />
           </div>
