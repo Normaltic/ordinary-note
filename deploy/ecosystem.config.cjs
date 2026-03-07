@@ -1,0 +1,18 @@
+module.exports = {
+  apps: [
+    {
+      name: 'ordinary-note-api',
+      script: 'packages/server/dist/index.js',
+      cwd: '/home/ubuntu/ordinary-note',
+      exec_mode: 'fork',
+      instances: 1,
+      node_args: '--env-file=packages/server/.env',
+      kill_timeout: 35000,
+      wait_ready: false,
+      listen_timeout: 10000,
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
+  ],
+};

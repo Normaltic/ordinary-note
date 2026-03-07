@@ -1,0 +1,13 @@
+[Unit]
+Description=Litestream SQLite Replication
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/usr/local/bin/litestream replicate -config /home/ubuntu/ordinary-note/deploy/litestream.yml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
