@@ -4,7 +4,7 @@ import { useAncestorPath } from '../../hooks/queries/useFolder';
 import { useNavStore } from '../../stores/nav.store';
 import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { Sidebar } from './components/Sidebar';
-import { FolderContentColumn } from './components/FolderContentColumn';
+import { FolderContentColumn } from '../finder/components/FolderContentColumn';
 import { Toast } from '../../components/Toast';
 
 interface ShellLayoutProps {

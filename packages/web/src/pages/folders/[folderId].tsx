@@ -5,7 +5,7 @@ import {
   useCreateFolder,
 } from '../../hooks/queries/useFolder';
 import { useCreateNote } from '../../hooks/queries/useNote';
-import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
+import { FolderContentColumn } from '../../features/finder/components/FolderContentColumn';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { useFolderPath } from '../../features/layout/hooks/useFolderPath';

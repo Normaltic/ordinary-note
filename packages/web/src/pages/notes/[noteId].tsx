@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useNoteQuery } from '../../hooks/queries/useNote';
 import { useAncestorPath } from '../../hooks/queries/useFolder';
-import { FolderContentColumn } from '../../features/layout/components/FolderContentColumn';
+import { FolderContentColumn } from '../../features/finder/components/FolderContentColumn';
 import { HamburgerButton } from '../../components/HamburgerButton';
 import { Breadcrumb } from '../../components/Breadcrumb';
 import { useFolderPath } from '../../features/layout/hooks/useFolderPath';
