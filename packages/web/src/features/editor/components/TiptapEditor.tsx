@@ -1,11 +1,14 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Collaboration from '@tiptap/extension-collaboration';
+import { lowlight } from '../extensions/lowlight';
+import { CodeBlockView } from './CodeBlockView';
 import type { Doc } from 'yjs';
 import { EditorToolbar } from './EditorToolbar';
 
@@ -16,9 +19,17 @@ interface TiptapEditorProps {
 export function TiptapEditor({ ydoc }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ undoRedo: false }),
+      StarterKit.configure({ undoRedo: false, codeBlock: false }),
       Placeholder.configure({ placeholder: '내용을 입력하세요...' }),
       Link.configure({ openOnClick: false }),
+      CodeBlockLowlight.configure({
+        lowlight,
+        defaultLanguage: 'plaintext',
+      }).extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(CodeBlockView);
+        },
+      }),
       TaskList,
       TaskItem.configure({ nested: true }),
       Collaboration.configure({ document: ydoc }),

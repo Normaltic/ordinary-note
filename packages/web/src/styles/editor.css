@@ -94,12 +94,36 @@
   font-family: var(--font-mono);
 }
 
+.tiptap .code-block-wrapper {
+  position: relative;
+  margin: 0.75em 0;
+}
+
+.tiptap .code-block-wrapper select.code-block-language {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  outline: none;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.tiptap .code-block-wrapper select.code-block-language:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
 .tiptap pre {
   background-color: var(--bg-sidebar);
   color: var(--text-primary);
   border-radius: 0.5rem;
   padding: 1rem;
-  margin: 0.75em 0;
   overflow-x: auto;
 }
 
@@ -109,6 +133,41 @@
   color: inherit;
   font-size: 0.875rem;
 }
+
+/* Syntax Highlighting */
+.tiptap pre .hljs-keyword { color: var(--syntax-keyword); }
+.tiptap pre .hljs-built_in { color: var(--syntax-function); }
+.tiptap pre .hljs-type { color: var(--syntax-type); }
+.tiptap pre .hljs-literal { color: var(--syntax-number); }
+.tiptap pre .hljs-number { color: var(--syntax-number); }
+.tiptap pre .hljs-operator { color: var(--syntax-operator); }
+.tiptap pre .hljs-punctuation { color: var(--text-secondary); }
+.tiptap pre .hljs-string { color: var(--syntax-string); }
+.tiptap pre .hljs-subst { color: var(--syntax-variable); }
+.tiptap pre .hljs-symbol { color: var(--syntax-string); }
+.tiptap pre .hljs-regexp { color: var(--syntax-string); }
+.tiptap pre .hljs-title { color: var(--syntax-function); }
+.tiptap pre .hljs-title\.class_ { color: var(--syntax-type); }
+.tiptap pre .hljs-title\.function_ { color: var(--syntax-function); }
+.tiptap pre .hljs-params { color: var(--text-primary); }
+.tiptap pre .hljs-comment { color: var(--syntax-comment); font-style: italic; }
+.tiptap pre .hljs-doctag { color: var(--syntax-keyword); }
+.tiptap pre .hljs-meta { color: var(--syntax-comment); }
+.tiptap pre .hljs-attr { color: var(--syntax-variable); }
+.tiptap pre .hljs-attribute { color: var(--syntax-variable); }
+.tiptap pre .hljs-variable { color: var(--syntax-variable); }
+.tiptap pre .hljs-template-variable { color: var(--syntax-variable); }
+.tiptap pre .hljs-selector-tag { color: var(--syntax-keyword); }
+.tiptap pre .hljs-selector-class { color: var(--syntax-type); }
+.tiptap pre .hljs-selector-id { color: var(--syntax-variable); }
+.tiptap pre .hljs-selector-attr { color: var(--syntax-variable); }
+.tiptap pre .hljs-tag { color: var(--syntax-variable); }
+.tiptap pre .hljs-name { color: var(--syntax-keyword); }
+.tiptap pre .hljs-property { color: var(--syntax-variable); }
+.tiptap pre .hljs-addition { color: var(--syntax-string); }
+.tiptap pre .hljs-deletion { color: var(--syntax-variable); }
+.tiptap pre .hljs-emphasis { font-style: italic; }
+.tiptap pre .hljs-strong { font-weight: 700; }
 
 .tiptap hr {
   border: none;
