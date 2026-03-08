@@ -18,6 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { registerNoteTools } from './note.tools.js';
 import {
+  createMockCollaboration,
   createMockNoteService,
   fixtures,
   generateTestAccessToken,
@@ -50,6 +51,7 @@ describe('Note Tools', () => {
     registerNoteTools(
       mcpServer,
       noteService as unknown as Parameters<typeof registerNoteTools>[1],
+      (() => createMockCollaboration()) as unknown as Parameters<typeof registerNoteTools>[2],
     );
 
     [clientTransport, serverTransport] = createAuthTransport();

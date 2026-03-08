@@ -1,5 +1,5 @@
 import type { Server as HTTPServer } from 'node:http';
-import { Hocuspocus } from '@hocuspocus/server';
+import { Hocuspocus, type DirectConnection } from '@hocuspocus/server';
 import { WebSocketServer } from 'ws';
 import type { NoteRepository, YjsRepository } from '../repositories/index.js';
 import { config } from '../utils/config.js';
@@ -14,6 +14,7 @@ export type CollaborationDeps = {
 
 export interface CollaborationServer {
   destroy(): Promise<void>;
+  openDirectConnection(documentName: string, context?: unknown): Promise<DirectConnection>;
 }
 
 export function setupCollaboration(
@@ -62,6 +63,9 @@ export function setupCollaboration(
   logger.info('Collaboration WebSocket server attached on /collaboration');
 
   return {
+    openDirectConnection(documentName: string, context?: unknown) {
+      return hocuspocus.openDirectConnection(documentName, context);
+    },
     async destroy() {
       hocuspocus.closeConnections();
       await new Promise<void>((resolve) => {

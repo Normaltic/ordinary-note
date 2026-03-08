@@ -18,6 +18,7 @@ import type {
 } from '../repositories/yjs.repository.js';
 import type { OAuthClientRecord } from '../repositories/oauthClient.repository.js';
 import type { OAuthCodeRecord } from '../repositories/oauthCode.repository.js';
+import type { CollaborationServer } from '../collaboration/index.js';
 import type { AuthService } from '../services/auth.service.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
@@ -145,6 +146,17 @@ export function createMockNoteService(): {
     update: vi.fn(),
     delete: vi.fn(),
     search: vi.fn(),
+  };
+}
+
+// ── Mock Collaboration ──────────────────────────────────────────────
+
+export function createMockCollaboration(): {
+  [K in keyof CollaborationServer]: ReturnType<typeof vi.fn>;
+} {
+  return {
+    destroy: vi.fn(),
+    openDirectConnection: vi.fn(),
   };
 }
 

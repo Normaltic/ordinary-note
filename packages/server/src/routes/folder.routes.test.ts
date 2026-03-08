@@ -44,6 +44,7 @@ describe('Folder Routes', () => {
       folderService: mockFolderService as never,
       noteService: mockNoteService as never,
       oauthService: createMockOAuthService() as never,
+      getCollaboration: (() => ({})) as never,
     });
     token = generateTestAccessToken();
   });

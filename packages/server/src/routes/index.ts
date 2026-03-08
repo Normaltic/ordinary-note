@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import type { AuthService } from '../services/auth.service.js';
+import type { CollaborationServer } from '../collaboration/index.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
 import type { OAuthService } from '../services/oauth.service.js';
@@ -12,6 +13,7 @@ export type AppServices = {
   folderService: FolderService;
   noteService: NoteService;
   oauthService: OAuthService;
+  getCollaboration: () => CollaborationServer;
 };
 
 export function createRouter(services: AppServices) {

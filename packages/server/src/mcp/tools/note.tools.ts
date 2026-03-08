@@ -1,11 +1,14 @@
 import { z } from 'zod';
+import { XmlFragment, XmlElement, XmlText } from 'yjs';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { CollaborationServer } from '../../collaboration/index.js';
 import type { NoteService } from '../../services/note.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
 
 export function registerNoteTools(
   server: McpServer,
   noteService: NoteService,
+  getCollaboration: () => CollaborationServer,
 ): void {
   server.tool(
     'list_notes',
@@ -100,6 +103,45 @@ export function registerNoteTools(
         const userId = getUserId(authInfo);
         const notes = await noteService.search(userId, query, limit);
         return jsonResult(notes);
+      }),
+  );
+
+  server.tool(
+    'edit_note',
+    '노트 본문 콘텐츠를 편집합니다 (plain text)',
+    { noteId: z.string(), content: z.string() },
+    async ({ noteId, content }, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        // 소유권 검증
+        await noteService.getById(userId, noteId);
+
+        const collaboration = getCollaboration();
+        const connection = await collaboration.openDirectConnection(noteId);
+        try {
+          await connection.transact((doc) => {
+            const fragment = doc.getXmlFragment('default');
+
+            // 기존 콘텐츠 삭제
+            while (fragment.length > 0) {
+              fragment.delete(0, 1);
+            }
+
+            // 새 콘텐츠 삽입: 줄 단위로 paragraph 생성
+            const lines = content.split('\n');
+            for (const line of lines) {
+              const paragraph = new XmlElement('paragraph');
+              if (line.length > 0) {
+                paragraph.insert(0, [new XmlText(line)]);
+              }
+              fragment.push([paragraph]);
+            }
+          });
+        } finally {
+          await connection.disconnect();
+        }
+
+        return jsonResult({ edited: true, id: noteId });
       }),
   );
 }
