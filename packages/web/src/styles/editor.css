@@ -45,6 +45,40 @@
   margin: 0.25em 0;
 }
 
+.tiptap ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.5em 0;
+}
+
+.tiptap ul[data-type='taskList'] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.tiptap ul[data-type='taskList'] li > div > p {
+  margin: 0.25em 0;
+}
+
+.tiptap ul[data-type='taskList'] li > label {
+  display: flex;
+  align-items: center;
+  user-select: none;
+  margin-top: 0.25em;
+  height: 1.5em;
+}
+
+.tiptap ul[data-type='taskList'] li label input[type='checkbox'] {
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.tiptap ul[data-type='taskList'] li[data-checked='true'] > div {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
 .tiptap blockquote {
   border-left: 3px solid var(--border-default);
   padding-left: 1rem;

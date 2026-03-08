@@ -40,6 +40,11 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         action: () => editor.chain().focus().toggleOrderedList().run(),
         isActive: editor.isActive('orderedList'),
       },
+      {
+        label: 'Check',
+        action: () => editor.chain().focus().toggleTaskList().run(),
+        isActive: editor.isActive('taskList'),
+      },
     ],
     [
       {
