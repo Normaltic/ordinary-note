@@ -4,11 +4,13 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { TableKit } from '@tiptap/extension-table';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Collaboration from '@tiptap/extension-collaboration';
 import { lowlight } from '../extensions/lowlight';
 import { CodeBlockView } from './CodeBlockView';
+import { TableMenu } from './TableMenu';
 import type { Doc } from 'yjs';
 import { EditorToolbar } from './EditorToolbar';
 
@@ -29,6 +31,9 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlockView);
         },
+      }),
+      TableKit.configure({
+        table: { resizable: true },
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
@@ -107,7 +112,10 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
         ))}
       </BubbleMenu>
 
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <TableMenu editor={editor} />
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

@@ -58,6 +58,16 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
         isActive: editor.isActive('codeBlock'),
       },
       {
+        label: 'Table',
+        action: () =>
+          editor
+            .chain()
+            .focus()
+            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+            .run(),
+        isActive: editor.isActive('table'),
+      },
+      {
         label: 'HR',
         action: () => editor.chain().focus().setHorizontalRule().run(),
         isActive: false,
