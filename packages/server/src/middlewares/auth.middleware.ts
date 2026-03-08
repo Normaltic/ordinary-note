@@ -7,33 +7,39 @@ import { UnauthorizedError } from '../utils/errors.js';
 
 const { TokenExpiredError } = jwt;
 
-export function authenticate(
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): void {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    throw new UnauthorizedError(
-      ErrorCode.AUTH_INVALID_TOKEN,
-      'Missing or invalid authorization header',
-    );
-  }
-
-  const token = header.slice(7);
-  try {
-    req.user = verifyAccessToken(token);
-    next();
-  } catch (error) {
-    if (error instanceof TokenExpiredError) {
+export function authenticate(audience: 'web' | 'mcp' = 'web') {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) {
+      res.setHeader('WWW-Authenticate', 'Bearer');
       throw new UnauthorizedError(
-        ErrorCode.AUTH_TOKEN_EXPIRED,
-        'Access token has expired',
+        ErrorCode.AUTH_INVALID_TOKEN,
+        'Missing or invalid authorization header',
       );
     }
-    throw new UnauthorizedError(
-      ErrorCode.AUTH_INVALID_TOKEN,
-      'Invalid access token',
-    );
-  }
+
+    const token = header.slice(7);
+    try {
+      const payload = verifyAccessToken(token, audience);
+      req.user = payload;
+
+      if (audience === 'mcp') {
+        req.auth = { token, clientId: payload.clientId ?? '', scopes: [] };
+      }
+
+      next();
+    } catch (error) {
+      res.setHeader('WWW-Authenticate', 'Bearer');
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedError(
+          ErrorCode.AUTH_TOKEN_EXPIRED,
+          'Access token has expired',
+        );
+      }
+      throw new UnauthorizedError(
+        ErrorCode.AUTH_INVALID_TOKEN,
+        'Invalid access token',
+      );
+    }
+  };
 }

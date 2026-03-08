@@ -4,6 +4,7 @@ import { config } from './config.js';
 export interface AccessTokenPayload {
   sub: string;
   email: string;
+  clientId?: string;
 }
 
 export interface RefreshTokenPayload {
@@ -11,10 +12,14 @@ export interface RefreshTokenPayload {
   tokenId: string;
 }
 
-export function generateAccessToken(payload: AccessTokenPayload): string {
+export function generateAccessToken(
+  payload: AccessTokenPayload,
+  audience: 'web' | 'mcp' = 'web',
+): string {
   return jwt.sign(payload, config.jwt.accessSecret, {
     expiresIn: config.jwt.accessExpiresIn,
     algorithm: 'HS256',
+    audience,
   });
 }
 
@@ -25,8 +30,14 @@ export function generateRefreshToken(payload: RefreshTokenPayload): string {
   });
 }
 
-export function verifyAccessToken(token: string): AccessTokenPayload {
-  return jwt.verify(token, config.jwt.accessSecret) as AccessTokenPayload;
+export function verifyAccessToken(
+  token: string,
+  audience: 'web' | 'mcp' = 'web',
+): AccessTokenPayload {
+  return jwt.verify(token, config.jwt.accessSecret, {
+    algorithms: ['HS256'],
+    audience,
+  }) as AccessTokenPayload;
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload {

@@ -6,7 +6,7 @@ import type { NoteService } from '../services/note.service.js';
 
 export function createNoteRoutes(noteService: NoteService) {
   const router: Router = Router();
-  router.use(authenticate);
+  router.use(authenticate());
 
   // GET /api/notes/:id — get note detail
   router.get('/:id', async (req: Request, res: Response) => {

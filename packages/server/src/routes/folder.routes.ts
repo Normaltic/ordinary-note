@@ -15,7 +15,7 @@ export function createFolderRoutes(
   noteService: NoteService,
 ) {
   const router: Router = Router();
-  router.use(authenticate);
+  router.use(authenticate());
 
   // GET /api/folders — full folder tree
   router.get('/', async (req: Request, res: Response) => {

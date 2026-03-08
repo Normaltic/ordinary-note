@@ -144,12 +144,13 @@ export function createMockNoteService(): {
 
 export function generateTestAccessToken(
   overrides?: Partial<AccessTokenPayload>,
+  audience: 'web' | 'mcp' = 'web',
 ): string {
   return generateAccessToken({
     sub: 'user-1',
     email: 'test@test.com',
     ...overrides,
-  });
+  }, audience);
 }
 
 // ── Fixtures ────────────────────────────────────────────────────────

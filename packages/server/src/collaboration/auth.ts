@@ -8,7 +8,7 @@ export function createAuthHandler(noteRepo: NoteRepository) {
     token,
     documentName,
   }: onAuthenticatePayload): Promise<{ userId: string }> {
-    const payload = verifyAccessToken(token);
+    const payload = verifyAccessToken(token, 'web');
 
     const note = await noteRepo.findActiveByIdAndUserId(
       documentName,

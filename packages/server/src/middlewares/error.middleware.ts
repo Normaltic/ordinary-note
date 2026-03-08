@@ -4,6 +4,9 @@ import { logger } from '../utils/logger.js';
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof AppError) {
+    if (err.statusCode === 401) {
+      res.setHeader('WWW-Authenticate', 'Bearer');
+    }
     const body: { code: string; message: string; details?: unknown } = {
       code: err.code,
       message: err.message,

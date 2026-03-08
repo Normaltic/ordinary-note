@@ -65,7 +65,7 @@ export function createAuthRoutes(authService: AuthService) {
   });
 
   // POST /api/auth/logout
-  router.post('/logout', authenticate, async (req: Request, res: Response) => {
+  router.post('/logout', authenticate(), async (req: Request, res: Response) => {
     const token = req.cookies?.refreshToken;
     if (token) {
       await authService.revokeRefreshToken(token);
@@ -81,7 +81,7 @@ export function createAuthRoutes(authService: AuthService) {
   });
 
   // GET /api/auth/me
-  router.get('/me', authenticate, async (req: Request, res: Response) => {
+  router.get('/me', authenticate(), async (req: Request, res: Response) => {
     const user = await authService.getUserById(req.user!.sub);
     if (!user) {
       throw new NotFoundError('User');
