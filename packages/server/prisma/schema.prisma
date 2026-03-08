@@ -24,6 +24,7 @@ model User {
   refreshTokens RefreshToken[]
   sharedBy      NoteShare[]    @relation("SharedBy")
   sharedTo      NoteShare[]    @relation("SharedTo")
+  oauthAuthorizationCodes OAuthAuthorizationCode[]
 
   @@map("users")
 }
@@ -168,4 +169,43 @@ model RefreshToken {
   @@index([userId])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────
+// OAuthClient (Dynamic Client Registration)
+// ─────────────────────────────────────
+model OAuthClient {
+  id               String   @id @default(uuid())
+  clientId         String   @unique
+  clientSecretHash String?
+  redirectUris     String
+  clientName       String?
+  createdAt        DateTime @default(now())
+
+  authorizationCodes OAuthAuthorizationCode[]
+
+  @@map("oauth_clients")
+}
+
+// ─────────────────────────────────────
+// OAuthAuthorizationCode
+// ─────────────────────────────────────
+model OAuthAuthorizationCode {
+  id                  String    @id @default(uuid())
+  codeHash            String    @unique
+  clientId            String
+  userId              String
+  redirectUri         String
+  codeChallenge       String
+  codeChallengeMethod String    @default("S256")
+  expiresAt           DateTime
+  usedAt              DateTime?
+  createdAt           DateTime  @default(now())
+
+  client OAuthClient @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([userId])
+  @@map("oauth_authorization_codes")
 }
