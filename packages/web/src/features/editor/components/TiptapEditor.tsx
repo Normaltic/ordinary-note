@@ -1,3 +1,4 @@
+import { useCallback, useRef } from 'react';
 import { useEditor, EditorContent, ReactNodeViewRenderer } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
@@ -11,9 +12,31 @@ import Collaboration from '@tiptap/extension-collaboration';
 import { lowlight } from '../extensions/lowlight';
 import { SlashCommands } from '../extensions/slash-commands';
 import { slashCommandRender } from '../extensions/slash-command-render';
+import DragHandle from '@tiptap/extension-drag-handle-react';
 import { CodeBlockView } from './CodeBlockView';
 import { TableMenu } from './TableMenu';
 import type { Doc } from 'yjs';
+
+const NESTED_DRAG_CONFIG = {
+  edgeDetection: { threshold: -16 },
+  rules: [
+    {
+      id: 'excludeNonListContainers',
+      evaluate: ({ parent }: { parent: { type: { name: string } } | null }) => {
+        if (!parent) return 0;
+        const name = parent.type.name;
+        if (
+          name === 'blockquote' ||
+          name === 'tableCell' ||
+          name === 'tableHeader'
+        ) {
+          return 9999;
+        }
+        return 0;
+      },
+    },
+  ],
+};
 
 interface TiptapEditorProps {
   ydoc: Doc;
@@ -45,6 +68,34 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
       Collaboration.configure({ document: ydoc }),
     ],
   });
+
+  const currentNodeEl = useRef<HTMLElement | null>(null);
+
+  const handleDragNodeChange = useCallback(
+    ({ pos }: { pos: number }) => {
+      if (!editor) return;
+      const dom = editor.view.nodeDOM(pos);
+      currentNodeEl.current = dom instanceof HTMLElement ? dom : null;
+    },
+    [editor],
+  );
+
+  const getDragVirtualElement = useCallback(() => {
+    const editorEl = editor?.view.dom;
+    const nodeEl = currentNodeEl.current;
+    if (!editorEl || !nodeEl) return null;
+    const editorRect = editorEl.getBoundingClientRect();
+    const nodeRect = nodeEl.getBoundingClientRect();
+    return {
+      getBoundingClientRect: () => ({
+        ...nodeRect,
+        x: editorRect.x,
+        left: editorRect.left,
+        right: editorRect.left + nodeRect.width,
+        width: nodeRect.width,
+      }),
+    };
+  }, [editor]);
 
   if (!editor) return null;
 
@@ -114,6 +165,16 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
           </button>
         ))}
       </BubbleMenu>
+
+      <DragHandle
+        editor={editor}
+        nested={NESTED_DRAG_CONFIG}
+        onNodeChange={handleDragNodeChange}
+        getReferencedVirtualElement={getDragVirtualElement}
+        computePositionConfig={{ placement: 'left-start' }}
+      >
+        <div className="drag-handle">⠿</div>
+      </DragHandle>
 
       <div className="relative">
         <TableMenu editor={editor} />

@@ -4,6 +4,44 @@
   color: var(--text-primary);
 }
 
+/* Drag Handle */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1;
+  user-select: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.drag-handle:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* 터치 디바이스에서 숨김 */
+@media (hover: none) {
+  .drag-handle {
+    display: none;
+  }
+}
+
+/* 드롭 인디케이터 */
+.ProseMirror-dropcursor {
+  border-color: var(--color-accent) !important;
+  border-width: 2px !important;
+}
+
 .tiptap h1 {
   font-size: 1.875rem;
   font-weight: 700;
