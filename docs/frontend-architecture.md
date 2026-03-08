@@ -25,7 +25,7 @@ src/
 
 ### pages/
 
-라우트 진입점. 네비게이션 UI(HamburgerButton, Breadcrumb 등)와 feature 컴포넌트를 조합한다. 비즈니스 로직을 직접 포함하지 않는다.
+라우트 진입점. 네비게이션 UI(SidebarToggle, Breadcrumb 등)와 feature 컴포넌트를 조합한다. 비즈니스 로직을 직접 포함하지 않는다.
 
 ### features/
 
@@ -35,7 +35,7 @@ src/
 
 | 위치          | 역할                                                | 예시                                            |
 | ------------- | --------------------------------------------------- | ----------------------------------------------- |
-| 루트          | 외부(pages, 다른 feature)에서 import하는 퍼블릭 API | `FinderView`, `ColumnLayout`, `HamburgerButton` |
+| 루트          | 외부(pages, 다른 feature)에서 import하는 퍼블릭 API | `FinderView`, `ColumnLayout`, `SidebarToggle` |
 | `components/` | feature 내부에서만 사용하는 구현 컴포넌트           | `FolderList`, `NoteList`, `Sidebar`             |
 | `hooks/`      | feature 전용 훅                                     | `useFinderActions`, `useStandalone`             |
 
