@@ -83,4 +83,23 @@ export class NoteRepository {
     });
     return result._max.sortOrder ?? -1;
   }
+
+  async searchByContent(
+    userId: string,
+    query: string,
+    limit = 20,
+  ): Promise<NoteRecord[]> {
+    return prisma.note.findMany({
+      where: {
+        userId,
+        deletedAt: null,
+        OR: [
+          { title: { contains: query } },
+          { contentPlain: { contains: query } },
+        ],
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+    });
+  }
 }

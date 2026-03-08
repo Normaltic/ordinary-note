@@ -74,4 +74,12 @@ export class NoteService {
 
     await this.noteRepo.softDelete(noteId);
   }
+
+  async search(
+    userId: string,
+    query: string,
+    limit?: number,
+  ): Promise<NoteRecord[]> {
+    return this.noteRepo.searchByContent(userId, query, limit);
+  }
 }

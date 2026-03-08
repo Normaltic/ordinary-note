@@ -75,6 +75,10 @@ export function createMockNoteRepo() {
     findByFolderId: vi.fn<(folderId: string) => Promise<NoteRecord[]>>(),
     softDelete: vi.fn<(id: string) => Promise<void>>(),
     getMaxSortOrder: vi.fn<(folderId: string) => Promise<number>>(),
+    searchByContent:
+      vi.fn<
+        (userId: string, query: string, limit?: number) => Promise<NoteRecord[]>
+      >(),
   };
 }
 
@@ -140,6 +144,7 @@ export function createMockNoteService(): {
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+    search: vi.fn(),
   };
 }
 
