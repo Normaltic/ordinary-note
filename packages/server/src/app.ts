@@ -8,6 +8,7 @@ import { config } from './utils/config.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import { rateLimiter } from './middlewares/rateLimit.middleware.js';
 import { createRouter, type AppServices } from './routes/index.js';
+import { createOAuthRoutes } from './routes/oauth.routes.js';
 
 export function createApp(services: AppServices): Express {
   const app = express();
@@ -33,6 +34,21 @@ export function createApp(services: AppServices): Express {
   app.use(cookieParser());
   app.use(pinoHttp({ logger }));
 
+  // ── Well-Known ──────────────────────────────────────────────────
+  app.get('/.well-known/oauth-authorization-server', (_req, res) => {
+    res.json({
+      issuer: config.serverUrl,
+      authorization_endpoint: `${config.serverUrl}/oauth/authorize`,
+      token_endpoint: `${config.serverUrl}/oauth/token`,
+      registration_endpoint: `${config.serverUrl}/oauth/register`,
+      response_types_supported: ['code'],
+      grant_types_supported: ['authorization_code', 'refresh_token'],
+      code_challenge_methods_supported: ['S256'],
+      token_endpoint_auth_methods_supported: ['none'],
+    });
+  });
+
+  // ── Health ──────────────────────────────────────────────────────
   app.get('/api/health', async (_req, res) => {
     res.json({
       status: 'ok',
@@ -40,9 +56,15 @@ export function createApp(services: AppServices): Express {
     });
   });
 
+  // ── Rate Limiters ───────────────────────────────────────────────
   app.use('/api/auth', rateLimiter.auth);
+  app.use('/oauth', rateLimiter.auth);
   app.use('/api', rateLimiter.general);
 
+  // ── OAuth Routes ────────────────────────────────────────────────
+  app.use('/oauth', createOAuthRoutes(services.oauthService, services.authService));
+
+  // ── API Routes ──────────────────────────────────────────────────
   app.use('/api', createRouter(services));
 
   app.use(errorHandler);

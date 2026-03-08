@@ -5,6 +5,7 @@ import {
   createMockAuthService,
   createMockFolderService,
   createMockNoteService,
+  createMockOAuthService,
   generateTestAccessToken,
   fixtures,
 } from '../testing/helpers.js';
@@ -14,6 +15,7 @@ vi.mock('../utils/config.js', () => ({
     port: 3001,
     nodeEnv: 'test',
     clientUrl: 'http://localhost:5173',
+    serverUrl: 'http://localhost:3001',
     google: { clientId: 'test-client-id' },
     jwt: {
       accessSecret: 'test-access-secret',
@@ -41,6 +43,7 @@ describe('Folder Routes', () => {
       authService: createMockAuthService() as never,
       folderService: mockFolderService as never,
       noteService: mockNoteService as never,
+      oauthService: createMockOAuthService() as never,
     });
     token = generateTestAccessToken();
   });

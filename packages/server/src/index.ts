@@ -7,8 +7,10 @@ import {
   FolderRepository,
   NoteRepository,
   YjsRepository,
+  OAuthClientRepository,
+  OAuthCodeRepository,
 } from './repositories/index.js';
-import { AuthService, FolderService, NoteService } from './services/index.js';
+import { AuthService, FolderService, NoteService, OAuthService } from './services/index.js';
 import { createApp } from './app.js';
 import { setupCollaboration } from './collaboration/index.js';
 
@@ -29,8 +31,11 @@ async function main() {
   const authService = new AuthService(userRepo, refreshTokenRepo);
   const folderService = new FolderService(folderRepo);
   const noteService = new NoteService(noteRepo, folderRepo);
+  const oauthClientRepo = new OAuthClientRepository();
+  const oauthCodeRepo = new OAuthCodeRepository();
+  const oauthService = new OAuthService(oauthClientRepo, oauthCodeRepo, authService);
 
-  const app = createApp({ authService, folderService, noteService });
+  const app = createApp({ authService, folderService, noteService, oauthService });
   const httpServer = createServer(app);
 
   const collaboration = setupCollaboration(httpServer, { noteRepo, yjsRepo });

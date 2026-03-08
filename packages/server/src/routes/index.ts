@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { AuthService } from '../services/auth.service.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
+import type { OAuthService } from '../services/oauth.service.js';
 import { createAuthRoutes } from './auth.routes.js';
 import { createFolderRoutes } from './folder.routes.js';
 import { createNoteRoutes } from './note.routes.js';
@@ -10,6 +11,7 @@ export type AppServices = {
   authService: AuthService;
   folderService: FolderService;
   noteService: NoteService;
+  oauthService: OAuthService;
 };
 
 export function createRouter(services: AppServices) {

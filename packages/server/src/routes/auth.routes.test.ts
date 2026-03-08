@@ -3,6 +3,7 @@ import request from 'supertest';
 import { ErrorCode } from '@ordinary-note/shared';
 import {
   createMockAuthService,
+  createMockOAuthService,
   generateTestAccessToken,
   fixtures,
 } from '../testing/helpers.js';
@@ -12,6 +13,7 @@ vi.mock('../utils/config.js', () => ({
     port: 3001,
     nodeEnv: 'test',
     clientUrl: 'http://localhost:5173',
+    serverUrl: 'http://localhost:3001',
     google: { clientId: 'test-client-id' },
     jwt: {
       accessSecret: 'test-access-secret',
@@ -36,6 +38,7 @@ describe('Auth Routes', () => {
       authService: mockAuthService as never,
       folderService: {} as never,
       noteService: {} as never,
+      oauthService: createMockOAuthService() as never,
     });
   });
 

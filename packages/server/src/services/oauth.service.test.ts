@@ -14,6 +14,7 @@ vi.mock('../utils/config.js', () => ({
     port: 3001,
     nodeEnv: 'test',
     clientUrl: 'http://localhost:5173',
+    serverUrl: 'http://localhost:3001',
     google: { clientId: 'test-client-id' },
     jwt: {
       accessSecret: 'test-access-secret',
