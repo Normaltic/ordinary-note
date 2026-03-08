@@ -9,6 +9,8 @@ import { errorHandler } from './middlewares/error.middleware.js';
 import { rateLimiter } from './middlewares/rateLimit.middleware.js';
 import { createRouter, type AppServices } from './routes/index.js';
 import { createOAuthRoutes } from './routes/oauth.routes.js';
+import { createMcpRoutes } from './mcp/transport.js';
+import { createMcpServer } from './mcp/index.js';
 
 export function createApp(services: AppServices): Express {
   const app = express();
@@ -22,6 +24,24 @@ export function createApp(services: AppServices): Express {
       crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     }),
   );
+  app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser());
+  app.use(pinoHttp({ logger }));
+
+  // ── MCP Routes (Bearer auth, all origins) ──────────────────────
+  app.use('/mcp', cors());
+  app.use('/mcp', rateLimiter.general);
+  app.use(
+    '/mcp',
+    createMcpRoutes(() =>
+      createMcpServer({
+        folderService: services.folderService,
+        noteService: services.noteService,
+      }),
+    ),
+  );
+
+  // ── CORS (credentials, web origin only) ────────────────────────
   app.use(
     cors({
       origin: config.clientUrl,
@@ -30,9 +50,6 @@ export function createApp(services: AppServices): Express {
       allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
-  app.use(express.json({ limit: '1mb' }));
-  app.use(cookieParser());
-  app.use(pinoHttp({ logger }));
 
   // ── Well-Known ──────────────────────────────────────────────────
   app.get('/.well-known/oauth-authorization-server', (_req, res) => {

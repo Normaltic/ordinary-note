@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@hocuspocus/server": "^3.4.4",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@ordinary-note/shared": "workspace:*",
     "@prisma/client": "^6",
     "cookie-parser": "^1.4.7",
