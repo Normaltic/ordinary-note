@@ -42,16 +42,18 @@ describe('Note Tools', () => {
   let client: Client;
   let mcpServer: McpServer;
   let noteService: ReturnType<typeof createMockNoteService>;
+  let mockCollaboration: ReturnType<typeof createMockCollaboration>;
   let clientTransport: InMemoryTransport;
   let serverTransport: InMemoryTransport;
 
   beforeEach(async () => {
     noteService = createMockNoteService();
+    mockCollaboration = createMockCollaboration();
     mcpServer = new McpServer({ name: 'test', version: '0.0.1' });
     registerNoteTools(
       mcpServer,
       noteService as unknown as Parameters<typeof registerNoteTools>[1],
-      (() => createMockCollaboration()) as unknown as Parameters<typeof registerNoteTools>[2],
+      (() => mockCollaboration) as unknown as Parameters<typeof registerNoteTools>[2],
     );
 
     [clientTransport, serverTransport] = createAuthTransport();
@@ -174,6 +176,49 @@ describe('Note Tools', () => {
     );
     expect(parsed).toHaveLength(1);
     expect(noteService.search).toHaveBeenCalledWith('user-1', 'test', 10);
+  });
+
+  it('edit_note — 노트 콘텐츠를 편집한다', async () => {
+    noteService.getById.mockResolvedValue(fixtures.note());
+    const mockDisconnect = vi.fn();
+    const mockTransact = vi.fn<(fn: (doc: unknown) => void) => Promise<void>>(
+      async (fn) => {
+        const { Doc } = await import('yjs');
+        const doc = new Doc();
+        fn(doc);
+      },
+    );
+    mockCollaboration.openDirectConnection.mockResolvedValue({
+      transact: mockTransact,
+      disconnect: mockDisconnect,
+    });
+
+    const result = await client.callTool({
+      name: 'edit_note',
+      arguments: { noteId: 'note-1', content: 'Hello\nWorld' },
+    });
+
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+    expect(parsed).toEqual({ edited: true, id: 'note-1' });
+    expect(noteService.getById).toHaveBeenCalledWith('user-1', 'note-1');
+    expect(mockCollaboration.openDirectConnection).toHaveBeenCalledWith('note-1');
+    expect(mockTransact).toHaveBeenCalled();
+    expect(mockDisconnect).toHaveBeenCalled();
+  });
+
+  it('edit_note — 소유권 없는 노트에 대해 isError를 반환한다', async () => {
+    const { NotFoundError } = await import('../../utils/errors.js');
+    noteService.getById.mockRejectedValue(new NotFoundError('Note'));
+
+    const result = await client.callTool({
+      name: 'edit_note',
+      arguments: { noteId: 'nonexistent', content: 'test' },
+    });
+
+    expect(result.isError).toBe(true);
+    expect(mockCollaboration.openDirectConnection).not.toHaveBeenCalled();
   });
 
   it('에러 발생 시 isError: true를 반환한다', async () => {
