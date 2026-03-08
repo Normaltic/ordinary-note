@@ -9,6 +9,8 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Collaboration from '@tiptap/extension-collaboration';
 import { lowlight } from '../extensions/lowlight';
+import { SlashCommands } from '../extensions/slash-commands';
+import { slashCommandRender } from '../extensions/slash-command-render';
 import { CodeBlockView } from './CodeBlockView';
 import { TableMenu } from './TableMenu';
 import type { Doc } from 'yjs';
@@ -34,6 +36,9 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
       }),
       TableKit.configure({
         table: { resizable: true },
+      }),
+      SlashCommands.configure({
+        suggestion: { render: slashCommandRender },
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
