@@ -44,10 +44,8 @@ export function EditorView() {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="제목"
-        className="w-full border-none bg-transparent text-3xl font-bold text-text-primary placeholder-text-muted outline-none"
+        className="mb-4 w-full border-none bg-transparent text-3xl font-bold text-text-primary placeholder-text-muted outline-none"
       />
-
-      <hr className="my-4 border-border-default" />
 
       {/* Editor */}
       {ydoc && <TiptapEditor key={note.id} ydoc={ydoc} />}

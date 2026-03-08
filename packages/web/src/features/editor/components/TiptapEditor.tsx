@@ -12,7 +12,6 @@ import { lowlight } from '../extensions/lowlight';
 import { CodeBlockView } from './CodeBlockView';
 import { TableMenu } from './TableMenu';
 import type { Doc } from 'yjs';
-import { EditorToolbar } from './EditorToolbar';
 
 interface TiptapEditorProps {
   ydoc: Doc;
@@ -88,8 +87,6 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <EditorToolbar editor={editor} />
-
       <BubbleMenu
         editor={editor}
         className="flex items-center gap-0.5 rounded-lg border border-border-default bg-bg-card px-1 py-1 shadow-md"
