@@ -1,7 +1,7 @@
 export const APP_NAME = 'Ordinary Note';
 
-export { ErrorCode } from './constants/errors.js';
-export type { ErrorCodeType } from './constants/errors.js';
+export { ErrorCode, OAuthErrorCode } from './constants/errors.js';
+export type { ErrorCodeType, OAuthErrorCodeType } from './constants/errors.js';
 
 // 모델 스키마
 export { folderSchema, noteSchema } from './schemas/index.js';

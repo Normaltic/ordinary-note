@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import { pinoHttp } from 'pino-http';
 import { logger } from './utils/logger.js';
 import { config } from './utils/config.js';
-import { errorHandler } from './middlewares/error.middleware.js';
+import { errorHandler, oauthErrorHandler } from './middlewares/error.middleware.js';
 import { rateLimiter } from './middlewares/rateLimit.middleware.js';
 import { createRouter, type AppServices } from './routes/index.js';
 import { createOAuthRoutes } from './routes/oauth.routes.js';
@@ -80,6 +80,7 @@ export function createApp(services: AppServices): Express {
 
   // ── OAuth Routes ────────────────────────────────────────────────
   app.use('/oauth', createOAuthRoutes(services.oauthService, services.authService));
+  app.use('/oauth', oauthErrorHandler);
 
   // ── API Routes ──────────────────────────────────────────────────
   app.use('/api', createRouter(services));

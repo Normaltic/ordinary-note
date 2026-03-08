@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
-import { ErrorCode } from '@ordinary-note/shared';
+import { ErrorCode, OAuthErrorCode } from '@ordinary-note/shared';
 import {
   createMockAuthService,
   createMockFolderService,
@@ -107,7 +107,7 @@ describe('OAuth Routes', () => {
         .send({ redirect_uris: ['http://example.com/bad'] });
 
       expect(res.status).toBe(400);
-      expect(res.body.error.code).toBe(ErrorCode.VALIDATION_FAILED);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_REQUEST);
     });
   });
 
@@ -148,7 +148,7 @@ describe('OAuth Routes', () => {
       });
 
       expect(res.status).toBe(400);
-      expect(res.body.error.code).toBe(ErrorCode.VALIDATION_FAILED);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_REQUEST);
     });
 
     it('실패: 존재하지 않는 client_id → 401', async () => {
@@ -169,7 +169,7 @@ describe('OAuth Routes', () => {
       });
 
       expect(res.status).toBe(401);
-      expect(res.body.error.code).toBe(ErrorCode.AUTH_OAUTH_INVALID_CLIENT);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_CLIENT);
     });
   });
 
@@ -215,7 +215,7 @@ describe('OAuth Routes', () => {
         .send('sessionKey=bad-key&credential=some-credential');
 
       expect(res.status).toBe(401);
-      expect(res.body.error.code).toBe(ErrorCode.AUTH_OAUTH_SESSION_EXPIRED);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_CLIENT);
     });
 
     it('실패: credential 누락 → 400', async () => {
@@ -225,7 +225,7 @@ describe('OAuth Routes', () => {
         .send('sessionKey=some-key');
 
       expect(res.status).toBe(400);
-      expect(res.body.error.code).toBe(ErrorCode.VALIDATION_FAILED);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_REQUEST);
     });
   });
 
@@ -280,7 +280,7 @@ describe('OAuth Routes', () => {
       });
 
       expect(res.status).toBe(400);
-      expect(res.body.error.code).toBe(ErrorCode.VALIDATION_FAILED);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_REQUEST);
     });
 
     it('실패: 잘못된 code → 401', async () => {
@@ -301,7 +301,7 @@ describe('OAuth Routes', () => {
       });
 
       expect(res.status).toBe(401);
-      expect(res.body.error.code).toBe(ErrorCode.AUTH_OAUTH_INVALID_GRANT);
+      expect(res.body.error).toBe(OAuthErrorCode.INVALID_GRANT);
     });
   });
 });

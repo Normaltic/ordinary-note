@@ -22,4 +22,16 @@ export const ErrorCode = {
   SERVER_RATE_LIMITED: 'SERVER_RATE_LIMITED',
 } as const;
 
+// RFC 6749 OAuth 에러 코드
+export const OAuthErrorCode = {
+  INVALID_REQUEST: 'invalid_request',
+  INVALID_CLIENT: 'invalid_client',
+  INVALID_GRANT: 'invalid_grant',
+  ACCESS_DENIED: 'access_denied',
+  SERVER_ERROR: 'server_error',
+} as const;
+
+export type OAuthErrorCodeType =
+  (typeof OAuthErrorCode)[keyof typeof OAuthErrorCode];
+
 export type ErrorCodeType = (typeof ErrorCode)[keyof typeof ErrorCode];
