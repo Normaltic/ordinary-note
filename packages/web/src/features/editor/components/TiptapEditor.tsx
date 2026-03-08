@@ -27,6 +27,7 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
       CodeBlockLowlight.configure({
         lowlight,
         defaultLanguage: 'plaintext',
+        enableTabIndentation: true,
       }).extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlockView);

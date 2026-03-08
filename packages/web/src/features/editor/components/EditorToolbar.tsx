@@ -1,61 +1,71 @@
+import { useEditorState } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 
 interface EditorToolbarProps {
   editor: Editor;
 }
 
-interface ToolbarButton {
-  label: string;
-  action: () => void;
-  isActive: boolean;
-}
-
 export function EditorToolbar({ editor }: EditorToolbarProps) {
-  const groups: ToolbarButton[][] = [
+  const activeStates = useEditorState({
+    editor,
+    selector: (ctx) => ({
+      h1: ctx.editor.isActive('heading', { level: 1 }),
+      h2: ctx.editor.isActive('heading', { level: 2 }),
+      h3: ctx.editor.isActive('heading', { level: 3 }),
+      bulletList: ctx.editor.isActive('bulletList'),
+      orderedList: ctx.editor.isActive('orderedList'),
+      taskList: ctx.editor.isActive('taskList'),
+      blockquote: ctx.editor.isActive('blockquote'),
+      codeBlock: ctx.editor.isActive('codeBlock'),
+      table: ctx.editor.isActive('table'),
+    }),
+  });
+
+  const groups = [
     [
       {
         label: 'H1',
         action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-        isActive: editor.isActive('heading', { level: 1 }),
+        isActive: activeStates.h1,
       },
       {
         label: 'H2',
         action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-        isActive: editor.isActive('heading', { level: 2 }),
+        isActive: activeStates.h2,
       },
       {
         label: 'H3',
         action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
-        isActive: editor.isActive('heading', { level: 3 }),
+        isActive: activeStates.h3,
       },
     ],
     [
       {
         label: 'Bullet',
         action: () => editor.chain().focus().toggleBulletList().run(),
-        isActive: editor.isActive('bulletList'),
+        isActive: activeStates.bulletList,
       },
       {
         label: 'Ordered',
         action: () => editor.chain().focus().toggleOrderedList().run(),
-        isActive: editor.isActive('orderedList'),
+        isActive: activeStates.orderedList,
       },
       {
         label: 'Check',
         action: () => editor.chain().focus().toggleTaskList().run(),
-        isActive: editor.isActive('taskList'),
+        isActive: activeStates.taskList,
       },
     ],
     [
       {
         label: 'Quote',
         action: () => editor.chain().focus().toggleBlockquote().run(),
-        isActive: editor.isActive('blockquote'),
+        isActive: activeStates.blockquote,
       },
       {
         label: 'Code Block',
         action: () => editor.chain().focus().toggleCodeBlock().run(),
-        isActive: editor.isActive('codeBlock'),
+        isActive: activeStates.codeBlock,
       },
       {
         label: 'Table',
@@ -65,7 +75,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
             .focus()
             .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
             .run(),
-        isActive: editor.isActive('table'),
+        isActive: activeStates.table,
       },
       {
         label: 'HR',
