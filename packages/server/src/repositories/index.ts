@@ -28,3 +28,15 @@ export type {
   YjsDocumentWithUpdates,
   YjsDocumentMeta,
 } from './yjs.repository.js';
+
+export { OAuthClientRepository } from './oauthClient.repository.js';
+export type {
+  OAuthClientRecord,
+  CreateOAuthClientData,
+} from './oauthClient.repository.js';
+
+export { OAuthCodeRepository } from './oauthCode.repository.js';
+export type {
+  OAuthCodeRecord,
+  CreateOAuthCodeData,
+} from './oauthCode.repository.js';

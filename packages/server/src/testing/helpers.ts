@@ -16,9 +16,12 @@ import type {
   YjsDocumentWithUpdates,
   YjsDocumentMeta,
 } from '../repositories/yjs.repository.js';
+import type { OAuthClientRecord } from '../repositories/oauthClient.repository.js';
+import type { OAuthCodeRecord } from '../repositories/oauthCode.repository.js';
 import type { AuthService } from '../services/auth.service.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
+import type { OAuthService } from '../services/oauth.service.js';
 import { generateAccessToken } from '../utils/jwt.js';
 import type { AccessTokenPayload } from '../utils/jwt.js';
 
@@ -140,6 +143,46 @@ export function createMockNoteService(): {
   };
 }
 
+// ── OAuth Mock Factories ────────────────────────────────────────────
+
+export function createMockOAuthClientRepo(): {
+  create: ReturnType<typeof vi.fn>;
+  findByClientId: ReturnType<typeof vi.fn>;
+} {
+  return {
+    create: vi.fn(),
+    findByClientId: vi.fn(),
+  };
+}
+
+export function createMockOAuthCodeRepo(): {
+  create: ReturnType<typeof vi.fn>;
+  findByCodeHash: ReturnType<typeof vi.fn>;
+  markUsed: ReturnType<typeof vi.fn>;
+  deleteExpired: ReturnType<typeof vi.fn>;
+} {
+  return {
+    create: vi.fn(),
+    findByCodeHash: vi.fn(),
+    markUsed: vi.fn(),
+    deleteExpired: vi.fn(),
+  };
+}
+
+export function createMockOAuthService(): {
+  [K in keyof OAuthService]: ReturnType<typeof vi.fn>;
+} {
+  return {
+    registerClient: vi.fn(),
+    createAuthorizeSession: vi.fn(),
+    getAuthorizeSession: vi.fn(),
+    validateAuthorizeParams: vi.fn(),
+    createAuthorizationCode: vi.fn(),
+    exchangeCode: vi.fn(),
+    refreshToken: vi.fn(),
+  };
+}
+
 // ── Test Token Generator ─────────────────────────────────────────────
 
 export function generateTestAccessToken(
@@ -231,6 +274,30 @@ export const fixtures = {
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
     deletedAt: null,
+    ...overrides,
+  }),
+
+  oauthClient: (overrides?: Partial<OAuthClientRecord>): OAuthClientRecord => ({
+    id: 'oauth-client-1',
+    clientId: 'test-client-id-hex',
+    clientSecretHash: null,
+    redirectUris: JSON.stringify(['http://localhost:3000/callback']),
+    clientName: 'Test Client',
+    createdAt: new Date('2025-01-01'),
+    ...overrides,
+  }),
+
+  oauthCode: (overrides?: Partial<OAuthCodeRecord>): OAuthCodeRecord => ({
+    id: 'oauth-code-1',
+    codeHash: 'hashed-code',
+    clientId: 'test-client-id-hex',
+    userId: 'user-1',
+    redirectUri: 'http://localhost:3000/callback',
+    codeChallenge: 'test-challenge',
+    codeChallengeMethod: 'S256',
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    usedAt: null,
+    createdAt: new Date('2025-01-01'),
     ...overrides,
   }),
 };
