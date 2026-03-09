@@ -26,9 +26,11 @@ rsync -azP --delete \
   --include='packages/shared/package.json' \
   --include='packages/server/' \
   --include='packages/server/dist/***' \
-  --include='packages/server/prisma/***' \
+  --include='packages/server/prisma/' \
+  --include='packages/server/prisma/schema.prisma' \
+  --include='packages/server/prisma/migrations/' \
+  --include='packages/server/prisma/migrations/***' \
   --include='packages/server/package.json' \
-  --include='deploy/***' \
   --exclude='*' \
   ./ "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/"
 

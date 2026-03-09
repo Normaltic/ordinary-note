@@ -1,5 +1,5 @@
 dbs:
-  - path: /home/<user>/ordinary-note/packages/server/prisma/<db-file>
+  - path: /home/<user>/data/ordinary-note.db
     replicas:
       - type: s3
         bucket: <S3_BACKUP_BUCKET>

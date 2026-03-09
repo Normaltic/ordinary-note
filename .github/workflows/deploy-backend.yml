@@ -55,9 +55,11 @@ jobs:
             --include='packages/shared/package.json' \
             --include='packages/server/' \
             --include='packages/server/dist/***' \
-            --include='packages/server/prisma/***' \
+            --include='packages/server/prisma/' \
+            --include='packages/server/prisma/schema.prisma' \
+            --include='packages/server/prisma/migrations/' \
+            --include='packages/server/prisma/migrations/***' \
             --include='packages/server/package.json' \
-            --include='deploy/***' \
             --exclude='*' \
             ./ ${{ vars.DEPLOY_API_USER }}@${{ vars.DEPLOY_API_HOST }}:${{ vars.DEPLOY_API_DIR }}/
 
