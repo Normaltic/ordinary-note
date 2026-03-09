@@ -4,6 +4,7 @@ import type { CollaborationServer } from '../../collaboration/index.js';
 import type { NoteService } from '../../services/note.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
 import { markdownToYFragment } from '../utils/markdown-to-yjs.js';
+import { yFragmentToMarkdown } from '../utils/yjs-to-markdown.js';
 
 export function registerNoteTools(
   server: McpServer,
@@ -30,9 +31,24 @@ export function registerNoteTools(
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
         const note = await noteService.getById(userId, noteId);
+
+        // Yjs 문서에서 마크다운 변환
+        let contentMarkdown = '';
+        const collaboration = getCollaboration();
+        const connection = await collaboration.openDirectConnection(noteId);
+        try {
+          await connection.transact((doc) => {
+            const fragment = doc.getXmlFragment('default');
+            contentMarkdown = yFragmentToMarkdown(fragment);
+          });
+        } finally {
+          await connection.disconnect();
+        }
+
         return jsonResult({
           id: note.id,
           title: note.title,
+          contentMarkdown,
           contentPlain: note.contentPlain,
           folderId: note.folderId,
           isPinned: note.isPinned,
