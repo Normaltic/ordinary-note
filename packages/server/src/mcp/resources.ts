@@ -7,7 +7,7 @@ import { getUserId } from './utils.js';
 export function registerResources(
   server: McpServer,
   noteService: NoteService,
-  folderService: FolderService,
+  _folderService: FolderService,
 ): void {
   server.resource(
     'note',

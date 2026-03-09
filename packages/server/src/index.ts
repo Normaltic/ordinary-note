@@ -12,7 +12,7 @@ import {
 } from './repositories/index.js';
 import { AuthService, FolderService, NoteService, OAuthService } from './services/index.js';
 import { createApp } from './app.js';
-import { setupCollaboration, type CollaborationServer } from './collaboration/index.js';
+import { setupCollaboration } from './collaboration/index.js';
 
 const PORT = process.env.PORT || 3001;
 
@@ -35,7 +35,6 @@ async function main() {
   const oauthCodeRepo = new OAuthCodeRepository();
   const oauthService = new OAuthService(oauthClientRepo, oauthCodeRepo, authService);
 
-  let collaboration: CollaborationServer;
   const app = createApp({
     authService,
     folderService,
@@ -45,7 +44,7 @@ async function main() {
   });
   const httpServer = createServer(app);
 
-  collaboration = setupCollaboration(httpServer, { noteRepo, yjsRepo });
+  const collaboration = setupCollaboration(httpServer, { noteRepo, yjsRepo });
 
   httpServer.listen(PORT, () => {
     logger.info({ port: PORT }, 'Server started');

@@ -4,7 +4,7 @@ import type { OAuthClientRepository } from '../repositories/oauthClient.reposito
 import type { OAuthCodeRepository } from '../repositories/oauthCode.repository.js';
 import type { AuthService } from './auth.service.js';
 import { generateAccessToken } from '../utils/jwt.js';
-import { config } from '../utils/config.js';
+
 import { UnauthorizedError, ValidationError } from '../utils/errors.js';
 
 interface AuthorizeSession {

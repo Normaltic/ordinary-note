@@ -14,7 +14,7 @@ vi.mock('../utils/config.js', () => ({
 
 import { getUserId, withErrorHandling, jsonResult } from './utils.js';
 import { generateAccessToken } from '../utils/jwt.js';
-import { AppError, NotFoundError } from '../utils/errors.js';
+import { NotFoundError } from '../utils/errors.js';
 
 describe('MCP utils', () => {
   describe('getUserId', () => {
