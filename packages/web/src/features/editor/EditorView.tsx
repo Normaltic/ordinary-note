@@ -1,23 +1,21 @@
+import { useState, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useNoteQuery, useDeleteNote } from '../../hooks/queries/useNote';
+import { useToastStore } from '../../stores/toast.store';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { TiptapEditor } from './components/TiptapEditor';
 import { ConnectionStatus } from './components/ConnectionStatus';
-import { useNoteEditor } from './hooks/useNoteEditor';
+import { useCollaboration } from './hooks/useCollaboration';
+import { useNoteTitle } from './hooks/useNoteTitle';
 
 export function EditorView() {
-  const {
-    note,
-    loading,
-    title,
-    setTitle,
-    ydoc,
-    synced,
-    connectionStatus,
-    handleDelete,
-    confirmOpen,
-    setConfirmOpen,
-  } = useNoteEditor();
+  const { noteId } = useParams<{ noteId: string }>();
+  const navigate = useNavigate();
+  const { data: note, isLoading } = useNoteQuery(noteId ?? null);
+  const addToast = useToastStore((s) => s.addToast);
+  const deleteNoteMutation = useDeleteNote();
 
-  if (loading || !note) {
+  if (!noteId || isLoading || !note) {
     return (
       <div className="flex items-center justify-center py-20">
         <span className="text-text-muted">로딩 중...</span>
@@ -26,8 +24,48 @@ export function EditorView() {
   }
 
   return (
+    <EditorContent
+      key={noteId}
+      noteId={noteId}
+      noteTitle={note.title}
+      folderId={note.folderId}
+      onDelete={() => {
+        deleteNoteMutation.mutate(
+          { id: noteId, folderId: note.folderId },
+          {
+            onSuccess: () => {
+              addToast('success', '노트가 삭제되었습니다');
+              navigate(`/folders/${note.folderId}`);
+            },
+            onError: () => {
+              addToast('error', '노트 삭제에 실패했습니다');
+            },
+          },
+        );
+      }}
+    />
+  );
+}
+
+interface EditorContentProps {
+  noteId: string;
+  noteTitle: string;
+  folderId: string;
+  onDelete: () => void;
+}
+
+function EditorContent({ noteId, noteTitle, onDelete }: EditorContentProps) {
+  const { ydoc, synced, connectionStatus } = useCollaboration(noteId);
+  const { title, setTitle } = useNoteTitle(noteId);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const handleDelete = useCallback(() => {
+    setConfirmOpen(false);
+    onDelete();
+  }, [onDelete]);
+
+  return (
     <>
-      {/* Toolbar */}
       <div className="mb-4 flex items-center justify-between">
         <ConnectionStatus status={connectionStatus} synced={synced} />
         <button
@@ -38,7 +76,6 @@ export function EditorView() {
         </button>
       </div>
 
-      {/* Title */}
       <input
         type="text"
         value={title}
@@ -47,14 +84,12 @@ export function EditorView() {
         className="mb-4 w-full border-none bg-transparent text-3xl font-bold text-text-primary placeholder-text-muted outline-none"
       />
 
-      {/* Editor */}
-      {ydoc && <TiptapEditor key={note.id} ydoc={ydoc} />}
+      <TiptapEditor ydoc={ydoc} />
 
-      {/* Delete confirm */}
       <ConfirmDialog
         open={confirmOpen}
         title="노트 삭제"
-        message={`"${note.title || '제목 없음'}" 노트를 삭제하시겠습니까?`}
+        message={`"${noteTitle || '제목 없음'}" 노트를 삭제하시겠습니까?`}
         onConfirm={handleDelete}
         onCancel={() => setConfirmOpen(false)}
       />
