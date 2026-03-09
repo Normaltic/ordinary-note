@@ -85,8 +85,23 @@ describe('Note Tools', () => {
     );
   });
 
-  it('get_note — 노트 상세 정보를 반환한다', async () => {
+  it('get_note — 노트 상세 정보를 반환한다 (contentMarkdown 포함)', async () => {
     noteService.getById.mockResolvedValue(fixtures.note());
+    const mockTransact = vi.fn<(fn: (doc: unknown) => void) => Promise<void>>(
+      async (fn) => {
+        const { Doc, XmlElement, XmlText } = await import('yjs');
+        const doc = new Doc();
+        const fragment = doc.getXmlFragment('default');
+        const para = new XmlElement('paragraph');
+        para.insert(0, [new XmlText('Some content')]);
+        fragment.push([para]);
+        fn(doc);
+      },
+    );
+    mockCollaboration.openDirectConnection.mockResolvedValue({
+      transact: mockTransact,
+      disconnect: vi.fn(),
+    });
 
     const result = await client.callTool({
       name: 'get_note',
@@ -98,6 +113,7 @@ describe('Note Tools', () => {
     expect(parsed.id).toBe('note-1');
     expect(parsed.title).toBe('Test Note');
     expect(parsed.contentPlain).toBe('Some content');
+    expect(parsed.contentMarkdown).toBe('Some content');
   });
 
   it('create_note — 새 노트를 생성한다', async () => {

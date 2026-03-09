@@ -52,6 +52,7 @@ function processBlockTokens(
           i,
         );
         element.setAttribute('level', String(level));
+        result.push(element);
         i = endIndex + 1;
         break;
       }
