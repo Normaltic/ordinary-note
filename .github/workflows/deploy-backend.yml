@@ -69,6 +69,7 @@ jobs:
             set -euo pipefail
             cd ${{ vars.DEPLOY_API_DIR }}
             pnpm install --frozen-lockfile
+            pm2 stop deploy/ecosystem.config.cjs || true
             cd packages/server
             npx prisma migrate deploy
             cd ../..

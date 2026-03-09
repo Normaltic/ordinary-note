@@ -40,6 +40,7 @@ ssh"${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
   set -euo pipefail
   cd ${REMOTE_DIR}
   pnpm install --frozen-lockfile
+  pm2 stop deploy/ecosystem.config.cjs || true
   cd packages/server
   npx prisma migrate deploy
 REMOTE
