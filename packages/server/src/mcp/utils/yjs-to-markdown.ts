@@ -166,7 +166,7 @@ function taskListToMarkdown(element: XmlElement, depth: number): string {
   for (const child of element.toArray()) {
     if (!(child instanceof XmlElement) || child.nodeName !== 'taskItem') continue;
 
-    const checked = child.getAttribute('checked') === 'true';
+    const checked = !!child.getAttribute('checked');
     const checkbox = checked ? '[x]' : '[ ]';
     const content = taskItemContent(child);
     lines.push(`${indent}- ${checkbox} ${content}`);

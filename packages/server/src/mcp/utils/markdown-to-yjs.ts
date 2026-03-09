@@ -194,7 +194,10 @@ function processListBlock(
     const taskList = new XmlElement('taskList');
     for (const { element: itemEl, checked } of listItems) {
       // itemEl is already a taskItem (created directly by processListItem)
-      itemEl.setAttribute('checked', String(checked));
+      // unchecked → 속성 미설정 (tiptap default: false)
+      if (checked) {
+        itemEl.setAttribute('checked', 'true');
+      }
       taskList.push([itemEl]);
     }
     return { element: taskList, endIndex: i };

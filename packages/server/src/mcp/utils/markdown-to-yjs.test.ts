@@ -213,7 +213,7 @@ describe('markdownToYFragment', () => {
 
       const item1 = getChildElement(taskList, 0);
       expect(item1.nodeName).toBe('taskItem');
-      expect(item1.getAttribute('checked')).toBe('false');
+      expect(item1.getAttribute('checked')).toBeUndefined();
 
       const item2 = getChildElement(taskList, 1);
       expect(item2.getAttribute('checked')).toBe('true');
@@ -259,7 +259,7 @@ describe('markdownToYFragment', () => {
 
       const item1 = taskList.get(0) as Y.XmlElement;
       expect(item1.nodeName).toBe('taskItem');
-      expect(item1.getAttribute('checked')).toBe('false');
+      expect(item1.getAttribute('checked')).toBeUndefined();
     });
   });
 });

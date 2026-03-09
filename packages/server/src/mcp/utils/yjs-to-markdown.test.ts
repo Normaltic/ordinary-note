@@ -219,7 +219,7 @@ describe('yFragmentToMarkdown', () => {
       const taskList = new Y.XmlElement('taskList');
 
       const task1 = new Y.XmlElement('taskItem');
-      task1.setAttribute('checked', 'false');
+      // unchecked: 속성 미설정 (tiptap default)
       task1.push([paragraph('todo')]);
 
       const task2 = new Y.XmlElement('taskItem');
