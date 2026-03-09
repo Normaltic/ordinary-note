@@ -149,7 +149,7 @@ function processBlockPair(
     if (token.type === 'inline' && token.children) {
       const textNode = processInlineTokens(token.children);
       if (textNode) {
-        element.insert(element.length, [textNode]);
+        element.push([textNode]);
       }
     }
     i++;
@@ -193,17 +193,9 @@ function processListBlock(
   if (allTasks) {
     const taskList = new XmlElement('taskList');
     for (const { element: itemEl, checked } of listItems) {
-      const taskItem = new XmlElement('taskItem');
-      taskItem.setAttribute('checked', String(checked));
-      // Move children from listItem to taskItem
-      for (const child of itemEl.toArray()) {
-        if (child instanceof XmlText) {
-          taskItem.push([new XmlText(child.toJSON())]);
-        } else if (child instanceof XmlElement) {
-          taskItem.push([child]);
-        }
-      }
-      taskList.push([taskItem]);
+      // itemEl is already a taskItem (created directly by processListItem)
+      itemEl.setAttribute('checked', String(checked));
+      taskList.push([itemEl]);
     }
     return { element: taskList, endIndex: i };
   }
@@ -222,10 +214,20 @@ function processListItem(
   tokens: Token[],
   startIndex: number,
 ): { item: XmlElement; endIndex: number; isTask: boolean; checked: boolean } {
-  const item = new XmlElement('listItem');
   let i = startIndex + 1;
   let isTask = false;
   let checked = false;
+
+  // First pass: scan for task checkbox to determine item type
+  const scanIndex = findInlineInListItem(tokens, i);
+  if (scanIndex !== -1 && tokens[scanIndex].children) {
+    const result = detectTaskCheckbox(tokens[scanIndex].children!);
+    isTask = result.taskDetected;
+    checked = result.taskChecked;
+  }
+
+  // Create the appropriate element type from the start
+  const item = new XmlElement(isTask ? 'taskItem' : 'listItem');
 
   while (i < tokens.length) {
     const token = tokens[i];
@@ -240,19 +242,17 @@ function processListItem(
       while (i < tokens.length && tokens[i].type !== 'paragraph_close') {
         if (tokens[i].type === 'inline' && tokens[i].children) {
           const children = tokens[i].children!;
-          // Check for task list pattern: starts with [ ] or [x]
-          const { taskDetected, taskChecked, remainingChildren } = detectTaskCheckbox(children);
-          if (taskDetected) {
-            isTask = true;
-            checked = taskChecked;
+          if (isTask) {
+            // Strip checkbox prefix from inline content
+            const { remainingChildren } = detectTaskCheckbox(children);
             const textNode = processInlineTokens(remainingChildren);
             if (textNode) {
-              para.insert(para.length, [textNode]);
+              para.push([textNode]);
             }
           } else {
             const textNode = processInlineTokens(children);
             if (textNode) {
-              para.insert(para.length, [textNode]);
+              para.push([textNode]);
             }
           }
         }
@@ -282,6 +282,17 @@ function processListItem(
   }
 
   return { item, endIndex: i - 1, isTask, checked };
+}
+
+/**
+ * Find the index of the first inline token within a list item.
+ */
+function findInlineInListItem(tokens: Token[], fromIndex: number): number {
+  for (let i = fromIndex; i < tokens.length; i++) {
+    if (tokens[i].type === 'list_item_close') return -1;
+    if (tokens[i].type === 'inline') return i;
+  }
+  return -1;
 }
 
 /**
@@ -427,7 +438,7 @@ function processTableRow(
         if (tokens[i].type === 'inline' && tokens[i].children) {
           const textNode = processInlineTokens(tokens[i].children!);
           if (textNode) {
-            cellParagraph.insert(cellParagraph.length, [textNode]);
+            cellParagraph.push([textNode]);
           }
         }
         i++;

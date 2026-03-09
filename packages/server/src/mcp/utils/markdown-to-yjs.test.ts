@@ -240,5 +240,26 @@ describe('markdownToYFragment', () => {
       expect(getElement(fragment, 1).nodeName).toBe('paragraph');
       expect(getElement(fragment, 2).nodeName).toBe('bulletList');
     });
+
+    it('체크리스트 roundtrip (serialize → deserialize)', () => {
+      const doc1 = new Y.Doc();
+      const fragment1 = doc1.getXmlFragment('default');
+      markdownToYFragment('- [ ] todo\n- [x] done', fragment1);
+
+      // Serialize and deserialize
+      const update = Y.encodeStateAsUpdate(doc1);
+      const doc2 = new Y.Doc();
+      Y.applyUpdate(doc2, update);
+      const fragment2 = doc2.getXmlFragment('default');
+
+      expect(fragment2.length).toBe(1);
+      const taskList = fragment2.get(0) as Y.XmlElement;
+      expect(taskList.nodeName).toBe('taskList');
+      expect(taskList.length).toBe(2);
+
+      const item1 = taskList.get(0) as Y.XmlElement;
+      expect(item1.nodeName).toBe('taskItem');
+      expect(item1.getAttribute('checked')).toBe('false');
+    });
   });
 });
