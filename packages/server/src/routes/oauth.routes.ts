@@ -13,6 +13,8 @@ export function createOAuthRoutes(
 ): Router {
   const router = Router();
 
+  router.use(express.urlencoded({ extended: false }));
+
   // POST /oauth/register — Dynamic Client Registration
   router.post('/register', async (req: Request, res: Response) => {
     const result = await oauthService.registerClient({
@@ -99,7 +101,6 @@ export function createOAuthRoutes(
   // POST /oauth/callback — Google credential → authorization code
   router.post(
     '/callback',
-    express.urlencoded({ extended: false }),
     async (req: Request, res: Response) => {
       const { credential, sessionKey } = req.body;
 
