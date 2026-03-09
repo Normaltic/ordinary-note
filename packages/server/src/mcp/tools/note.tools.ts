@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { XmlFragment, XmlElement, XmlText } from 'yjs';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CollaborationServer } from '../../collaboration/index.js';
 import type { NoteService } from '../../services/note.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
+import { markdownToYFragment } from '../utils/markdown-to-yjs.js';
 
 export function registerNoteTools(
   server: McpServer,
@@ -108,7 +108,7 @@ export function registerNoteTools(
 
   server.tool(
     'edit_note',
-    '노트 본문 콘텐츠를 편집합니다 (plain text)',
+    '노트 본문 콘텐츠를 편집합니다 (마크다운)',
     { noteId: z.string(), content: z.string() },
     async ({ noteId, content }, { authInfo }) =>
       withErrorHandling(async () => {
@@ -127,15 +127,8 @@ export function registerNoteTools(
               fragment.delete(0, 1);
             }
 
-            // 새 콘텐츠 삽입: 줄 단위로 paragraph 생성
-            const lines = content.split('\n');
-            for (const line of lines) {
-              const paragraph = new XmlElement('paragraph');
-              if (line.length > 0) {
-                paragraph.insert(0, [new XmlText(line)]);
-              }
-              fragment.push([paragraph]);
-            }
+            // 마크다운 → Yjs XmlFragment 변환
+            markdownToYFragment(content, fragment);
           });
         } finally {
           await connection.disconnect();

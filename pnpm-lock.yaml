@@ -65,6 +65,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
+      markdown-it:
+        specifier: ^14.1.1
+        version: 14.1.1
       pino:
         specifier: ^9
         version: 9.14.0
@@ -93,6 +96,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@types/supertest':
         specifier: ^6.0.3
         version: 6.0.3
