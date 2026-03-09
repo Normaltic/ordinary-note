@@ -6,6 +6,8 @@ const md = MarkdownIt();
 
 type MarkAttrs = Record<string, object>;
 
+
+
 export function markdownToYFragment(
   markdown: string,
   fragment: XmlFragment,
@@ -51,7 +53,8 @@ function processBlockTokens(
           tokens,
           i,
         );
-        element.setAttribute('level', String(level));
+        // @ts-expect-error Yjs setAttribute TS 타입은 string만 허용하지만 런타임에서 number 지원, tiptap 호환 필요
+        element.setAttribute('level', level);
         result.push(element);
         i = endIndex + 1;
         break;

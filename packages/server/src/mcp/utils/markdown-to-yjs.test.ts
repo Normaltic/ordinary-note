@@ -63,7 +63,7 @@ describe('markdownToYFragment', () => {
       const fragment = convert(`${'#'.repeat(level)} Title`);
       const heading = getElement(fragment, 0);
       expect(heading.nodeName).toBe('heading');
-      expect(heading.getAttribute('level')).toBe(String(level));
+      expect(heading.getAttribute('level')).toBe(level);
       expect(getTextContent(heading)).toBe('Title');
     });
   });
