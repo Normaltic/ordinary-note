@@ -127,7 +127,7 @@ function resolveEmptyDocUpdate(
   update: ContentUpdate,
   fullMarkdown: string,
   blockMarkdowns: string[],
-  boundaries: BlockBoundary[],
+  _boundaries: BlockBoundary[],
 ): ResolvedUpdate {
   // Only allow empty old_content when the document is effectively empty
   const isEmptyDoc =

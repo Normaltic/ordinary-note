@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Doc, XmlElement, XmlText, XmlFragment } from 'yjs';
+import { Doc, XmlElement, XmlFragment } from 'yjs';
 import { applyContentUpdates } from './content-updater.js';
 import { yFragmentToMarkdown } from './yjs-to-markdown.js';
 import { markdownToYFragment } from './markdown-to-yjs.js';
