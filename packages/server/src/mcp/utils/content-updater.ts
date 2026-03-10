@@ -142,7 +142,7 @@ function resolveEmptyDocUpdate(
 
   return {
     blockStart: 0,
-    blockEnd: blockMarkdowns.length > 0 ? blockMarkdowns.length - 1 : 0,
+    blockEnd: blockMarkdowns.length - 1, // -1 when empty → count becomes 0
     rangeMarkdown: fullMarkdown,
     oldContent: '',
     newContent: update.new_content,
@@ -173,7 +173,9 @@ function applyUpdate(fragment: XmlFragment, update: ResolvedUpdate): void {
   );
 
   // Delete old blocks
-  fragment.delete(update.blockStart, count);
+  if (count > 0) {
+    fragment.delete(update.blockStart, count);
+  }
 
   // Insert new blocks (if non-empty replacement)
   const trimmed = replaced.trim();

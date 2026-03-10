@@ -71,8 +71,18 @@ describe('applyContentUpdates', () => {
     expect(yFragmentToMarkdown(fragment)).toBe('# Title\n\nKeep this');
   });
 
-  it('빈 문서에 최초 작성한다 (old_content = "")', () => {
+  it('빈 paragraph가 있는 문서에 최초 작성한다 (old_content = "")', () => {
     const fragment = createEmptyFragment();
+    applyContentUpdates(fragment, [
+      { old_content: '', new_content: '# Hello\n\nNew content' },
+    ]);
+    expect(yFragmentToMarkdown(fragment)).toBe('# Hello\n\nNew content');
+  });
+
+  it('fragment가 비어있는 문서에 최초 작성한다 (old_content = "")', () => {
+    const doc = new Doc();
+    const fragment = doc.getXmlFragment('default');
+    // fragment.length === 0, 블록이 전혀 없는 상태
     applyContentUpdates(fragment, [
       { old_content: '', new_content: '# Hello\n\nNew content' },
     ]);
