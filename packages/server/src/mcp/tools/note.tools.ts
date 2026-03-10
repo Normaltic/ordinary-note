@@ -3,8 +3,8 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CollaborationServer } from '../../collaboration/index.js';
 import type { NoteService } from '../../services/note.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
-import { markdownToYFragment } from '../utils/markdown-to-yjs.js';
 import { yFragmentToMarkdown } from '../utils/yjs-to-markdown.js';
+import { applyContentUpdates } from '../utils/content-updater.js';
 
 export function registerNoteTools(
   server: McpServer,
@@ -124,12 +124,22 @@ export function registerNoteTools(
 
   server.tool(
     'edit_note',
-    '노트 본문 콘텐츠를 편집합니다 (마크다운)',
-    { noteId: z.string(), content: z.string() },
-    async ({ noteId, content }, { authInfo }) =>
+    '노트 본문을 부분 편집합니다. content_updates 배열로 변경할 부분을 지정합니다. ' +
+      'old_content는 현재 문서의 마크다운과 정확히 일치해야 하며, 문서 내 유일해야 합니다. ' +
+      '고유한 매칭을 위해 주변 블록을 충분히 포함하세요. ' +
+      '빈 문서에 최초 작성 시 old_content를 빈 문자열로 지정합니다.',
+    {
+      noteId: z.string(),
+      content_updates: z.array(
+        z.object({
+          old_content: z.string().describe('현재 문서에서 매칭할 마크다운 텍스트'),
+          new_content: z.string().describe('교체할 마크다운 텍스트 (빈 문자열 = 삭제)'),
+        }),
+      ),
+    },
+    async ({ noteId, content_updates }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
-        // 소유권 검증
         await noteService.getById(userId, noteId);
 
         const collaboration = getCollaboration();
@@ -137,14 +147,7 @@ export function registerNoteTools(
         try {
           await connection.transact((doc) => {
             const fragment = doc.getXmlFragment('default');
-
-            // 기존 콘텐츠 삭제
-            while (fragment.length > 0) {
-              fragment.delete(0, 1);
-            }
-
-            // 마크다운 → Yjs XmlFragment 변환
-            markdownToYFragment(content, fragment);
+            applyContentUpdates(fragment, content_updates);
           });
         } finally {
           await connection.disconnect();
