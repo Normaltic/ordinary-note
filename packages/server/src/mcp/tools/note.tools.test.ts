@@ -194,13 +194,18 @@ describe('Note Tools', () => {
     expect(noteService.search).toHaveBeenCalledWith('user-1', 'test', 10);
   });
 
-  it('edit_note — 노트 콘텐츠를 편집한다', async () => {
+  it('edit_note — 노트 콘텐츠를 부분 편집한다', async () => {
     noteService.getById.mockResolvedValue(fixtures.note());
     const mockDisconnect = vi.fn();
     const mockTransact = vi.fn<(fn: (doc: unknown) => void) => Promise<void>>(
       async (fn) => {
-        const { Doc } = await import('yjs');
+        const { Doc, XmlElement, XmlText } = await import('yjs');
         const doc = new Doc();
+        const fragment = doc.getXmlFragment('default');
+        // Set up existing content: a paragraph with "Hello world"
+        const para = new XmlElement('paragraph');
+        para.insert(0, [new XmlText('Hello world')]);
+        fragment.push([para]);
         fn(doc);
       },
     );
@@ -211,7 +216,12 @@ describe('Note Tools', () => {
 
     const result = await client.callTool({
       name: 'edit_note',
-      arguments: { noteId: 'note-1', content: 'Hello\nWorld' },
+      arguments: {
+        noteId: 'note-1',
+        content_updates: [
+          { old_content: 'Hello world', new_content: 'Hello universe' },
+        ],
+      },
     });
 
     const parsed = JSON.parse(
@@ -230,7 +240,12 @@ describe('Note Tools', () => {
 
     const result = await client.callTool({
       name: 'edit_note',
-      arguments: { noteId: 'nonexistent', content: 'test' },
+      arguments: {
+        noteId: 'nonexistent',
+        content_updates: [
+          { old_content: 'test', new_content: 'replacement' },
+        ],
+      },
     });
 
     expect(result.isError).toBe(true);
