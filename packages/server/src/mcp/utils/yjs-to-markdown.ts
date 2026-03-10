@@ -15,7 +15,7 @@ export function yFragmentToMarkdown(fragment: XmlFragment): string {
   return blocks.join('\n\n');
 }
 
-function blockToMarkdown(
+export function blockToMarkdown(
   element: XmlElement,
   depth: number,
 ): string | null {

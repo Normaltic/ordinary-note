@@ -25,6 +25,13 @@ export function markdownToYFragment(
   }
 }
 
+export function parseMarkdownToElements(markdown: string): XmlElement[] {
+  const trimmed = markdown.trim();
+  if (!trimmed) return [];
+  const tokens = md.parse(trimmed, {});
+  return processBlockTokens(tokens);
+}
+
 function processBlockTokens(
   tokens: Token[],
 ): Array<XmlElement> {
