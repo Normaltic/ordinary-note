@@ -4,9 +4,9 @@ import type { NoteService } from '../services/note.service.js';
 import type { CollaborationServer } from '../collaboration/index.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../utils/validate.js';
-import { yFragmentToMarkdown } from '../mcp/utils/yjs-to-markdown.js';
-import { markdownToYFragment } from '../mcp/utils/markdown-to-yjs.js';
-import { applyContentUpdates } from '../mcp/utils/content-updater.js';
+import { yFragmentToMarkdown } from '../utils/markdown/yjs-to-markdown.js';
+import { markdownToYFragment } from '../utils/markdown/markdown-to-yjs.js';
+import { applyContentUpdates } from '../utils/markdown/content-updater.js';
 
 const contentUpdateSchema = z.object({
   content_updates: z.array(

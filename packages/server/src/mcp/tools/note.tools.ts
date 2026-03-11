@@ -3,8 +3,8 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CollaborationServer } from '../../collaboration/index.js';
 import type { NoteService } from '../../services/note.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
-import { yFragmentToMarkdown } from '../utils/yjs-to-markdown.js';
-import { applyContentUpdates } from '../utils/content-updater.js';
+import { yFragmentToMarkdown } from '../../utils/markdown/yjs-to-markdown.js';
+import { applyContentUpdates } from '../../utils/markdown/content-updater.js';
 
 export function registerNoteTools(
   server: McpServer,
