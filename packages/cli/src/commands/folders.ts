@@ -6,6 +6,7 @@ interface Folder {
   name: string;
   parentId: string | null;
   sortOrder: number;
+  noteCount?: number;
   children?: Folder[];
 }
 
@@ -72,7 +73,8 @@ export function registerFolderCommands(program: Command): void {
 function printFolderTree(folders: Folder[], depth: number): void {
   for (const folder of folders) {
     const indent = '  '.repeat(depth);
-    console.log(`${indent}${folder.name}  (${folder.id})`);
+    const count = folder.noteCount ? ` [${folder.noteCount} notes]` : '';
+    console.log(`${indent}${folder.name}  (${folder.id})${count}`);
     if (folder.children && folder.children.length > 0) {
       printFolderTree(folder.children, depth + 1);
     }
