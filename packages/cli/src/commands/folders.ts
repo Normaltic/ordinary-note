@@ -45,6 +45,17 @@ export function registerFolderCommands(program: Command): void {
     });
 
   cmd
+    .command('rename <folderId> <name>')
+    .description('Rename a folder')
+    .action(async (folderId: string, name: string) => {
+      await api(`/folders/${folderId}`, {
+        method: 'PATCH',
+        body: { name },
+      });
+      console.log(`Renamed to: ${name}`);
+    });
+
+  cmd
     .command('rm <folderId>')
     .description('Delete a folder')
     .action(async (folderId: string) => {

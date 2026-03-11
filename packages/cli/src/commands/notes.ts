@@ -55,6 +55,17 @@ export function registerNoteCommands(program: Command): void {
     });
 
   cmd
+    .command('rename <noteId> <title>')
+    .description('Rename a note')
+    .action(async (noteId: string, title: string) => {
+      await api(`/notes/${noteId}`, {
+        method: 'PATCH',
+        body: { title },
+      });
+      console.log(`Renamed to: ${title}`);
+    });
+
+  cmd
     .command('rm <noteId>')
     .description('Delete a note')
     .action(async (noteId: string) => {
