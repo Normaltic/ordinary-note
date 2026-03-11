@@ -6,15 +6,27 @@ import { loadTokens } from './auth.js';
 interface PullMeta {
   noteId: string;
   title: string;
+  filePrefix: string;
   pulledAt: string;
   serverUrl: string;
 }
 
-export function getPullPaths(noteId: string) {
+export function sanitizeTitle(title: string): string {
+  if (!title.trim()) return 'untitled';
+  return title
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '')
+    .replace(/\s+/g, '_')
+    .slice(0, 50)
+    .replace(/_+$/, '') || 'untitled';
+}
+
+export function getPullPaths(noteId: string, title?: string) {
+  const prefix = title !== undefined ? sanitizeTitle(title) : 'untitled';
+  const base = `${prefix}_${noteId}`;
   return {
     dir: PULL_DIR,
-    md: path.join(PULL_DIR, `${noteId}.md`),
-    orig: path.join(PULL_DIR, `${noteId}.orig.md`),
+    md: path.join(PULL_DIR, `${base}.md`),
+    orig: path.join(PULL_DIR, `${base}.orig.md`),
     meta: path.join(PULL_DIR, `${noteId}.meta.json`),
   };
 }
@@ -24,9 +36,27 @@ export function savePullState(
   title: string,
   markdown: string,
 ): void {
-  const paths = getPullPaths(noteId);
+  const newPrefix = sanitizeTitle(title);
+  const paths = getPullPaths(noteId, title);
   fs.mkdirSync(paths.dir, { recursive: true });
+
+  // Remove old files if prefix changed
+  const oldMeta = loadPullMeta(noteId);
+  if (oldMeta && oldMeta.filePrefix !== newPrefix) {
+    const oldPaths = getPullPaths(noteId, oldMeta.title);
+    for (const f of [oldPaths.md, oldPaths.orig]) {
+      try {
+        fs.chmodSync(f, 0o644);
+        fs.unlinkSync(f);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   fs.writeFileSync(paths.md, markdown);
+  // Make orig writable first if it exists
+  try { fs.chmodSync(paths.orig, 0o644); } catch { /* ignore */ }
   fs.writeFileSync(paths.orig, markdown);
   fs.chmodSync(paths.orig, 0o444);
 
@@ -34,6 +64,7 @@ export function savePullState(
   const meta: PullMeta = {
     noteId,
     title,
+    filePrefix: newPrefix,
     pulledAt: new Date().toISOString(),
     serverUrl: tokens?.server_url ?? getServerUrl(),
   };
@@ -41,9 +72,9 @@ export function savePullState(
 }
 
 export function loadPullMeta(noteId: string): PullMeta | null {
-  const paths = getPullPaths(noteId);
+  const metaPath = path.join(PULL_DIR, `${noteId}.meta.json`);
   try {
-    const data = fs.readFileSync(paths.meta, 'utf-8');
+    const data = fs.readFileSync(metaPath, 'utf-8');
     return JSON.parse(data) as PullMeta;
   } catch {
     return null;
@@ -74,7 +105,6 @@ export function cleanPullDir(): number {
   const files = fs.readdirSync(PULL_DIR);
   for (const file of files) {
     const fullPath = path.join(PULL_DIR, file);
-    // Make writable before deleting (orig files are read-only)
     try {
       fs.chmodSync(fullPath, 0o644);
     } catch {
@@ -84,4 +114,3 @@ export function cleanPullDir(): number {
   }
   return files.length;
 }
-

@@ -34,12 +34,13 @@ export function registerPushCommand(program: Command): void {
         }
       }
 
-      const paths = getPullPaths(noteId);
       const meta = loadPullMeta(noteId);
       if (!meta) {
         console.error(`Note ${noteId} not pulled. Run: ordin pull ${noteId}`);
         return process.exit(1);
       }
+
+      const paths = getPullPaths(noteId, meta.title);
 
       if (!fs.existsSync(paths.md)) {
         console.error(`File not found: ${paths.md}`);

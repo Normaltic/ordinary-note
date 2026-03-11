@@ -19,7 +19,7 @@ export function registerUtilCommands(program: Command): void {
       }
 
       for (const meta of pulled) {
-        const paths = getPullPaths(meta.noteId);
+        const paths = getPullPaths(meta.noteId, meta.title);
         let status = 'unchanged';
 
         if (fs.existsSync(paths.md) && fs.existsSync(paths.orig)) {

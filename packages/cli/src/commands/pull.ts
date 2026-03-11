@@ -9,19 +9,20 @@ interface NoteDetail {
 
 export function registerPullCommand(program: Command): void {
   program
-    .command('pull <noteId>')
-    .description('Download note to /tmp/ordinary-note/ for local editing')
-    .action(async (noteId: string) => {
-      // Fetch note metadata + content
-      const [noteData, contentData] = await Promise.all([
-        api<{ note: NoteDetail }>(`/notes/${noteId}`),
-        api<{ noteId: string; markdown: string }>(`/notes/${noteId}/content`),
-      ]);
+    .command('pull <noteIds...>')
+    .description('Download note(s) to /tmp/ordinary-note/ for local editing')
+    .action(async (noteIds: string[]) => {
+      for (const noteId of noteIds) {
+        const [noteData, contentData] = await Promise.all([
+          api<{ note: NoteDetail }>(`/notes/${noteId}`),
+          api<{ noteId: string; markdown: string }>(`/notes/${noteId}/content`),
+        ]);
 
-      savePullState(noteId, noteData.note.title, contentData.markdown);
+        const title = noteData.note.title;
+        savePullState(noteId, title, contentData.markdown);
 
-      const paths = getPullPaths(noteId);
-      console.log(`Pulled: ${paths.md}`);
-      console.log(`Original: ${paths.orig}`);
+        const paths = getPullPaths(noteId, title);
+        console.log(`Pulled: ${paths.md}`);
+      }
     });
 }
