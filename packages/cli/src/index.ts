@@ -10,6 +10,7 @@ import { registerPullCommand } from './commands/pull.js';
 import { registerPushCommand } from './commands/push.js';
 import { registerOpenCommand } from './commands/open.js';
 import { registerInfoCommand } from './commands/info.js';
+import { registerDiffCommand } from './commands/diff.js';
 import { registerUtilCommands } from './commands/utils.js';
 
 const program = new Command();
@@ -29,6 +30,7 @@ registerPullCommand(program);
 registerPushCommand(program);
 registerOpenCommand(program);
 registerInfoCommand(program);
+registerDiffCommand(program);
 registerUtilCommands(program);
 
 program.parse();

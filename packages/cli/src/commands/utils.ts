@@ -22,17 +22,32 @@ export function registerUtilCommands(program: Command): void {
         const paths = getPullPaths(meta.noteId, meta.title);
         let status = 'unchanged';
 
+        let diffSummary = '';
+
         if (fs.existsSync(paths.md) && fs.existsSync(paths.orig)) {
           const curr = fs.readFileSync(paths.md, 'utf-8');
           const orig = fs.readFileSync(paths.orig, 'utf-8');
-          if (curr !== orig) status = 'modified';
+          if (curr !== orig) {
+            status = 'modified';
+            const origLines = orig.split('\n');
+            const currLines = curr.split('\n');
+            let added = 0;
+            let removed = 0;
+            const maxLen = Math.max(origLines.length, currLines.length);
+            for (let i = 0; i < maxLen; i++) {
+              if (i >= origLines.length) added++;
+              else if (i >= currLines.length) removed++;
+              else if (origLines[i] !== currLines[i]) { added++; removed++; }
+            }
+            diffSummary = ` (+${added} -${removed})`;
+          }
         } else if (!fs.existsSync(paths.md)) {
           status = 'missing';
         }
 
         const marker =
           status === 'modified' ? 'M' : status === 'missing' ? '!' : ' ';
-        console.log(`${marker} ${meta.noteId}  ${meta.title}  (${meta.pulledAt})`);
+        console.log(`${marker} ${meta.noteId}  ${meta.title}  (${meta.pulledAt})${diffSummary}`);
       }
     });
 
