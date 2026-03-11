@@ -14,7 +14,7 @@ interface PullMeta {
 export function sanitizeTitle(title: string): string {
   if (!title.trim()) return 'untitled';
   return title
-    .replace(/[<>:"/\\|?*\x00-\x1f]/g, '')
+    .replace(/[<>:"/\\|?*\p{Cc}]/gu, '')
     .replace(/\s+/g, '_')
     .slice(0, 50)
     .replace(/_+$/, '') || 'untitled';
