@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
 
@@ -37,7 +38,8 @@ export function registerNoteCommands(program: Command): void {
     .command('create <folderId>')
     .description('Create a new note')
     .option('-t, --title <title>', 'Note title')
-    .action(async (folderId: string, opts: { title?: string }) => {
+    .option('-f, --file <path>', 'Initial content from file')
+    .action(async (folderId: string, opts: { title?: string; file?: string }) => {
       const body: Record<string, string> = { folderId };
       if (opts.title) body.title = opts.title;
 
@@ -46,6 +48,15 @@ export function registerNoteCommands(program: Command): void {
         body,
       });
       console.log(`Created: ${data.note.id}  ${data.note.title || '(untitled)'}`);
+
+      if (opts.file) {
+        const markdown = fs.readFileSync(opts.file, 'utf-8');
+        await api(`/notes/${data.note.id}/content`, {
+          method: 'PUT',
+          body: { markdown },
+        });
+        console.log('Content uploaded.');
+      }
     });
 
   cmd
