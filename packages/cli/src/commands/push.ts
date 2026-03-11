@@ -13,7 +13,8 @@ export function registerPushCommand(program: Command): void {
     .command('push [noteId]')
     .description('Push local changes back to server')
     .option('--full', 'Replace entire content (PUT) instead of diff-based PATCH')
-    .action(async (inputNoteId: string | undefined, opts: { full?: boolean }) => {
+    .option('--force', 'Skip server conflict check')
+    .action(async (inputNoteId: string | undefined, opts: { full?: boolean; force?: boolean }) => {
       let noteId = inputNoteId;
 
       // Auto-detect noteId if not provided
@@ -48,6 +49,21 @@ export function registerPushCommand(program: Command): void {
       }
 
       const currentContent = fs.readFileSync(paths.md, 'utf-8');
+      const origContent = fs.existsSync(paths.orig)
+        ? fs.readFileSync(paths.orig, 'utf-8')
+        : '';
+
+      // Conflict detection
+      if (!opts.force) {
+        const serverData = await api<{ noteId: string; markdown: string }>(
+          `/notes/${noteId}/content`,
+        );
+        if (serverData.markdown !== origContent) {
+          console.error('Conflict: server content has changed since last pull.');
+          console.error('Run: ordin pull to update, or use --force to overwrite.');
+          return process.exit(1);
+        }
+      }
 
       if (opts.full) {
         // Full replace via PUT
@@ -57,11 +73,6 @@ export function registerPushCommand(program: Command): void {
         });
         console.log('Content replaced (full).');
       } else {
-        // Diff-based PATCH
-        const origContent = fs.existsSync(paths.orig)
-          ? fs.readFileSync(paths.orig, 'utf-8')
-          : '';
-
         if (currentContent === origContent) {
           console.log('No changes detected.');
           return;
@@ -78,7 +89,7 @@ export function registerPushCommand(program: Command): void {
           method: 'PATCH',
           body: { content_updates: updates },
         });
-        console.log('Content updated (diff).');
+        console.log(`Content updated (${updates.length} diff${updates.length > 1 ? 's' : ''}).`);
       }
 
       // Update orig snapshot after successful push
@@ -91,7 +102,7 @@ interface ContentUpdate {
   new_content: string;
 }
 
-function buildContentUpdates(
+export function buildContentUpdates(
   orig: string,
   current: string,
 ): ContentUpdate[] {
@@ -102,6 +113,7 @@ function buildContentUpdates(
     return [{ old_content: '', new_content: current.trim() }];
   }
 
+  // Trim matching blocks from front
   let firstDiff = 0;
   const minLen = Math.min(origBlocks.length, currBlocks.length);
 
@@ -113,6 +125,7 @@ function buildContentUpdates(
     return [];
   }
 
+  // Trim matching blocks from end
   let lastOrigDiff = origBlocks.length - 1;
   let lastCurrDiff = currBlocks.length - 1;
 
@@ -125,10 +138,68 @@ function buildContentUpdates(
     lastCurrDiff--;
   }
 
-  const oldContent = origBlocks.slice(firstDiff, lastOrigDiff + 1).join('\n\n');
-  const newContent = currBlocks.slice(firstDiff, lastCurrDiff + 1).join('\n\n');
+  // Extract diff segments
+  const diffOrig = origBlocks.slice(firstDiff, lastOrigDiff + 1);
+  const diffCurr = currBlocks.slice(firstDiff, lastCurrDiff + 1);
 
-  return [{ old_content: oldContent, new_content: newContent }];
+  // Find common blocks within diff segment to split into multiple updates
+  return splitByCommonBlocks(diffOrig, diffCurr);
+}
+
+function splitByCommonBlocks(
+  origSegment: string[],
+  currSegment: string[],
+): ContentUpdate[] {
+  // Build set of blocks in orig for fast lookup
+  const origSet = new Set(origSegment);
+
+  // Find split points: blocks in currSegment that also appear in origSegment
+  // at roughly corresponding positions
+  const updates: ContentUpdate[] = [];
+  let origIdx = 0;
+  let currIdx = 0;
+
+  while (origIdx < origSegment.length || currIdx < currSegment.length) {
+    // Find next common block
+    let foundOrig = -1;
+    let foundCurr = -1;
+
+    for (let ci = currIdx; ci < currSegment.length; ci++) {
+      if (!origSet.has(currSegment[ci])) continue;
+      // Find this block in remaining orig
+      for (let oi = origIdx; oi < origSegment.length; oi++) {
+        if (origSegment[oi] === currSegment[ci]) {
+          foundOrig = oi;
+          foundCurr = ci;
+          break;
+        }
+      }
+      if (foundOrig !== -1) break;
+    }
+
+    if (foundOrig === -1) {
+      // No more common blocks — emit rest as single update
+      const old = origSegment.slice(origIdx).join('\n\n');
+      const nw = currSegment.slice(currIdx).join('\n\n');
+      if (old || nw) {
+        updates.push({ old_content: old, new_content: nw });
+      }
+      break;
+    }
+
+    // Emit the differing part before the common block
+    const oldBefore = origSegment.slice(origIdx, foundOrig).join('\n\n');
+    const newBefore = currSegment.slice(currIdx, foundCurr).join('\n\n');
+    if (oldBefore || newBefore) {
+      updates.push({ old_content: oldBefore, new_content: newBefore });
+    }
+
+    // Skip the common block
+    origIdx = foundOrig + 1;
+    currIdx = foundCurr + 1;
+  }
+
+  return updates;
 }
 
 function splitBlocks(text: string): string[] {
