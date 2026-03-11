@@ -5,6 +5,7 @@ import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
 import type { OAuthService } from '../services/oauth.service.js';
 import { createAuthRoutes } from './auth.routes.js';
+import { createContentRoutes } from './content.routes.js';
 import { createFolderRoutes } from './folder.routes.js';
 import { createNoteRoutes } from './note.routes.js';
 
@@ -23,6 +24,13 @@ export function createRouter(services: AppServices) {
   router.use(
     '/folders',
     createFolderRoutes(services.folderService, services.noteService),
+  );
+  router.use(
+    '/notes',
+    createContentRoutes({
+      noteService: services.noteService,
+      getCollaboration: services.getCollaboration,
+    }),
   );
   router.use('/notes', createNoteRoutes(services.noteService));
 

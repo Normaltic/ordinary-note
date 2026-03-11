@@ -6,7 +6,19 @@ import type { NoteService } from '../services/note.service.js';
 
 export function createNoteRoutes(noteService: NoteService) {
   const router: Router = Router();
-  router.use(authenticate());
+  router.use(authenticate(['web', 'mcp']));
+
+  // GET /api/notes/search?query=...&limit=... — search notes
+  router.get('/search', async (req: Request, res: Response) => {
+    const query = req.query.query as string;
+    if (!query) {
+      res.json({ notes: [] });
+      return;
+    }
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
+    const notes = await noteService.search(req.user!.sub, query, limit);
+    res.json({ notes });
+  });
 
   // GET /api/notes/:id — get note detail
   router.get('/:id', async (req: Request, res: Response) => {

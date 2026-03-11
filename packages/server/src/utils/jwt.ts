@@ -32,12 +32,15 @@ export function generateRefreshToken(payload: RefreshTokenPayload): string {
 
 export function verifyAccessToken(
   token: string,
-  audience: 'web' | 'mcp' = 'web',
+  audience: string | string[] = 'web',
 ): AccessTokenPayload {
-  return jwt.verify(token, config.jwt.accessSecret, {
-    algorithms: ['HS256'],
-    audience,
-  }) as AccessTokenPayload;
+  const opts: jwt.VerifyOptions = { algorithms: ['HS256'] };
+  if (Array.isArray(audience)) {
+    opts.audience = audience as [string, ...string[]];
+  } else {
+    opts.audience = audience;
+  }
+  return jwt.verify(token, config.jwt.accessSecret, opts) as unknown as AccessTokenPayload;
 }
 
 export function verifyRefreshToken(token: string): RefreshTokenPayload {

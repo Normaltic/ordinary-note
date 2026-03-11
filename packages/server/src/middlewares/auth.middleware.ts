@@ -7,7 +7,7 @@ import { UnauthorizedError } from '../utils/errors.js';
 
 const { TokenExpiredError } = jwt;
 
-export function authenticate(audience: 'web' | 'mcp' = 'web') {
+export function authenticate(audience: string | string[] = 'web') {
   return (req: Request, res: Response, next: NextFunction): void => {
     const header = req.headers.authorization;
     if (!header?.startsWith('Bearer ')) {
@@ -23,8 +23,10 @@ export function authenticate(audience: 'web' | 'mcp' = 'web') {
       const payload = verifyAccessToken(token, audience);
       req.user = payload;
 
-      if (audience === 'mcp') {
-        req.auth = { token, clientId: payload.clientId ?? '', scopes: [] };
+      const acceptsMcp =
+        audience === 'mcp' || (Array.isArray(audience) && audience.includes('mcp'));
+      if (acceptsMcp && payload.clientId) {
+        req.auth = { token, clientId: payload.clientId, scopes: [] };
       }
 
       next();
