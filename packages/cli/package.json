@@ -1,0 +1,23 @@
+{
+  "name": "ordinary-note-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ordin": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "commander": "^13"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "tsup": "^8",
+    "typescript": "^5"
+  }
+}
