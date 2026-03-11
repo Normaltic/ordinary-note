@@ -118,7 +118,13 @@ export function registerNoteTools(
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
         const notes = await noteService.search(userId, query, limit);
-        return jsonResult(notes);
+        return jsonResult(
+          notes.map((n) => ({
+            ...n,
+            folderName: n.folder?.name ?? null,
+            folder: undefined,
+          })),
+        );
       }),
   );
 

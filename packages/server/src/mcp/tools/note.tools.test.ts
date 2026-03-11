@@ -179,8 +179,10 @@ describe('Note Tools', () => {
     });
   });
 
-  it('search_notes — 노트를 검색한다', async () => {
-    const notes = [fixtures.note()];
+  it('search_notes — 노트를 검색한다 (folderName 포함)', async () => {
+    const notes = [
+      { ...fixtures.note(), folder: { name: 'My Notes' } },
+    ];
     noteService.search.mockResolvedValue(notes);
 
     const result = await client.callTool({
@@ -191,6 +193,8 @@ describe('Note Tools', () => {
       (result.content as Array<{ type: string; text: string }>)[0].text,
     );
     expect(parsed).toHaveLength(1);
+    expect(parsed[0].folderName).toBe('My Notes');
+    expect(parsed[0].folder).toBeUndefined();
     expect(noteService.search).toHaveBeenCalledWith('user-1', 'test', 10);
   });
 
