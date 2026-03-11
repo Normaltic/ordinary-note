@@ -62,7 +62,7 @@ export function registerDiffCommand(program: Command): void {
     });
 }
 
-function simpleDiff(origLines: string[], currLines: string[]): string[] {
+export function simpleDiff(origLines: string[], currLines: string[]): string[] {
   const output: string[] = [];
   const maxLen = Math.max(origLines.length, currLines.length);
 
