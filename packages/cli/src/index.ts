@@ -8,6 +8,8 @@ import { registerWriteCommand } from './commands/write.js';
 import { registerEditCommand } from './commands/edit.js';
 import { registerPullCommand } from './commands/pull.js';
 import { registerPushCommand } from './commands/push.js';
+import { registerOpenCommand } from './commands/open.js';
+import { registerInfoCommand } from './commands/info.js';
 import { registerUtilCommands } from './commands/utils.js';
 
 const program = new Command();
@@ -25,6 +27,8 @@ registerWriteCommand(program);
 registerEditCommand(program);
 registerPullCommand(program);
 registerPushCommand(program);
+registerOpenCommand(program);
+registerInfoCommand(program);
 registerUtilCommands(program);
 
 program.parse();
