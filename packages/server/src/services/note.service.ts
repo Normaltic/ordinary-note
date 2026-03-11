@@ -79,7 +79,7 @@ export class NoteService {
     userId: string,
     query: string,
     limit?: number,
-  ): Promise<NoteRecord[]> {
+  ) {
     return this.noteRepo.searchByContent(userId, query, limit);
   }
 }

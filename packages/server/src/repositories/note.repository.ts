@@ -88,7 +88,7 @@ export class NoteRepository {
     userId: string,
     query: string,
     limit = 20,
-  ): Promise<NoteRecord[]> {
+  ): Promise<(NoteRecord & { folder: { name: string } | null })[]> {
     return prisma.note.findMany({
       where: {
         userId,
@@ -97,6 +97,9 @@ export class NoteRepository {
           { title: { contains: query } },
           { contentPlain: { contains: query } },
         ],
+      },
+      include: {
+        folder: { select: { name: true } },
       },
       orderBy: { updatedAt: 'desc' },
       take: limit,

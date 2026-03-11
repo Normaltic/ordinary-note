@@ -99,7 +99,7 @@ export function registerNoteCommands(program: Command): void {
         query,
         limit: opts.limit,
       });
-      const data = await api<{ notes: Note[] }>(
+      const data = await api<{ notes: (Note & { folderName?: string | null })[] }>(
         `/notes/search?${params.toString()}`,
       );
       if (opts.json) {
@@ -111,7 +111,8 @@ export function registerNoteCommands(program: Command): void {
         return;
       }
       for (const note of data.notes) {
-        console.log(`${note.id}  ${note.title || '(untitled)'}`);
+        const folder = note.folderName ? ` [${note.folderName}]` : '';
+        console.log(`${note.id}  ${note.title || '(untitled)'}${folder}`);
       }
     });
 }

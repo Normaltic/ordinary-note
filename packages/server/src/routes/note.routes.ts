@@ -17,7 +17,13 @@ export function createNoteRoutes(noteService: NoteService) {
     }
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
     const notes = await noteService.search(req.user!.sub, query, limit);
-    res.json({ notes });
+    res.json({
+      notes: notes.map((n) => ({
+        ...n,
+        folderName: n.folder?.name ?? null,
+        folder: undefined,
+      })),
+    });
   });
 
   // GET /api/notes/:id — get note detail
