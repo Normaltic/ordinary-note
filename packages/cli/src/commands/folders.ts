@@ -15,8 +15,13 @@ export function registerFolderCommands(program: Command): void {
   cmd
     .command('ls')
     .description('List folder tree')
-    .action(async () => {
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { json?: boolean }) => {
       const data = await api<{ folders: Folder[] }>('/folders');
+      if (opts.json) {
+        console.log(JSON.stringify(data.folders, null, 2));
+        return;
+      }
       printFolderTree(data.folders, 0);
     });
 

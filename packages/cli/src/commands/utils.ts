@@ -11,18 +11,32 @@ export function registerUtilCommands(program: Command): void {
   program
     .command('status')
     .description('Show pull state (changed files)')
-    .action(() => {
+    .option('--json', 'Output as JSON')
+    .action((opts: { json?: boolean }) => {
       const pulled = listPulledNotes();
       if (pulled.length === 0) {
-        console.log('No pulled notes.');
+        if (opts.json) {
+          console.log('[]');
+        } else {
+          console.log('No pulled notes.');
+        }
         return;
       }
+
+      const results: Array<{
+        noteId: string;
+        title: string;
+        status: string;
+        pulledAt: string;
+        added?: number;
+        removed?: number;
+      }> = [];
 
       for (const meta of pulled) {
         const paths = getPullPaths(meta.noteId, meta.title);
         let status = 'unchanged';
-
-        let diffSummary = '';
+        let added = 0;
+        let removed = 0;
 
         if (fs.existsSync(paths.md) && fs.existsSync(paths.orig)) {
           const curr = fs.readFileSync(paths.md, 'utf-8');
@@ -31,23 +45,37 @@ export function registerUtilCommands(program: Command): void {
             status = 'modified';
             const origLines = orig.split('\n');
             const currLines = curr.split('\n');
-            let added = 0;
-            let removed = 0;
             const maxLen = Math.max(origLines.length, currLines.length);
             for (let i = 0; i < maxLen; i++) {
               if (i >= origLines.length) added++;
               else if (i >= currLines.length) removed++;
               else if (origLines[i] !== currLines[i]) { added++; removed++; }
             }
-            diffSummary = ` (+${added} -${removed})`;
           }
         } else if (!fs.existsSync(paths.md)) {
           status = 'missing';
         }
 
+        results.push({
+          noteId: meta.noteId,
+          title: meta.title,
+          status,
+          pulledAt: meta.pulledAt,
+          ...(status === 'modified' ? { added, removed } : {}),
+        });
+      }
+
+      if (opts.json) {
+        console.log(JSON.stringify(results, null, 2));
+        return;
+      }
+
+      for (const r of results) {
         const marker =
-          status === 'modified' ? 'M' : status === 'missing' ? '!' : ' ';
-        console.log(`${marker} ${meta.noteId}  ${meta.title}  (${meta.pulledAt})${diffSummary}`);
+          r.status === 'modified' ? 'M' : r.status === 'missing' ? '!' : ' ';
+        const diffSummary =
+          r.status === 'modified' ? ` (+${r.added} -${r.removed})` : '';
+        console.log(`${marker} ${r.noteId}  ${r.title}  (${r.pulledAt})${diffSummary}`);
       }
     });
 

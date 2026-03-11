@@ -16,8 +16,13 @@ export function registerNoteCommands(program: Command): void {
   cmd
     .command('ls <folderId>')
     .description('List notes in a folder')
-    .action(async (folderId: string) => {
+    .option('--json', 'Output as JSON')
+    .action(async (folderId: string, opts: { json?: boolean }) => {
       const data = await api<{ notes: Note[] }>(`/folders/${folderId}/notes`);
+      if (opts.json) {
+        console.log(JSON.stringify(data.notes, null, 2));
+        return;
+      }
       if (data.notes.length === 0) {
         console.log('No notes in this folder.');
         return;
@@ -77,7 +82,8 @@ export function registerNoteCommands(program: Command): void {
     .command('search <query>')
     .description('Search notes')
     .option('-l, --limit <n>', 'Max results', '20')
-    .action(async (query: string, opts: { limit: string }) => {
+    .option('--json', 'Output as JSON')
+    .action(async (query: string, opts: { limit: string; json?: boolean }) => {
       const params = new URLSearchParams({
         query,
         limit: opts.limit,
@@ -85,6 +91,10 @@ export function registerNoteCommands(program: Command): void {
       const data = await api<{ notes: Note[] }>(
         `/notes/search?${params.toString()}`,
       );
+      if (opts.json) {
+        console.log(JSON.stringify(data.notes, null, 2));
+        return;
+      }
       if (data.notes.length === 0) {
         console.log('No results.');
         return;
