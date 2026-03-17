@@ -16,7 +16,10 @@ export async function withErrorHandling(
     return await fn();
   } catch (e) {
     if (e instanceof AppError) {
-      return { isError: true, content: [{ type: 'text', text: e.message }] };
+      const text = e.details
+        ? `${e.message}: ${typeof e.details === 'string' ? e.details : JSON.stringify(e.details)}`
+        : e.message;
+      return { isError: true, content: [{ type: 'text', text }] };
     }
     throw e;
   }

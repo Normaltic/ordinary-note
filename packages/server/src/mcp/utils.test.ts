@@ -14,7 +14,7 @@ vi.mock('../utils/config.js', () => ({
 
 import { getUserId, withErrorHandling, jsonResult } from './utils.js';
 import { generateAccessToken } from '../utils/jwt.js';
-import { NotFoundError } from '../utils/errors.js';
+import { NotFoundError, ValidationError } from '../utils/errors.js';
 
 describe('MCP utils', () => {
   describe('getUserId', () => {
@@ -71,6 +71,17 @@ describe('MCP utils', () => {
       expect(result.content[0]).toEqual({
         type: 'text',
         text: 'Note not found',
+      });
+    });
+
+    it('AppError의 details를 메시지에 포함한다', async () => {
+      const result = await withErrorHandling(async () => {
+        throw new ValidationError('old_content를 찾을 수 없습니다');
+      });
+      expect(result.isError).toBe(true);
+      expect(result.content[0]).toEqual({
+        type: 'text',
+        text: 'Invalid request: old_content를 찾을 수 없습니다',
       });
     });
 
