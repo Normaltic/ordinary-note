@@ -103,8 +103,14 @@ async function fetchWithAuth(
 async function handleError(res: Response): Promise<never> {
   let message: string;
   try {
-    const data = (await res.json()) as { error?: { message?: string } };
-    message = data.error?.message ?? `HTTP ${res.status}`;
+    const data = (await res.json()) as {
+      error?: { message?: string; details?: unknown };
+    };
+    const base = data.error?.message ?? `HTTP ${res.status}`;
+    const details = data.error?.details;
+    message = details
+      ? `${base}: ${typeof details === 'string' ? details : JSON.stringify(details)}`
+      : base;
   } catch {
     message = `HTTP ${res.status}`;
   }

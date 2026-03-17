@@ -90,29 +90,30 @@ async function generateCodeChallenge(verifier: string): Promise<string> {
 export async function loginFlow(): Promise<void> {
   const serverUrl = getServerUrl();
 
-  // 1. Register client
+  // 1. Start local callback server to get the actual port
+  const { port, codePromise, close } = await startCallbackServer();
+  const redirectUri = `http://127.0.0.1:${port}/callback`;
+
+  // 2. Register client with the actual redirect URI
   const registerRes = await fetch(`${serverUrl}/oauth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      redirect_uris: ['http://127.0.0.1:0/callback'],
+      redirect_uris: [redirectUri],
       client_name: 'ordinary-note-cli',
     }),
   });
 
   if (!registerRes.ok) {
+    close();
     throw new Error(`Client registration failed: ${registerRes.status}`);
   }
 
   const { client_id } = (await registerRes.json()) as { client_id: string };
 
-  // 2. PKCE
+  // 3. PKCE
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
-
-  // 3. Start local callback server
-  const { port, codePromise, close } = await startCallbackServer();
-  const redirectUri = `http://127.0.0.1:${port}/callback`;
 
   // 4. Open browser
   const authorizeUrl = new URL(`${serverUrl}/oauth/authorize`);

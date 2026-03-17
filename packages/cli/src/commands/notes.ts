@@ -19,7 +19,7 @@ export function registerNoteCommands(program: Command): void {
     .description('List notes in a folder')
     .option('--json', 'Output as JSON')
     .action(async (folderId: string, opts: { json?: boolean }) => {
-      const data = await api<{ notes: Note[] }>(`/folders/${folderId}/notes`);
+      const data = await api<{ notes: Note[] }>(`/folders/${folderId}/children`);
       if (opts.json) {
         console.log(JSON.stringify(data.notes, null, 2));
         return;
