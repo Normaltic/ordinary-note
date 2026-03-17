@@ -2,6 +2,7 @@ import type { XmlFragment } from 'yjs';
 import { XmlElement } from 'yjs';
 import { blockToMarkdown } from './yjs-to-markdown.js';
 import { parseMarkdownToElements } from './markdown-to-yjs.js';
+import { ValidationError } from '../errors.js';
 
 export interface ContentUpdate {
   old_content: string;
@@ -94,13 +95,13 @@ function resolveUpdates(
     const matchIndices = findAllOccurrences(fullMarkdown, update.old_content);
 
     if (matchIndices.length === 0) {
-      throw new Error(
+      throw new ValidationError(
         `old_content를 찾을 수 없습니다: "${truncate(update.old_content, 50)}"`,
       );
     }
 
     if (matchIndices.length > 1) {
-      throw new Error(
+      throw new ValidationError(
         `old_content가 여러 곳에서 발견됩니다. 더 많은 컨텍스트를 포함해주세요: "${truncate(update.old_content, 50)}"`,
       );
     }
@@ -135,7 +136,7 @@ function resolveEmptyDocUpdate(
     (blockMarkdowns.length === 1 && blockMarkdowns[0] === '');
 
   if (!isEmptyDoc) {
-    throw new Error(
+    throw new ValidationError(
       'old_content가 빈 문자열이지만 문서가 비어있지 않습니다. 수정할 부분을 지정해주세요.',
     );
   }
@@ -155,7 +156,7 @@ function checkOverlaps(resolved: ResolvedUpdate[]): void {
       const a = resolved[i];
       const b = resolved[j];
       if (a.blockStart <= b.blockEnd && b.blockStart <= a.blockEnd) {
-        throw new Error(
+        throw new ValidationError(
           'content_updates의 블록 범위가 겹칩니다. 겹치지 않도록 수정해주세요.',
         );
       }

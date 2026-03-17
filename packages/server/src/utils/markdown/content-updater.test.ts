@@ -3,6 +3,7 @@ import { Doc, XmlElement, XmlFragment } from 'yjs';
 import { applyContentUpdates } from './content-updater.js';
 import { yFragmentToMarkdown } from './yjs-to-markdown.js';
 import { markdownToYFragment } from './markdown-to-yjs.js';
+import { ValidationError } from '../errors.js';
 
 function createFragmentWithMarkdown(markdown: string): XmlFragment {
   const doc = new Doc();
@@ -121,25 +122,25 @@ describe('applyContentUpdates', () => {
   });
 
   describe('에러 케이스', () => {
-    it('old_content 매칭 실패 시 에러를 던진다', () => {
+    it('old_content 매칭 실패 시 ValidationError를 던진다', () => {
       const fragment = createFragmentWithMarkdown('Hello world');
       expect(() =>
         applyContentUpdates(fragment, [
           { old_content: 'nonexistent', new_content: 'replacement' },
         ]),
-      ).toThrow('old_content를 찾을 수 없습니다');
+      ).toThrow(ValidationError);
     });
 
-    it('old_content 중복 매칭 시 에러를 던진다', () => {
+    it('old_content 중복 매칭 시 ValidationError를 던진다', () => {
       const fragment = createFragmentWithMarkdown('hello\n\nhello');
       expect(() =>
         applyContentUpdates(fragment, [
           { old_content: 'hello', new_content: 'world' },
         ]),
-      ).toThrow('old_content가 여러 곳에서 발견됩니다');
+      ).toThrow(ValidationError);
     });
 
-    it('여러 update의 블록 범위가 겹치면 에러를 던진다', () => {
+    it('여러 update의 블록 범위가 겹치면 ValidationError를 던진다', () => {
       const fragment = createFragmentWithMarkdown(
         'First line\n\nSecond line\n\nThird line',
       );
@@ -151,16 +152,16 @@ describe('applyContentUpdates', () => {
           },
           { old_content: 'Second line\n\nThird line', new_content: 'replaced' },
         ]),
-      ).toThrow('블록 범위가 겹칩니다');
+      ).toThrow(ValidationError);
     });
 
-    it('빈 old_content이지만 문서가 비어있지 않으면 에러를 던진다', () => {
+    it('빈 old_content이지만 문서가 비어있지 않으면 ValidationError를 던진다', () => {
       const fragment = createFragmentWithMarkdown('Some content');
       expect(() =>
         applyContentUpdates(fragment, [
           { old_content: '', new_content: 'new stuff' },
         ]),
-      ).toThrow('문서가 비어있지 않습니다');
+      ).toThrow(ValidationError);
     });
   });
 });
