@@ -142,6 +142,15 @@ export function buildContentUpdates(
   const diffOrig = origBlocks.slice(firstDiff, lastOrigDiff + 1);
   const diffCurr = currBlocks.slice(firstDiff, lastCurrDiff + 1);
 
+  // Handle pure append: all orig blocks matched at front, only new blocks added
+  if (diffOrig.length === 0 && diffCurr.length > 0 && firstDiff > 0) {
+    const anchor = origBlocks[firstDiff - 1];
+    return [{
+      old_content: anchor,
+      new_content: anchor + '\n\n' + diffCurr.join('\n\n'),
+    }];
+  }
+
   // Find common blocks within diff segment to split into multiple updates
   return splitByCommonBlocks(diffOrig, diffCurr);
 }

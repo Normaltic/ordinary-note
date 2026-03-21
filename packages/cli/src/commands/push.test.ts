@@ -48,12 +48,22 @@ describe('buildContentUpdates', () => {
     ]);
   });
 
-  it('블록 추가를 처리한다', () => {
+  it('끝에 블록 추가 시 마지막 블록을 앵커로 사용한다', () => {
     const orig = 'A\n\nB';
     const curr = 'A\n\nB\n\nC';
     const updates = buildContentUpdates(orig, curr);
-    expect(updates).toHaveLength(1);
-    expect(updates[0].new_content).toContain('C');
+    expect(updates).toEqual([
+      { old_content: 'B', new_content: 'B\n\nC' },
+    ]);
+  });
+
+  it('끝에 여러 블록 추가를 처리한다', () => {
+    const orig = 'A\n\nB\n\nC';
+    const curr = 'A\n\nB\n\nC\n\nD\n\nE';
+    const updates = buildContentUpdates(orig, curr);
+    expect(updates).toEqual([
+      { old_content: 'C', new_content: 'C\n\nD\n\nE' },
+    ]);
   });
 
   it('블록 삭제를 처리한다', () => {
