@@ -54,6 +54,7 @@ export function createFolderRoutes(
       contentPreview: n.contentPlain?.slice(0, 200) ?? null,
       sortOrder: n.sortOrder,
       isPinned: n.isPinned,
+      createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),
     }));
 

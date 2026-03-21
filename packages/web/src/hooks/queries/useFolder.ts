@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   useQuery,
   useMutation,
@@ -11,6 +11,7 @@ import type {
   NoteSummary,
   CreateFolderRequest,
 } from '@ordinary-note/shared';
+import { useSortStore, type SortOption } from '../../stores/sort.store';
 import {
   fetchFolderTree,
   fetchFolderChildren,
@@ -140,6 +141,26 @@ export function useFolderPath(folderId: string | null): BreadcrumbSegment[] {
   return data;
 }
 
+function sortFolders(folders: FolderSummary[], sortBy: SortOption): FolderSummary[] {
+  if (sortBy === 'name') {
+    return [...folders].sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return folders;
+}
+
+function sortNotes(notes: NoteSummary[], sortBy: SortOption): NoteSummary[] {
+  if (sortBy === 'name') {
+    return [...notes].sort((a, b) => a.title.localeCompare(b.title));
+  }
+  if (sortBy === 'updatedAt') {
+    return [...notes].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
+  if (sortBy === 'createdAt') {
+    return [...notes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  return notes;
+}
+
 interface FolderChildrenResult {
   folders: FolderSummary[];
   notes: NoteSummary[];
@@ -150,6 +171,7 @@ export function useFolderChildren(
   folderId: string | null,
 ): FolderChildrenResult {
   const treeQuery = useFolderTree();
+  const sortBy = useSortStore((s) => s.sortBy);
 
   const childrenQuery = useQuery({
     queryKey: folderKeys.children(folderId),
@@ -157,17 +179,40 @@ export function useFolderChildren(
       folderId !== null ? () => fetchFolderChildren(folderId) : skipToken,
   });
 
+  const rootFolders = useMemo(
+    () => treeQuery.data ? buildRootFolderSummaries(treeQuery.data) : [],
+    [treeQuery.data],
+  );
+
+  const sortedRootFolders = useMemo(
+    () => sortFolders(rootFolders, sortBy),
+    [rootFolders, sortBy],
+  );
+
+  const rawFolders = childrenQuery.data?.folders ?? [];
+  const rawNotes = childrenQuery.data?.notes ?? [];
+
+  const sortedFolders = useMemo(
+    () => sortFolders(rawFolders, sortBy),
+    [rawFolders, sortBy],
+  );
+
+  const sortedNotes = useMemo(
+    () => sortNotes(rawNotes, sortBy),
+    [rawNotes, sortBy],
+  );
+
   if (folderId === null) {
     return {
-      folders: treeQuery.data ? buildRootFolderSummaries(treeQuery.data) : [],
+      folders: sortedRootFolders,
       notes: [],
       isLoading: treeQuery.isLoading,
     };
   }
 
   return {
-    folders: childrenQuery.data?.folders ?? [],
-    notes: childrenQuery.data?.notes ?? [],
+    folders: sortedFolders,
+    notes: sortedNotes,
     isLoading: childrenQuery.isLoading,
   };
 }

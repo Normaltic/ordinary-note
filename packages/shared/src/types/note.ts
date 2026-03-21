@@ -6,6 +6,7 @@ export interface NoteSummary {
   contentPreview: string | null;
   sortOrder: Note['sortOrder'];
   isPinned: Note['isPinned'];
+  createdAt: string;
   updatedAt: string;
 }
 
