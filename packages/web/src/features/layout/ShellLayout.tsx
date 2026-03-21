@@ -4,6 +4,7 @@ import { useCurrentFolderId } from './hooks/useCurrentFolderId';
 import { useColumnIds } from './hooks/useColumnIds';
 import { useStandalone } from './hooks/useStandalone';
 import { Sidebar } from './components/Sidebar';
+import { TopBar } from './components/TopBar';
 import { FolderContentColumn } from '../finder/FolderContentColumn';
 import { Toast } from './components/Toast';
 
@@ -17,7 +18,9 @@ export function ShellLayout({ children }: ShellLayoutProps) {
   const { standalone } = useStandalone();
 
   return (
-    <div className="flex h-dvh lg:bg-bg-frame lg:py-3 lg:pr-3">
+    <div className="flex h-dvh flex-col lg:bg-bg-frame lg:pb-3 lg:pr-3">
+      <TopBar />
+      <div className="flex min-h-0 flex-1">
       <Sidebar>
         {!standalone && columnIds.length >= 2 && (
           <FolderContentColumn
@@ -42,6 +45,7 @@ export function ShellLayout({ children }: ShellLayoutProps) {
       </div>
 
       <Toast />
+      </div>
     </div>
   );
 }
