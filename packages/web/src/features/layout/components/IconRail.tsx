@@ -56,6 +56,7 @@ export function IconRail() {
   const { logout } = useAuth();
   const { pathname } = useLocation();
   const isFinderActive = pathname === '/' || pathname.startsWith('/folders') || pathname.startsWith('/notes');
+  const isPinnedActive = pathname.startsWith('/pinned');
   const isRecentActive = pathname.startsWith('/recent');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -74,10 +75,10 @@ export function IconRail() {
         <HomeIcon className="size-6" />
       </DisabledRailIcon>
 
-      {/* Pin — disabled */}
-      <DisabledRailIcon label="핀">
+      {/* Pin */}
+      <ActiveRailIcon to="/pinned" label="핀" isActive={isPinnedActive}>
         <PinIcon className="size-6" />
-      </DisabledRailIcon>
+      </ActiveRailIcon>
 
       {/* Recent */}
       <ActiveRailIcon to="/recent" label="최근" isActive={isRecentActive}>
