@@ -3,6 +3,7 @@ import type {
   FolderRepository,
   FolderRecord,
   FolderWithCounts,
+  NoteRepository,
 } from '../repositories/index.js';
 import {
   NotFoundError,
@@ -38,7 +39,10 @@ function buildTree(folders: FolderWithCounts[]): FolderTreeNode[] {
 }
 
 export class FolderService {
-  constructor(private readonly folderRepo: FolderRepository) {}
+  constructor(
+    private readonly folderRepo: FolderRepository,
+    private readonly noteRepo: NoteRepository,
+  ) {}
 
   async getTree(userId: string): Promise<FolderTreeNode[]> {
     let folders = await this.folderRepo.findAllByUserId(userId);
@@ -115,6 +119,28 @@ export class FolderService {
     if (!folder) throw new NotFoundError('Folder');
     if (folder.userId !== userId) throw new ForbiddenError();
 
+    const descendantIds = await this.folderRepo.findDescendantIds(folderId);
+    const allFolderIds = [folderId, ...descendantIds];
+
+    let targetFolderId = await this.folderRepo.findRootId(folderId);
+    if (targetFolderId === folderId) {
+      const allFolders = await this.folderRepo.findAllByUserId(userId);
+      const otherRoot = allFolders.find(
+        (f) => f.parentId === null && f.id !== folderId,
+      );
+      if (otherRoot) {
+        targetFolderId = otherRoot.id;
+      } else {
+        const newRoot = await this.folderRepo.create({
+          userId,
+          name: 'My Notes',
+          sortOrder: 0,
+        });
+        targetFolderId = newRoot.id;
+      }
+    }
+
+    await this.noteRepo.softDeleteAndMoveByFolderIds(allFolderIds, targetFolderId);
     await this.folderRepo.delete(folderId);
   }
 }

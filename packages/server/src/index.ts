@@ -29,7 +29,7 @@ async function main() {
   const yjsRepo = new YjsRepository();
 
   const authService = new AuthService(userRepo, refreshTokenRepo);
-  const folderService = new FolderService(folderRepo);
+  const folderService = new FolderService(folderRepo, noteRepo);
   const noteService = new NoteService(noteRepo, folderRepo);
   const oauthClientRepo = new OAuthClientRepository();
   const oauthCodeRepo = new OAuthCodeRepository();

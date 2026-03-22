@@ -62,6 +62,23 @@ export class NoteRepository {
     });
   }
 
+  async softDeleteAndMoveByFolderIds(
+    folderIds: string[],
+    targetFolderId: string,
+  ): Promise<void> {
+    const now = new Date();
+    // 1. 활성 노트: soft delete + 이동
+    await prisma.note.updateMany({
+      where: { folderId: { in: folderIds }, deletedAt: null },
+      data: { deletedAt: now, folderId: targetFolderId },
+    });
+    // 2. 이미 soft-deleted 노트: 이동만 (CASCADE 방지)
+    await prisma.note.updateMany({
+      where: { folderId: { in: folderIds } },
+      data: { folderId: targetFolderId },
+    });
+  }
+
   async findActiveByIdAndUserId(
     id: string,
     userId: string,

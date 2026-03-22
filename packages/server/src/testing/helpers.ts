@@ -53,6 +53,8 @@ export function createMockFolderRepo() {
     findById: vi.fn<(id: string) => Promise<FolderRecord | null>>(),
     update: vi.fn<(id: string, data: unknown) => Promise<FolderRecord>>(),
     delete: vi.fn<(id: string) => Promise<void>>(),
+    findDescendantIds: vi.fn<(folderId: string) => Promise<string[]>>(),
+    findRootId: vi.fn<(folderId: string) => Promise<string>>(),
     findAllByUserId: vi.fn<(userId: string) => Promise<FolderWithCounts[]>>(),
     findChildrenByParentId:
       vi.fn<
@@ -75,6 +77,10 @@ export function createMockNoteRepo() {
       vi.fn<(id: string, contentPlain: string) => Promise<void>>(),
     findByFolderId: vi.fn<(folderId: string) => Promise<NoteRecord[]>>(),
     softDelete: vi.fn<(id: string) => Promise<void>>(),
+    softDeleteAndMoveByFolderIds:
+      vi.fn<
+        (folderIds: string[], targetFolderId: string) => Promise<void>
+      >(),
     getMaxSortOrder: vi.fn<(folderId: string) => Promise<number>>(),
     searchByContent:
       vi.fn<

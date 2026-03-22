@@ -66,6 +66,32 @@ export class FolderRepository {
     });
   }
 
+  async findDescendantIds(folderId: string): Promise<string[]> {
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      WITH RECURSIVE descendants(id) AS (
+        SELECT id FROM folders WHERE "parentId" = ${folderId}
+        UNION ALL
+        SELECT f.id FROM folders f
+        JOIN descendants d ON f."parentId" = d.id
+      )
+      SELECT id FROM descendants
+    `;
+    return rows.map((r) => r.id);
+  }
+
+  async findRootId(folderId: string): Promise<string> {
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      WITH RECURSIVE ancestors(id, "parentId") AS (
+        SELECT id, "parentId" FROM folders WHERE id = ${folderId}
+        UNION ALL
+        SELECT f.id, f."parentId" FROM folders f
+        JOIN ancestors a ON f.id = a."parentId"
+      )
+      SELECT id FROM ancestors WHERE "parentId" IS NULL
+    `;
+    return rows[0].id;
+  }
+
   async getMaxSortOrder(
     userId: string,
     parentId: string | null,

@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FolderService } from './folder.service.js';
-import { createMockFolderRepo, fixtures } from '../testing/helpers.js';
+import {
+  createMockFolderRepo,
+  createMockNoteRepo,
+  fixtures,
+} from '../testing/helpers.js';
 import {
   NotFoundError,
   ForbiddenError,
@@ -22,12 +26,14 @@ vi.mock('../utils/config.js', () => ({
 
 describe('FolderService', () => {
   let folderRepo: ReturnType<typeof createMockFolderRepo>;
+  let noteRepo: ReturnType<typeof createMockNoteRepo>;
   let service: FolderService;
 
   beforeEach(() => {
     vi.clearAllMocks();
     folderRepo = createMockFolderRepo();
-    service = new FolderService(folderRepo as never);
+    noteRepo = createMockNoteRepo();
+    service = new FolderService(folderRepo as never, noteRepo as never);
   });
 
   // ── getTree ──────────────────────────────────────────────────────
@@ -230,13 +236,88 @@ describe('FolderService', () => {
   // ── delete ───────────────────────────────────────────────────────
 
   describe('delete', () => {
-    it('폴더를 삭제한다', async () => {
-      folderRepo.findById.mockResolvedValue(fixtures.folder());
+    it('하위 노트를 soft delete 후 폴더를 삭제한다', async () => {
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'child-folder', parentId: 'root-1' }),
+      );
+      folderRepo.findDescendantIds.mockResolvedValue([]);
+      folderRepo.findRootId.mockResolvedValue('root-1');
+      noteRepo.softDeleteAndMoveByFolderIds.mockResolvedValue(undefined);
       folderRepo.delete.mockResolvedValue(undefined);
 
-      await service.delete('user-1', 'folder-1');
+      await service.delete('user-1', 'child-folder');
 
-      expect(folderRepo.delete).toHaveBeenCalledWith('folder-1');
+      expect(noteRepo.softDeleteAndMoveByFolderIds).toHaveBeenCalledWith(
+        ['child-folder'],
+        'root-1',
+      );
+      expect(folderRepo.delete).toHaveBeenCalledWith('child-folder');
+    });
+
+    it('하위 폴더의 노트도 함께 soft delete한다', async () => {
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'parent', parentId: 'root-1' }),
+      );
+      folderRepo.findDescendantIds.mockResolvedValue(['child-1', 'child-2']);
+      folderRepo.findRootId.mockResolvedValue('root-1');
+      noteRepo.softDeleteAndMoveByFolderIds.mockResolvedValue(undefined);
+      folderRepo.delete.mockResolvedValue(undefined);
+
+      await service.delete('user-1', 'parent');
+
+      expect(noteRepo.softDeleteAndMoveByFolderIds).toHaveBeenCalledWith(
+        ['parent', 'child-1', 'child-2'],
+        'root-1',
+      );
+    });
+
+    it('루트 폴더 삭제 시 다른 루트 폴더로 노트를 이동한다', async () => {
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'root-1', parentId: null }),
+      );
+      folderRepo.findDescendantIds.mockResolvedValue([]);
+      folderRepo.findRootId.mockResolvedValue('root-1');
+      folderRepo.findAllByUserId.mockResolvedValue([
+        fixtures.folderWithCounts({ id: 'root-1', parentId: null }),
+        fixtures.folderWithCounts({ id: 'root-2', parentId: null }),
+      ]);
+      noteRepo.softDeleteAndMoveByFolderIds.mockResolvedValue(undefined);
+      folderRepo.delete.mockResolvedValue(undefined);
+
+      await service.delete('user-1', 'root-1');
+
+      expect(noteRepo.softDeleteAndMoveByFolderIds).toHaveBeenCalledWith(
+        ['root-1'],
+        'root-2',
+      );
+    });
+
+    it('유일한 루트 폴더 삭제 시 새 루트 폴더를 생성한다', async () => {
+      folderRepo.findById.mockResolvedValue(
+        fixtures.folder({ id: 'root-1', parentId: null }),
+      );
+      folderRepo.findDescendantIds.mockResolvedValue([]);
+      folderRepo.findRootId.mockResolvedValue('root-1');
+      folderRepo.findAllByUserId.mockResolvedValue([
+        fixtures.folderWithCounts({ id: 'root-1', parentId: null }),
+      ]);
+      folderRepo.create.mockResolvedValue(
+        fixtures.folder({ id: 'new-root', name: 'My Notes' }),
+      );
+      noteRepo.softDeleteAndMoveByFolderIds.mockResolvedValue(undefined);
+      folderRepo.delete.mockResolvedValue(undefined);
+
+      await service.delete('user-1', 'root-1');
+
+      expect(folderRepo.create).toHaveBeenCalledWith({
+        userId: 'user-1',
+        name: 'My Notes',
+        sortOrder: 0,
+      });
+      expect(noteRepo.softDeleteAndMoveByFolderIds).toHaveBeenCalledWith(
+        ['root-1'],
+        'new-root',
+      );
     });
 
     it('폴더가 없으면 NotFoundError', async () => {
