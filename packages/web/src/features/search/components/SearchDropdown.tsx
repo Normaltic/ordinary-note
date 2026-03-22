@@ -2,6 +2,7 @@ import type { SearchResult } from '../api/searchNotes';
 import { SearchResultItem } from './SearchResultItem';
 
 interface SearchDropdownProps {
+  listboxId: string;
   results: SearchResult[];
   query: string;
   activeIndex: number;
@@ -10,6 +11,7 @@ interface SearchDropdownProps {
 }
 
 export function SearchDropdown({
+  listboxId,
   results,
   query,
   activeIndex,
@@ -35,10 +37,16 @@ export function SearchDropdown({
   }
 
   return (
-    <div className="absolute left-0 right-0 top-full mt-1 z-[var(--z-index-toolbar-float)] rounded-md border border-border-default bg-bg-card shadow-float overflow-hidden py-1">
+    <div
+      id={listboxId}
+      role="listbox"
+      aria-label="검색 결과"
+      className="absolute left-0 right-0 top-full mt-1 z-[var(--z-index-toolbar-float)] rounded-md border border-border-default bg-bg-card shadow-float overflow-hidden py-1"
+    >
       {results.map((result, index) => (
         <SearchResultItem
           key={result.id}
+          id={`${listboxId}-option-${index}`}
           result={result}
           query={query}
           active={index === activeIndex}

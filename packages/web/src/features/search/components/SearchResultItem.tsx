@@ -3,6 +3,7 @@ import type { SearchResult } from '../api/searchNotes';
 import { highlightSnippet, extractSnippet } from '../utils/highlightSnippet';
 
 interface SearchResultItemProps {
+  id: string;
   result: SearchResult;
   query: string;
   active: boolean;
@@ -10,6 +11,7 @@ interface SearchResultItemProps {
 }
 
 export function SearchResultItem({
+  id,
   result,
   query,
   active,
@@ -21,6 +23,9 @@ export function SearchResultItem({
 
   return (
     <Link
+      id={id}
+      role="option"
+      aria-selected={active}
       to={`/notes/${result.id}`}
       onClick={onClick}
       className={`block px-3 py-2 transition-colors ${

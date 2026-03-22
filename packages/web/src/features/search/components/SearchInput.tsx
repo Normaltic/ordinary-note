@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useRef, useCallback, useEffect, useId } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useSearchQuery } from '../hooks/useSearch';
 import { useDebounce } from '../hooks/useDebounce';
 import { useClickOutside } from '../../../hooks/useClickOutside';
@@ -15,6 +15,17 @@ export function SearchInput() {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const listboxId = useId();
+
+  // Sync query from URL when on search page
+  useEffect(() => {
+    if (location.pathname === '/search') {
+      const q = searchParams.get('q') ?? '';
+      setQuery(q);
+    }
+  }, [location.pathname, searchParams]);
 
   const debouncedQuery = useDebounce(query, 300);
   const { data: results = [], isLoading } = useSearchQuery(
@@ -75,13 +86,21 @@ export function SearchInput() {
     }
   };
 
+  const activeOptionId =
+    activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined;
+
   return (
     <div ref={containerRef} className="relative w-full max-w-md">
-      <div className="flex items-center gap-2 rounded-md bg-bg-page/60 px-3 py-1.5 text-sm transition-colors focus-within:bg-bg-page focus-within:ring-1 focus-within:ring-accent/40">
-        <SearchIcon className="size-4 shrink-0 text-text-muted" />
+      <div className="flex items-center gap-2 rounded-md bg-bg-page/60 px-3 py-1.5 text-sm transition-colors focus-within:bg-bg-page focus-within:ring-2 focus-within:ring-accent/40">
+        <SearchIcon className="size-4 shrink-0 text-text-muted" aria-hidden />
         <input
           ref={inputRef}
           type="text"
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-autocomplete="list"
+          aria-controls={showDropdown ? listboxId : undefined}
+          aria-activedescendant={activeOptionId}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -97,6 +116,7 @@ export function SearchInput() {
 
       {showDropdown && (
         <SearchDropdown
+          listboxId={listboxId}
           results={results}
           query={debouncedQuery}
           activeIndex={activeIndex}
