@@ -4,7 +4,6 @@ import { useAuthStore } from '../../../stores/auth.store';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClickOutside } from '../../../hooks/useClickOutside';
 import FolderIcon from '../../../assets/icons/folder.svg?react';
-import HomeIcon from '../../../assets/icons/home.svg?react';
 import PinIcon from '../../../assets/icons/pin.svg?react';
 import ClockIcon from '../../../assets/icons/clock.svg?react';
 import TrashIcon from '../../../assets/icons/trash.svg?react';
@@ -12,20 +11,6 @@ import TrashIcon from '../../../assets/icons/trash.svg?react';
 interface RailIconProps {
   label: string;
   children: React.ReactNode;
-}
-
-function DisabledRailIcon({ label, children }: RailIconProps) {
-  return (
-    <span
-      className="group relative flex h-10 w-10 items-center justify-center text-text-muted"
-      aria-label={label}
-    >
-      {children}
-      <span className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md bg-bg-card px-2 py-1 text-xs text-text-primary shadow-float border border-border-default group-hover:block z-[var(--z-index-context-menu)]">
-        {label}
-      </span>
-    </span>
-  );
 }
 
 interface ActiveRailIconProps extends RailIconProps {
@@ -70,11 +55,6 @@ export function IconRail() {
       <ActiveRailIcon to="/" label="탐색" isActive={isFinderActive}>
         <FolderIcon className="size-6" />
       </ActiveRailIcon>
-
-      {/* Home — disabled */}
-      <DisabledRailIcon label="홈">
-        <HomeIcon className="size-6" />
-      </DisabledRailIcon>
 
       {/* Pin */}
       <ActiveRailIcon to="/pinned" label="핀" isActive={isPinnedActive}>

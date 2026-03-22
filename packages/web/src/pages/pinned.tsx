@@ -9,6 +9,7 @@ export function PinnedPage() {
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6">
+          <h1 className="mb-4 text-lg font-semibold text-text-primary">핀 노트</h1>
           <PinnedNotes />
         </div>
       </div>
