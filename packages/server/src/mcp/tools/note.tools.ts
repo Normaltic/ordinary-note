@@ -129,6 +129,60 @@ export function registerNoteTools(
   );
 
   server.tool(
+    'list_deleted_notes',
+    '삭제된 노트(휴지통) 목록을 조회합니다',
+    { limit: z.number().optional() },
+    async ({ limit }, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        const notes = await noteService.getDeleted(userId, limit);
+        return jsonResult(
+          notes.map((n) => ({
+            ...n,
+            folderName: n.folder?.name ?? null,
+            folder: undefined,
+          })),
+        );
+      }),
+  );
+
+  server.tool(
+    'restore_note',
+    '삭제된 노트를 복원합니다',
+    { noteId: z.string() },
+    async ({ noteId }, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        const note = await noteService.restore(userId, noteId);
+        return jsonResult(note);
+      }),
+  );
+
+  server.tool(
+    'permanent_delete_note',
+    '삭제된 노트를 영구 삭제합니다',
+    { noteId: z.string() },
+    async ({ noteId }, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        await noteService.permanentDelete(userId, noteId);
+        return jsonResult({ deleted: true, id: noteId });
+      }),
+  );
+
+  server.tool(
+    'empty_trash',
+    '휴지통의 모든 노트를 영구 삭제합니다',
+    {},
+    async (_args, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        await noteService.emptyTrash(userId);
+        return jsonResult({ success: true });
+      }),
+  );
+
+  server.tool(
     'edit_note',
     '노트 본문을 부분 편집합니다. content_updates 배열로 변경할 부분을 지정합니다. ' +
       'old_content는 현재 문서의 마크다운과 정확히 일치해야 하며, 문서 내 유일해야 합니다. ' +

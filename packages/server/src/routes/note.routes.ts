@@ -52,6 +52,19 @@ export function createNoteRoutes(noteService: NoteService) {
     });
   });
 
+  // GET /api/notes/deleted?limit=... — deleted notes (trash)
+  router.get('/deleted', async (req: Request, res: Response) => {
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+    const notes = await noteService.getDeleted(req.user!.sub, limit);
+    res.json({
+      notes: notes.map((n) => ({
+        ...n,
+        folderName: n.folder?.name ?? null,
+        folder: undefined,
+      })),
+    });
+  });
+
   // GET /api/notes/:id — get note detail
   router.get('/:id', async (req: Request, res: Response) => {
     const note = await noteService.getById(
@@ -77,6 +90,28 @@ export function createNoteRoutes(noteService: NoteService) {
       data,
     );
     res.json({ note });
+  });
+
+  // PATCH /api/notes/:id/restore — restore note from trash
+  router.patch('/:id/restore', async (req: Request, res: Response) => {
+    const note = await noteService.restore(
+      req.user!.sub,
+      req.params.id as string,
+    );
+    res.json({ note });
+  });
+
+  // DELETE /api/notes/trash — empty trash
+  router.delete('/trash', async (req: Request, res: Response) => {
+    await noteService.emptyTrash(req.user!.sub);
+    res.json({ success: true });
+  });
+
+  // DELETE /api/notes/:id/permanent — permanent delete
+  router.delete('/:id/permanent', async (req: Request, res: Response) => {
+    const id = req.params.id as string;
+    await noteService.permanentDelete(req.user!.sub, id);
+    res.json({ id });
   });
 
   // DELETE /api/notes/:id — delete note (soft delete)

@@ -198,6 +198,64 @@ describe('Note Tools', () => {
     expect(noteService.search).toHaveBeenCalledWith('user-1', 'test', 10);
   });
 
+  it('list_deleted_notes — 삭제된 노트 목록을 반환한다', async () => {
+    const notes = [
+      { ...fixtures.note({ deletedAt: new Date() }), folder: { name: 'My Notes' } },
+    ];
+    noteService.getDeleted.mockResolvedValue(notes);
+
+    const result = await client.callTool({
+      name: 'list_deleted_notes',
+      arguments: { limit: 10 },
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].folderName).toBe('My Notes');
+    expect(noteService.getDeleted).toHaveBeenCalledWith('user-1', 10);
+  });
+
+  it('restore_note — 삭제된 노트를 복원한다', async () => {
+    noteService.restore.mockResolvedValue(fixtures.note());
+
+    const result = await client.callTool({
+      name: 'restore_note',
+      arguments: { noteId: 'note-1' },
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+    expect(parsed.id).toBe('note-1');
+    expect(noteService.restore).toHaveBeenCalledWith('user-1', 'note-1');
+  });
+
+  it('permanent_delete_note — 노트를 영구 삭제한다', async () => {
+    noteService.permanentDelete.mockResolvedValue(undefined);
+
+    const result = await client.callTool({
+      name: 'permanent_delete_note',
+      arguments: { noteId: 'note-1' },
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+    expect(parsed).toEqual({ deleted: true, id: 'note-1' });
+  });
+
+  it('empty_trash — 휴지통을 비운다', async () => {
+    noteService.emptyTrash.mockResolvedValue(undefined);
+
+    const result = await client.callTool({
+      name: 'empty_trash',
+      arguments: {},
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+    expect(parsed).toEqual({ success: true });
+  });
+
   it('edit_note — 노트 콘텐츠를 부분 편집한다', async () => {
     noteService.getById.mockResolvedValue(fixtures.note());
     const mockDisconnect = vi.fn();
