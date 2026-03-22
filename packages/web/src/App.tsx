@@ -7,6 +7,7 @@ import { IndexPage } from './pages/index';
 import { FolderPage } from './pages/folders/[folderId]';
 import { NotePage } from './pages/notes/[noteId]';
 import { SearchPage } from './pages/search';
+import { RecentPage } from './pages/recent';
 import { PrivateRoute } from './features/auth/components/PrivateRoute';
 import { PublicRoute } from './features/auth/components/PublicRoute';
 import { GlobalErrorHandler } from './features/auth/components/GlobalErrorHandler';
@@ -37,6 +38,7 @@ export function App() {
               <Route path="folders/:folderId" element={<FolderPage />} />
               <Route path="notes/:noteId" element={<NotePage />} />
               <Route path="search" element={<SearchPage />} />
+              <Route path="recent" element={<RecentPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

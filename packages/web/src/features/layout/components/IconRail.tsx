@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClickOutside } from '../../../hooks/useClickOutside';
@@ -28,9 +28,35 @@ function DisabledRailIcon({ label, children }: RailIconProps) {
   );
 }
 
+interface ActiveRailIconProps extends RailIconProps {
+  to: string;
+  isActive: boolean;
+}
+
+function ActiveRailIcon({ to, label, isActive, children }: ActiveRailIconProps) {
+  return (
+    <Link
+      to={to}
+      className={`group relative flex h-10 w-10 items-center justify-center rounded-md ${isActive ? 'text-accent' : 'text-text-muted hover:text-text-secondary'}`}
+      aria-label={label}
+    >
+      {isActive && (
+        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+      )}
+      {children}
+      <span className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md bg-bg-card px-2 py-1 text-xs text-text-primary shadow-float border border-border-default group-hover:block z-[var(--z-index-context-menu)]">
+        {label}
+      </span>
+    </Link>
+  );
+}
+
 export function IconRail() {
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
+  const { pathname } = useLocation();
+  const isFinderActive = pathname === '/' || pathname.startsWith('/folders') || pathname.startsWith('/notes');
+  const isRecentActive = pathname.startsWith('/recent');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const closeDropdown = useCallback(() => setDropdownOpen(false), []);
@@ -38,19 +64,10 @@ export function IconRail() {
 
   return (
     <div className="flex shrink-0 flex-col items-center bg-bg-frame px-2 gap-2">
-      {/* Finder — active */}
-      <Link
-        to="/"
-        className="group relative flex h-10 w-10 items-center justify-center rounded-md text-accent"
-        aria-label="탐색"
-      >
-        {/* Left indicator */}
-        <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" />
+      {/* Finder */}
+      <ActiveRailIcon to="/" label="탐색" isActive={isFinderActive}>
         <FolderIcon className="size-6" />
-        <span className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md bg-bg-card px-2 py-1 text-xs text-text-primary shadow-float border border-border-default group-hover:block z-[var(--z-index-context-menu)]">
-          탐색
-        </span>
-      </Link>
+      </ActiveRailIcon>
 
       {/* Home — disabled */}
       <DisabledRailIcon label="홈">
@@ -62,10 +79,10 @@ export function IconRail() {
         <PinIcon className="size-6" />
       </DisabledRailIcon>
 
-      {/* Recent — disabled */}
-      <DisabledRailIcon label="최근">
+      {/* Recent */}
+      <ActiveRailIcon to="/recent" label="최근" isActive={isRecentActive}>
         <ClockIcon className="size-6" />
-      </DisabledRailIcon>
+      </ActiveRailIcon>
 
       {/* Trash — disabled */}
       <DisabledRailIcon label="휴지통">
