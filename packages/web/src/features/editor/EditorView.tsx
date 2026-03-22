@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useNoteQuery, useDeleteNote } from '../../hooks/queries/useNote';
 import { useToastStore } from '../../stores/toast.store';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
@@ -8,14 +8,17 @@ import { ConnectionStatus } from './components/ConnectionStatus';
 import { useCollaboration } from './hooks/useCollaboration';
 import { useNoteTitle } from './hooks/useNoteTitle';
 
-export function EditorView() {
-  const { noteId } = useParams<{ noteId: string }>();
+interface EditorViewProps {
+  noteId: string;
+}
+
+export function EditorView({ noteId }: EditorViewProps) {
   const navigate = useNavigate();
-  const { data: note, isLoading } = useNoteQuery(noteId ?? null);
+  const { data: note, isLoading } = useNoteQuery(noteId);
   const addToast = useToastStore((s) => s.addToast);
   const deleteNoteMutation = useDeleteNote();
 
-  if (!noteId || isLoading || !note) {
+  if (isLoading || !note) {
     return (
       <div className="flex items-center justify-center py-20">
         <span className="text-text-muted">로딩 중...</span>

@@ -38,7 +38,7 @@ export function NotePage() {
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[var(--max-editor-width)] px-6 py-6">
-            <EditorView />
+            <EditorView noteId={noteId!} />
           </div>
         </div>
       </div>

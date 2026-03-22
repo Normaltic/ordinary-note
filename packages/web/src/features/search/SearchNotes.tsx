@@ -1,10 +1,11 @@
-import { useSearchParams } from 'react-router-dom';
 import { useSearchQuery } from './hooks/useSearch';
 import { SearchResultCard } from './components/SearchResultCard';
 
-export function SearchNotes() {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get('q') ?? '';
+interface SearchNotesProps {
+  query: string;
+}
+
+export function SearchNotes({ query }: SearchNotesProps) {
   const { data: results = [], isLoading } = useSearchQuery(query);
 
   return (

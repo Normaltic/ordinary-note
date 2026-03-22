@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
 import { PromptDialog } from '../../components/PromptDialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { useFolderChildren } from '../../hooks/queries/useFolder';
@@ -7,11 +6,12 @@ import { useFinderActions } from './hooks/useFinderActions';
 import { FolderList } from './components/FolderList';
 import { NoteList } from './components/NoteList';
 
-export function FinderView({
-  folderId: propFolderId,
-}: { folderId?: string } = {}) {
-  const { folderId: paramFolderId } = useParams<{ folderId: string }>();
-  const folderId = propFolderId ?? paramFolderId ?? null;
+interface FinderViewProps {
+  folderId?: string | null;
+}
+
+export function FinderView({ folderId: propFolderId }: FinderViewProps = {}) {
+  const folderId = propFolderId ?? null;
   const { folders, notes, isLoading } = useFolderChildren(folderId);
   const {
     handleCreateFolder,

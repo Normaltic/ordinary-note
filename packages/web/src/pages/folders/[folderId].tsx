@@ -18,7 +18,7 @@ export function FolderPage() {
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-[var(--max-content-width)] px-6 py-6">
-            <FinderView />
+            <FinderView folderId={folderId} />
           </div>
         </div>
       </div>
