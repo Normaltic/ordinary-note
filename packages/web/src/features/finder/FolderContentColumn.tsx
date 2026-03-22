@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useFolderChildren } from '../../hooks/queries/useFolder';
+import { useFolderChildren, useFolderPath } from '../../hooks/queries/useFolder';
 import { usePrefetchNote } from '../../hooks/queries/useNote';
 import FolderIcon from '../../assets/icons/folder.svg?react';
 import FileIcon from '../../assets/icons/file.svg?react';
@@ -18,12 +18,17 @@ export function FolderContentColumn({
   className,
 }: FolderContentColumnProps) {
   const { folders, notes } = useFolderChildren(folderId);
+  const segments = useFolderPath(folderId);
+  const title = segments[segments.length - 1]?.name ?? '홈';
   const prefetchNote = usePrefetchNote();
 
   return (
     <div
       className={`flex shrink-0 flex-col border-r border-border-default bg-bg-sidebar ${className ?? 'w-40'}`}
     >
+      <div className="px-3 py-2 text-base font-semibold text-text-primary truncate">
+        {title}
+      </div>
       <nav className="flex-1 overflow-y-auto">
         {folders.map((folder) => {
           const isActive = folder.id === activeId;
