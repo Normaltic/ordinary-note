@@ -43,7 +43,7 @@ export function FinderView({ folderId: propFolderId }: FinderViewProps = {}) {
 
   return (
     <div>
-      <div className="mb-10 px-3 pt-2 text-base font-semibold text-text-primary truncate">
+      <div className="mb-10 px-3 text-base text-text-primary truncate">
         {title}
       </div>
 
