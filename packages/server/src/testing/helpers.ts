@@ -149,6 +149,7 @@ export function createMockNoteService(): {
     delete: vi.fn(),
     search: vi.fn(),
     getRecent: vi.fn(),
+    getPinned: vi.fn(),
   };
 }
 

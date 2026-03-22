@@ -86,4 +86,8 @@ export class NoteService {
   async getRecent(userId: string, limit?: number) {
     return this.noteRepo.findRecent(userId, limit);
   }
+
+  async getPinned(userId: string, limit?: number) {
+    return this.noteRepo.findPinned(userId, limit);
+  }
 }

@@ -119,4 +119,18 @@ export class NoteRepository {
       take: limit,
     });
   }
+
+  async findPinned(
+    userId: string,
+    limit = 20,
+  ): Promise<(NoteRecord & { folder: { name: string } | null })[]> {
+    return prisma.note.findMany({
+      where: { userId, deletedAt: null, isPinned: true },
+      include: {
+        folder: { select: { name: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+    });
+  }
 }
