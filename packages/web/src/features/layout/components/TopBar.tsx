@@ -1,4 +1,4 @@
-import SearchIcon from '../../../assets/icons/search.svg?react';
+import { SearchInput } from '../../search/components/SearchInput';
 import { SortDropdown } from './SortDropdown';
 
 export function TopBar() {
@@ -7,12 +7,9 @@ export function TopBar() {
       {/* Left spacer: matches rail width */}
       <div className="w-[var(--rail-width)] shrink-0" />
 
-      {/* Center: search input placeholder */}
+      {/* Center: search input */}
       <div className="flex flex-1 justify-center">
-        <div className="flex w-full max-w-md items-center gap-2 rounded-md bg-bg-page/60 px-3 py-1.5 text-sm text-text-muted">
-          <SearchIcon className="size-4 shrink-0" />
-          <span>검색...</span>
-        </div>
+        <SearchInput />
       </div>
 
       {/* Right: sort dropdown */}
