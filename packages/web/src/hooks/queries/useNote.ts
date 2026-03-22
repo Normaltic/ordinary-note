@@ -49,6 +49,7 @@ export function useSaveNote() {
     mutationFn: ({ id, data }: { id: string; data: UpdateNoteRequest }) =>
       updateNote(id, data),
     onSuccess: (updatedNote) => {
+      queryClient.setQueryData(noteKeys.detail(updatedNote.id), updatedNote);
       invalidateNoteInFolder(queryClient, updatedNote.folderId);
     },
   });
