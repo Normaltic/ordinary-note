@@ -46,7 +46,7 @@ export function TrashNoteCard({ note }: TrashNoteCardProps) {
               }
             }}
             disabled={permanentDeleteMutation.isPending}
-            className="rounded-md px-2.5 py-1 text-xs font-medium text-status-error transition-colors hover:bg-red-500/10 disabled:opacity-50"
+            className="rounded-md px-2.5 py-1 text-xs font-medium text-danger transition-colors hover:bg-[color-mix(in_srgb,var(--color-danger)_10%,transparent)] disabled:opacity-50"
           >
             영구 삭제
           </button>

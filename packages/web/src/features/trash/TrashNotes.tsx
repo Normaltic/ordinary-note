@@ -22,7 +22,7 @@ export function TrashNotes({ limit = 50 }: TrashNotesProps) {
               }
             }}
             disabled={emptyTrashMutation.isPending}
-            className="rounded-md px-3 py-1.5 text-xs font-medium text-status-error transition-colors hover:bg-red-500/10 disabled:opacity-50"
+            className="rounded-md px-3 py-1.5 text-xs font-medium text-danger transition-colors hover:bg-[color-mix(in_srgb,var(--color-danger)_10%,transparent)] disabled:opacity-50"
           >
             휴지통 비우기
           </button>
