@@ -90,6 +90,15 @@ export function createMockNoteRepo() {
       vi.fn<(userId: string, limit?: number) => Promise<NoteRecord[]>>(),
     findPinned:
       vi.fn<(userId: string, limit?: number) => Promise<NoteRecord[]>>(),
+    findDeleted:
+      vi.fn<(userId: string, limit?: number) => Promise<NoteRecord[]>>(),
+    findDeletedById:
+      vi.fn<(id: string) => Promise<NoteRecord | null>>(),
+    restore:
+      vi.fn<(id: string, folderId?: string) => Promise<NoteRecord>>(),
+    permanentDelete: vi.fn<(id: string) => Promise<void>>(),
+    permanentDeleteAllByUserId:
+      vi.fn<(userId: string) => Promise<void>>(),
   };
 }
 
@@ -158,6 +167,10 @@ export function createMockNoteService(): {
     search: vi.fn(),
     getRecent: vi.fn(),
     getPinned: vi.fn(),
+    getDeleted: vi.fn(),
+    restore: vi.fn(),
+    permanentDelete: vi.fn(),
+    emptyTrash: vi.fn(),
   };
 }
 

@@ -90,4 +90,37 @@ export class NoteService {
   async getPinned(userId: string, limit?: number) {
     return this.noteRepo.findPinned(userId, limit);
   }
+
+  async getDeleted(userId: string, limit?: number) {
+    return this.noteRepo.findDeleted(userId, limit);
+  }
+
+  async restore(userId: string, noteId: string): Promise<NoteRecord> {
+    const note = await this.noteRepo.findDeletedById(noteId);
+    if (!note) throw new NotFoundError('Note');
+    if (note.userId !== userId) throw new ForbiddenError();
+
+    // 원본 폴더가 존재하는지 확인, 없으면 루트 폴더로
+    const folder = await this.folderRepo.findById(note.folderId);
+    if (!folder) {
+      const allFolders = await this.folderRepo.findAllByUserId(userId);
+      const rootFolder = allFolders.find((f) => f.parentId === null);
+      if (!rootFolder) throw new NotFoundError('Folder');
+      return this.noteRepo.restore(noteId, rootFolder.id);
+    }
+
+    return this.noteRepo.restore(noteId);
+  }
+
+  async permanentDelete(userId: string, noteId: string): Promise<void> {
+    const note = await this.noteRepo.findDeletedById(noteId);
+    if (!note) throw new NotFoundError('Note');
+    if (note.userId !== userId) throw new ForbiddenError();
+
+    await this.noteRepo.permanentDelete(noteId);
+  }
+
+  async emptyTrash(userId: string): Promise<void> {
+    await this.noteRepo.permanentDeleteAllByUserId(userId);
+  }
 }

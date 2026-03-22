@@ -150,4 +150,37 @@ export class NoteRepository {
       take: limit,
     });
   }
+
+  async findDeleted(
+    userId: string,
+    limit = 50,
+  ): Promise<(NoteRecord & { folder: { name: string } | null })[]> {
+    return prisma.note.findMany({
+      where: { userId, deletedAt: { not: null } },
+      include: { folder: { select: { name: true } } },
+      orderBy: { deletedAt: 'desc' },
+      take: limit,
+    });
+  }
+
+  async findDeletedById(id: string): Promise<NoteRecord | null> {
+    return prisma.note.findFirst({ where: { id, deletedAt: { not: null } } });
+  }
+
+  async restore(id: string, folderId?: string): Promise<NoteRecord> {
+    return prisma.note.update({
+      where: { id },
+      data: { deletedAt: null, isPinned: false, ...(folderId && { folderId }) },
+    });
+  }
+
+  async permanentDelete(id: string): Promise<void> {
+    await prisma.note.delete({ where: { id } });
+  }
+
+  async permanentDeleteAllByUserId(userId: string): Promise<void> {
+    await prisma.note.deleteMany({
+      where: { userId, deletedAt: { not: null } },
+    });
+  }
 }
