@@ -232,6 +232,116 @@ describe('NoteService', () => {
     });
   });
 
+  // ── getDeleted ──────────────────────────────────────────────────
+
+  describe('getDeleted', () => {
+    it('삭제된 노트 목록을 반환한다', async () => {
+      const notes = [
+        fixtures.note({ deletedAt: new Date() }),
+        fixtures.note({ id: 'note-2', deletedAt: new Date() }),
+      ];
+      noteRepo.findDeleted.mockResolvedValue(notes);
+
+      const result = await service.getDeleted('user-1', 50);
+
+      expect(result).toEqual(notes);
+      expect(noteRepo.findDeleted).toHaveBeenCalledWith('user-1', 50);
+    });
+
+    it('limit 미지정 시 기본값으로 호출한다', async () => {
+      noteRepo.findDeleted.mockResolvedValue([]);
+
+      await service.getDeleted('user-1');
+
+      expect(noteRepo.findDeleted).toHaveBeenCalledWith('user-1', undefined);
+    });
+  });
+
+  // ── restore ───────────────────────────────────────────────────
+
+  describe('restore', () => {
+    it('삭제된 노트를 복원한다', async () => {
+      const deletedNote = fixtures.note({ deletedAt: new Date() });
+      noteRepo.findDeletedById.mockResolvedValue(deletedNote);
+      folderRepo.findById.mockResolvedValue(fixtures.folder());
+      const restored = fixtures.note();
+      noteRepo.restore.mockResolvedValue(restored);
+
+      const result = await service.restore('user-1', 'note-1');
+
+      expect(result).toEqual(restored);
+      expect(noteRepo.restore).toHaveBeenCalledWith('note-1');
+    });
+
+    it('원본 폴더가 없으면 루트 폴더로 복원한다', async () => {
+      const deletedNote = fixtures.note({ deletedAt: new Date(), folderId: 'deleted-folder' });
+      noteRepo.findDeletedById.mockResolvedValue(deletedNote);
+      folderRepo.findById.mockResolvedValue(null);
+      const rootFolder = fixtures.folderWithCounts({ id: 'root-folder', parentId: null });
+      folderRepo.findAllByUserId.mockResolvedValue([rootFolder]);
+      noteRepo.restore.mockResolvedValue(fixtures.note({ folderId: 'root-folder' }));
+
+      await service.restore('user-1', 'note-1');
+
+      expect(noteRepo.restore).toHaveBeenCalledWith('note-1', 'root-folder');
+    });
+
+    it('삭제되지 않은 노트는 NotFoundError', async () => {
+      noteRepo.findDeletedById.mockResolvedValue(null);
+
+      await expect(service.restore('user-1', 'note-1')).rejects.toThrow(NotFoundError);
+    });
+
+    it('소유자가 아니면 ForbiddenError', async () => {
+      noteRepo.findDeletedById.mockResolvedValue(
+        fixtures.note({ userId: 'other-user', deletedAt: new Date() }),
+      );
+
+      await expect(service.restore('user-1', 'note-1')).rejects.toThrow(ForbiddenError);
+    });
+  });
+
+  // ── permanentDelete ───────────────────────────────────────────
+
+  describe('permanentDelete', () => {
+    it('삭제된 노트를 영구 삭제한다', async () => {
+      noteRepo.findDeletedById.mockResolvedValue(
+        fixtures.note({ deletedAt: new Date() }),
+      );
+      noteRepo.permanentDelete.mockResolvedValue(undefined);
+
+      await service.permanentDelete('user-1', 'note-1');
+
+      expect(noteRepo.permanentDelete).toHaveBeenCalledWith('note-1');
+    });
+
+    it('삭제되지 않은 노트는 NotFoundError', async () => {
+      noteRepo.findDeletedById.mockResolvedValue(null);
+
+      await expect(service.permanentDelete('user-1', 'note-1')).rejects.toThrow(NotFoundError);
+    });
+
+    it('소유자가 아니면 ForbiddenError', async () => {
+      noteRepo.findDeletedById.mockResolvedValue(
+        fixtures.note({ userId: 'other-user', deletedAt: new Date() }),
+      );
+
+      await expect(service.permanentDelete('user-1', 'note-1')).rejects.toThrow(ForbiddenError);
+    });
+  });
+
+  // ── emptyTrash ────────────────────────────────────────────────
+
+  describe('emptyTrash', () => {
+    it('사용자의 휴지통을 비운다', async () => {
+      noteRepo.permanentDeleteAllByUserId.mockResolvedValue(undefined);
+
+      await service.emptyTrash('user-1');
+
+      expect(noteRepo.permanentDeleteAllByUserId).toHaveBeenCalledWith('user-1');
+    });
+  });
+
   // ── delete ───────────────────────────────────────────────────────
 
   describe('delete', () => {

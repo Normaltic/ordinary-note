@@ -123,6 +123,106 @@ describe('Note Routes', () => {
     });
   });
 
+  // ── GET /api/notes/deleted ──────────────────────────────────────
+
+  describe('GET /api/notes/deleted', () => {
+    it('성공: 삭제된 노트 목록 반환', async () => {
+      const notes = [
+        { ...fixtures.note({ deletedAt: new Date() }), folder: { name: 'My Notes' } },
+      ];
+      mockNoteService.getDeleted.mockResolvedValue(notes);
+
+      const res = await request(app)
+        .get('/api/notes/deleted')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.notes).toHaveLength(1);
+      expect(res.body.notes[0].folderName).toBe('My Notes');
+      expect(res.body.notes[0].deletedAt).toBeDefined();
+    });
+
+    it('성공: limit 파라미터 전달', async () => {
+      mockNoteService.getDeleted.mockResolvedValue([]);
+
+      await request(app)
+        .get('/api/notes/deleted?limit=10')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(mockNoteService.getDeleted).toHaveBeenCalledWith('user-1', 10);
+    });
+  });
+
+  // ── PATCH /api/notes/:id/restore ──────────────────────────────
+
+  describe('PATCH /api/notes/:id/restore', () => {
+    it('성공: 노트 복원', async () => {
+      const note = fixtures.note();
+      mockNoteService.restore.mockResolvedValue(note);
+
+      const res = await request(app)
+        .patch('/api/notes/note-1/restore')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.note.id).toBe('note-1');
+    });
+
+    it('실패: 노트 NotFound → 404', async () => {
+      const { NotFoundError } = await import('../utils/errors.js');
+      mockNoteService.restore.mockRejectedValue(new NotFoundError('Note'));
+
+      const res = await request(app)
+        .patch('/api/notes/no-note/restore')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe(ErrorCode.RESOURCE_NOT_FOUND);
+    });
+  });
+
+  // ── DELETE /api/notes/:id/permanent ───────────────────────────
+
+  describe('DELETE /api/notes/:id/permanent', () => {
+    it('성공: 노트 영구 삭제', async () => {
+      mockNoteService.permanentDelete.mockResolvedValue(undefined);
+
+      const res = await request(app)
+        .delete('/api/notes/note-1/permanent')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ id: 'note-1' });
+    });
+
+    it('실패: 노트 NotFound → 404', async () => {
+      const { NotFoundError } = await import('../utils/errors.js');
+      mockNoteService.permanentDelete.mockRejectedValue(new NotFoundError('Note'));
+
+      const res = await request(app)
+        .delete('/api/notes/no-note/permanent')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe(ErrorCode.RESOURCE_NOT_FOUND);
+    });
+  });
+
+  // ── DELETE /api/notes/trash ───────────────────────────────────
+
+  describe('DELETE /api/notes/trash', () => {
+    it('성공: 휴지통 비우기', async () => {
+      mockNoteService.emptyTrash.mockResolvedValue(undefined);
+
+      const res = await request(app)
+        .delete('/api/notes/trash')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ success: true });
+    });
+  });
+
   // ── GET /api/notes/:id ───────────────────────────────────────────
 
   describe('GET /api/notes/:id', () => {
