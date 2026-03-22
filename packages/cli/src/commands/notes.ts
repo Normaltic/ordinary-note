@@ -89,6 +89,57 @@ export function registerNoteCommands(program: Command): void {
       console.log('Deleted.');
     });
 
+  cmd
+    .command('trash')
+    .description('List deleted notes (trash)')
+    .option('-l, --limit <n>', 'Max results', '50')
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { limit: string; json?: boolean }) => {
+      const params = new URLSearchParams({ limit: opts.limit });
+      const data = await api<{ notes: (Note & { folderName?: string | null; deletedAt: string })[] }>(
+        `/notes/deleted?${params.toString()}`,
+      );
+      if (opts.json) {
+        console.log(JSON.stringify(data.notes, null, 2));
+        return;
+      }
+      if (data.notes.length === 0) {
+        console.log('Trash is empty.');
+        return;
+      }
+      for (const note of data.notes) {
+        const date = new Date(note.deletedAt).toLocaleDateString();
+        const folder = note.folderName ? ` [${note.folderName}]` : '';
+        console.log(`${note.id}  ${note.title || '(untitled)'}${folder}  deleted ${date}`);
+      }
+    });
+
+  cmd
+    .command('restore <noteId>')
+    .description('Restore a deleted note from trash')
+    .action(async (noteId: string) => {
+      const data = await api<{ note: Note }>(`/notes/${noteId}/restore`, {
+        method: 'PATCH',
+      });
+      console.log(`Restored: ${data.note.id}  ${data.note.title || '(untitled)'}`);
+    });
+
+  cmd
+    .command('purge <noteId>')
+    .description('Permanently delete a note from trash')
+    .action(async (noteId: string) => {
+      await api(`/notes/${noteId}/permanent`, { method: 'DELETE' });
+      console.log('Permanently deleted.');
+    });
+
+  cmd
+    .command('empty-trash')
+    .description('Permanently delete all notes in trash')
+    .action(async () => {
+      await api('/notes/trash', { method: 'DELETE' });
+      console.log('Trash emptied.');
+    });
+
   program
     .command('search <query>')
     .description('Search notes')
