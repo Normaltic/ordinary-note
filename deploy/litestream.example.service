@@ -1,13 +1,12 @@
 [Unit]
 Description=Litestream SQLite Replication
-After=network.target
+After=network-online.target
 
 [Service]
 Type=simple
-User=<user>
 ExecStart=/usr/local/bin/litestream replicate -config /home/<user>/ordinary-note/deploy/litestream.yml
 Restart=always
 RestartSec=5
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target

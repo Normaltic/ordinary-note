@@ -70,9 +70,11 @@ jobs:
             cd ${{ vars.DEPLOY_API_DIR }}
             pnpm install --frozen-lockfile
             pm2 stop deploy/ecosystem.config.cjs || true
+            systemctl --user stop litestream || true
             cd packages/server
             npx prisma migrate deploy
             cd ../..
+            systemctl --user start litestream
             pm2 startOrRestart deploy/ecosystem.config.cjs --update-env
             pm2 save
           REMOTE

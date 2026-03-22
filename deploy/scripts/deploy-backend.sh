@@ -36,20 +36,22 @@ rsync -azP --delete \
 
 # 3. Install dependencies & run migrations
 echo "[3/5] Installing dependencies & running migrations..."
-ssh"${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
+ssh "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
   set -euo pipefail
   cd ${REMOTE_DIR}
   pnpm install --frozen-lockfile
   pm2 stop deploy/ecosystem.config.cjs || true
+  systemctl --user stop litestream || true
   cd packages/server
   npx prisma migrate deploy
 REMOTE
 
 # 4. Restart PM2
-echo "[4/5] Restarting PM2..."
-ssh"${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
+echo "[4/5] Restarting Litestream & PM2..."
+ssh "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<REMOTE
   set -euo pipefail
   cd ${REMOTE_DIR}
+  systemctl --user start litestream
   pm2 startOrRestart deploy/ecosystem.config.cjs --update-env
   pm2 save
 REMOTE
