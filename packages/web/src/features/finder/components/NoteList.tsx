@@ -3,6 +3,7 @@ import { ContextMenu } from '../../../components/ContextMenu';
 import { formatDate } from '../../../utils/format';
 import { usePrefetchNote } from '../../../hooks/queries/useNote';
 import FileTextIcon from '../../../assets/icons/file-text.svg?react';
+import PinIcon from '../../../assets/icons/pin.svg?react';
 import type { NoteSummary } from '@ordinary-note/shared';
 
 interface NoteListProps {
@@ -62,7 +63,12 @@ export function NoteList({
                 `flex items-center gap-3 rounded px-3 py-2.5 hover:bg-bg-hover${isActive ? ' bg-bg-active' : ''}`
               }
             >
-              <FileTextIcon className="size-5 shrink-0 text-text-secondary" />
+              <span className="relative shrink-0">
+                <FileTextIcon className="size-5 text-text-secondary" />
+                {note.isPinned && (
+                  <PinIcon className="absolute -left-2 -top-2 size-5 text-accent" />
+                )}
+              </span>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-text-primary truncate">
                   {note.title || '제목 없음'}
