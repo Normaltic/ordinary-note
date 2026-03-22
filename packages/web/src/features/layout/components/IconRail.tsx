@@ -58,6 +58,7 @@ export function IconRail() {
   const isFinderActive = pathname === '/' || pathname.startsWith('/folders') || pathname.startsWith('/notes');
   const isPinnedActive = pathname.startsWith('/pinned');
   const isRecentActive = pathname.startsWith('/recent');
+  const isTrashActive = pathname.startsWith('/trash');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const closeDropdown = useCallback(() => setDropdownOpen(false), []);
@@ -85,10 +86,10 @@ export function IconRail() {
         <ClockIcon className="size-6" />
       </ActiveRailIcon>
 
-      {/* Trash — disabled */}
-      <DisabledRailIcon label="휴지통">
+      {/* Trash */}
+      <ActiveRailIcon to="/trash" label="휴지통" isActive={isTrashActive}>
         <TrashIcon className="size-6" />
-      </DisabledRailIcon>
+      </ActiveRailIcon>
 
       {/* User profile — bottom */}
       {user && (

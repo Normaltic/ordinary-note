@@ -22,6 +22,7 @@ import {
 import { noteKeys, invalidateFolder, invalidateNoteInFolder } from './keys';
 import { pinnedKeys } from '../../features/pinned/hooks/usePinnedNotes';
 import { recentKeys } from '../../features/recent/hooks/useRecentNotes';
+import { trashKeys } from '../../features/trash/hooks/useTrash';
 
 export function useNoteQuery(noteId: string | null) {
   return useQuery<NoteDetail>({
@@ -75,6 +76,7 @@ export function useDeleteNote() {
     mutationFn: (vars: { id: string; folderId: string }) => deleteNote(vars.id),
     onSuccess: (_data, variables) => {
       invalidateFolder(queryClient, variables.folderId);
+      queryClient.invalidateQueries({ queryKey: trashKeys.all });
     },
   });
 }
