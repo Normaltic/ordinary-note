@@ -6,6 +6,7 @@ import { LoginPage } from './pages/login';
 import { IndexPage } from './pages/index';
 import { FolderPage } from './pages/folders/[folderId]';
 import { NotePage } from './pages/notes/[noteId]';
+import { SearchPage } from './pages/search';
 import { PrivateRoute } from './features/auth/components/PrivateRoute';
 import { PublicRoute } from './features/auth/components/PublicRoute';
 import { GlobalErrorHandler } from './features/auth/components/GlobalErrorHandler';
@@ -35,6 +36,7 @@ export function App() {
               <Route index element={<IndexPage />} />
               <Route path="folders/:folderId" element={<FolderPage />} />
               <Route path="notes/:noteId" element={<NotePage />} />
+              <Route path="search" element={<SearchPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
