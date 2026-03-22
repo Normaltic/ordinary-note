@@ -80,6 +80,8 @@ export function createMockNoteRepo() {
       vi.fn<
         (userId: string, query: string, limit?: number) => Promise<NoteRecord[]>
       >(),
+    findRecent:
+      vi.fn<(userId: string, limit?: number) => Promise<NoteRecord[]>>(),
   };
 }
 
@@ -146,6 +148,7 @@ export function createMockNoteService(): {
     update: vi.fn(),
     delete: vi.fn(),
     search: vi.fn(),
+    getRecent: vi.fn(),
   };
 }
 

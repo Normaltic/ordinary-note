@@ -188,6 +188,28 @@ describe('NoteService', () => {
     });
   });
 
+  // ── getRecent ──────────────────────────────────────────────────
+
+  describe('getRecent', () => {
+    it('사용자의 최근 노트를 반환한다', async () => {
+      const notes = [fixtures.note(), fixtures.note({ id: 'note-2' })];
+      noteRepo.findRecent.mockResolvedValue(notes);
+
+      const result = await service.getRecent('user-1', 10);
+
+      expect(result).toEqual(notes);
+      expect(noteRepo.findRecent).toHaveBeenCalledWith('user-1', 10);
+    });
+
+    it('limit 미지정 시 기본값으로 호출한다', async () => {
+      noteRepo.findRecent.mockResolvedValue([]);
+
+      await service.getRecent('user-1');
+
+      expect(noteRepo.findRecent).toHaveBeenCalledWith('user-1', undefined);
+    });
+  });
+
   // ── delete ───────────────────────────────────────────────────────
 
   describe('delete', () => {

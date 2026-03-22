@@ -82,4 +82,8 @@ export class NoteService {
   ) {
     return this.noteRepo.searchByContent(userId, query, limit);
   }
+
+  async getRecent(userId: string, limit?: number) {
+    return this.noteRepo.findRecent(userId, limit);
+  }
 }

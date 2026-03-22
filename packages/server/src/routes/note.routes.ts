@@ -26,6 +26,19 @@ export function createNoteRoutes(noteService: NoteService) {
     });
   });
 
+  // GET /api/notes/recent?limit=... — recent notes
+  router.get('/recent', async (req: Request, res: Response) => {
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
+    const notes = await noteService.getRecent(req.user!.sub, limit);
+    res.json({
+      notes: notes.map((n) => ({
+        ...n,
+        folderName: n.folder?.name ?? null,
+        folder: undefined,
+      })),
+    });
+  });
+
   // GET /api/notes/:id — get note detail
   router.get('/:id', async (req: Request, res: Response) => {
     const note = await noteService.getById(
