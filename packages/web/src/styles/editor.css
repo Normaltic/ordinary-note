@@ -29,6 +29,7 @@
   cursor: grabbing;
 }
 
+
 /* 터치 디바이스에서 숨김 */
 @media (hover: none) {
   .drag-handle {
