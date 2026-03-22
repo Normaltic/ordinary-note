@@ -210,6 +210,28 @@ describe('NoteService', () => {
     });
   });
 
+  // ── getPinned ──────────────────────────────────────────────────
+
+  describe('getPinned', () => {
+    it('사용자의 핀 노트를 반환한다', async () => {
+      const notes = [fixtures.note(), fixtures.note({ id: 'note-2' })];
+      noteRepo.findPinned.mockResolvedValue(notes);
+
+      const result = await service.getPinned('user-1', 10);
+
+      expect(result).toEqual(notes);
+      expect(noteRepo.findPinned).toHaveBeenCalledWith('user-1', 10);
+    });
+
+    it('limit 미지정 시 기본값으로 호출한다', async () => {
+      noteRepo.findPinned.mockResolvedValue([]);
+
+      await service.getPinned('user-1');
+
+      expect(noteRepo.findPinned).toHaveBeenCalledWith('user-1', undefined);
+    });
+  });
+
   // ── delete ───────────────────────────────────────────────────────
 
   describe('delete', () => {

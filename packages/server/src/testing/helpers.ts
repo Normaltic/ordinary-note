@@ -82,6 +82,8 @@ export function createMockNoteRepo() {
       >(),
     findRecent:
       vi.fn<(userId: string, limit?: number) => Promise<NoteRecord[]>>(),
+    findPinned:
+      vi.fn<(userId: string, limit?: number) => Promise<NoteRecord[]>>(),
   };
 }
 

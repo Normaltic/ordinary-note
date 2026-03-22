@@ -85,6 +85,44 @@ describe('Note Routes', () => {
     });
   });
 
+  // ── GET /api/notes/pinned ───────────────────────────────────────
+
+  describe('GET /api/notes/pinned', () => {
+    it('성공: 핀 노트 목록 반환', async () => {
+      const notes = [
+        { ...fixtures.note(), folder: { name: 'My Notes' } },
+        { ...fixtures.note({ id: 'note-2' }), folder: { name: 'Work' } },
+      ];
+      mockNoteService.getPinned.mockResolvedValue(notes);
+
+      const res = await request(app)
+        .get('/api/notes/pinned')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.notes).toHaveLength(2);
+      expect(res.body.notes[0].folderName).toBe('My Notes');
+      expect(res.body.notes[0].folder).toBeUndefined();
+    });
+
+    it('성공: limit 파라미터 전달', async () => {
+      mockNoteService.getPinned.mockResolvedValue([]);
+
+      await request(app)
+        .get('/api/notes/pinned?limit=5')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(mockNoteService.getPinned).toHaveBeenCalledWith('user-1', 5);
+    });
+
+    it('실패: 인증 없음 → 401', async () => {
+      const res = await request(app).get('/api/notes/pinned');
+
+      expect(res.status).toBe(401);
+      expect(res.body.error.code).toBe(ErrorCode.AUTH_INVALID_TOKEN);
+    });
+  });
+
   // ── GET /api/notes/:id ───────────────────────────────────────────
 
   describe('GET /api/notes/:id', () => {
