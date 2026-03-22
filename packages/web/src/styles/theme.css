@@ -46,12 +46,12 @@
 /* --- Dark Mode --- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-frame: #131311;
-    --bg-page: #1E1C1A;
-    --bg-sidebar: #1A1917;
-    --bg-card: #262420;
-    --bg-hover: #302F2B;
-    --bg-active: #3A3935;
+    --bg-frame: #1A1916;
+    --bg-page: #2A2824;
+    --bg-sidebar: #23211D;
+    --bg-card: #35322D;
+    --bg-hover: #3F3C36;
+    --bg-active: #4A4740;
     --bg-overlay: rgba(0, 0, 0, 0.6);
 
     --text-primary: #E8E5DF;
@@ -70,8 +70,8 @@
     --color-danger: #D9584E;
     --color-danger-hover: #E46B62;
 
-    --border-default: #353430;
-    --border-light: #2A2926;
+    --border-default: #48453E;
+    --border-light: #3A3835;
 
     /* Syntax Highlighting */
     --syntax-keyword: #c678dd;

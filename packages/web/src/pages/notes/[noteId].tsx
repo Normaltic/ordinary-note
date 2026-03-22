@@ -20,7 +20,7 @@ export function NotePage() {
   return (
     <ColumnLayout folderId={standalone ? null : folderId} columnWidth="w-40">
       {!standalone && folderId && (
-        <div className="hidden w-80 shrink-0 overflow-y-auto border-r border-border-default px-6 py-6 lg:block">
+        <div className="hidden w-80 shrink-0 overflow-y-auto border-r border-border-default bg-bg-sidebar px-6 py-6 lg:block">
           <FinderView folderId={folderId} />
         </div>
       )}
