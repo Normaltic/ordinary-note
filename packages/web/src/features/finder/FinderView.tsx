@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { PromptDialog } from '../../components/PromptDialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { useFolderChildren } from '../../hooks/queries/useFolder';
+import { useFolderChildren, useFolderPath } from '../../hooks/queries/useFolder';
 import { useFinderActions } from './hooks/useFinderActions';
 import { FolderList } from './components/FolderList';
 import { NoteList } from './components/NoteList';
@@ -13,11 +13,14 @@ interface FinderViewProps {
 export function FinderView({ folderId: propFolderId }: FinderViewProps = {}) {
   const folderId = propFolderId ?? null;
   const { folders, notes, isLoading } = useFolderChildren(folderId);
+  const segments = useFolderPath(folderId);
+  const title = segments[segments.length - 1]?.name ?? '홈';
   const {
     handleCreateFolder,
     handleCreateNote,
     handleRenameFolder,
     handleDeleteFolder,
+    handleTogglePin,
     handleDeleteNote,
     promptDialogProps,
     confirmDialogProps,
@@ -39,7 +42,11 @@ export function FinderView({ folderId: propFolderId }: FinderViewProps = {}) {
   }
 
   return (
-    <>
+    <div>
+      <div className="mb-10 px-3 pt-2 text-base font-semibold text-text-primary truncate">
+        {title}
+      </div>
+
       <FolderList
         folders={folders}
         openMenuId={openMenuId}
@@ -61,6 +68,10 @@ export function FinderView({ folderId: propFolderId }: FinderViewProps = {}) {
         openMenuId={openMenuId}
         onMenuToggle={toggleMenu}
         onMenuClose={closeMenu}
+        onTogglePin={(n) => {
+          closeMenu();
+          handleTogglePin(n);
+        }}
         onDelete={(n) => {
           closeMenu();
           handleDeleteNote(n);
@@ -83,6 +94,6 @@ export function FinderView({ folderId: propFolderId }: FinderViewProps = {}) {
         onConfirm={confirmDialogProps.onConfirm}
         onCancel={confirmDialogProps.onCancel}
       />
-    </>
+    </div>
   );
 }

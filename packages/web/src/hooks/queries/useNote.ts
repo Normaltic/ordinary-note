@@ -20,6 +20,8 @@ import {
   deleteNote,
 } from '../../lib/api/notes';
 import { noteKeys, invalidateFolder, invalidateNoteInFolder } from './keys';
+import { pinnedKeys } from '../../features/pinned/hooks/usePinnedNotes';
+import { recentKeys } from '../../features/recent/hooks/useRecentNotes';
 
 export function useNoteQuery(noteId: string | null) {
   return useQuery<NoteDetail>({
@@ -51,6 +53,8 @@ export function useSaveNote() {
     onSuccess: (updatedNote) => {
       queryClient.setQueryData(noteKeys.detail(updatedNote.id), updatedNote);
       invalidateNoteInFolder(queryClient, updatedNote.folderId);
+      queryClient.invalidateQueries({ queryKey: pinnedKeys.all });
+      queryClient.invalidateQueries({ queryKey: recentKeys.all });
     },
   });
 }

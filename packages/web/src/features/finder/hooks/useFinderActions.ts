@@ -6,7 +6,7 @@ import {
   useRenameFolder,
   useDeleteFolder,
 } from '../../../hooks/queries/useFolder';
-import { useCreateNote, useDeleteNote } from '../../../hooks/queries/useNote';
+import { useCreateNote, useDeleteNote, useSaveNote } from '../../../hooks/queries/useNote';
 import type { FolderSummary, NoteSummary } from '@ordinary-note/shared';
 
 interface PromptDialogState {
@@ -37,6 +37,7 @@ export function useFinderActions(folderId: string | undefined) {
   const deleteFolder = useDeleteFolder();
   const createNote = useCreateNote();
   const deleteNote = useDeleteNote();
+  const saveNote = useSaveNote();
 
   const handleCreateFolder = () => {
     setPromptDialog({
@@ -100,6 +101,22 @@ export function useFinderActions(folderId: string | undefined) {
     );
   };
 
+  const handleTogglePin = (note: NoteSummary) => {
+    saveNote.mutate(
+      { id: note.id, data: { isPinned: !note.isPinned } },
+      {
+        onSuccess: () =>
+          addToast(
+            'success',
+            note.isPinned
+              ? '노트 고정이 해제되었습니다'
+              : '노트가 고정되었습니다',
+          ),
+        onError: () => addToast('error', '핀 변경에 실패했습니다'),
+      },
+    );
+  };
+
   const handleDeleteNote = (note: NoteSummary) => {
     setConfirmDialog({
       title: '노트 삭제',
@@ -122,6 +139,7 @@ export function useFinderActions(folderId: string | undefined) {
     handleRenameFolder,
     handleDeleteFolder,
     handleCreateNote,
+    handleTogglePin,
     handleDeleteNote,
     promptDialogProps: promptDialog
       ? {

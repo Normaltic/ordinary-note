@@ -10,6 +10,7 @@ interface NoteListProps {
   openMenuId: string | null;
   onMenuToggle: (id: string) => void;
   onMenuClose: () => void;
+  onTogglePin: (note: NoteSummary) => void;
   onDelete: (note: NoteSummary) => void;
   onCreate?: () => void;
 }
@@ -19,6 +20,7 @@ export function NoteList({
   openMenuId,
   onMenuToggle,
   onMenuClose,
+  onTogglePin,
   onDelete,
   onCreate,
 }: NoteListProps) {
@@ -86,6 +88,12 @@ export function NoteList({
               ⋯
             </button>
             <ContextMenu open={openMenuId === note.id} onClose={onMenuClose}>
+              <button
+                onClick={() => onTogglePin(note)}
+                className="w-full px-4 py-2 text-left text-sm text-text-secondary hover:bg-bg-hover"
+              >
+                {note.isPinned ? '핀 해제' : '핀 고정'}
+              </button>
               <button
                 onClick={() => onDelete(note)}
                 className="w-full px-4 py-2 text-left text-sm text-danger hover:bg-bg-hover"
