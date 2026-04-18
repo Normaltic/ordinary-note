@@ -15,14 +15,5 @@ export function createAttachmentRoutes(attachmentService: AttachmentService) {
     res.status(201).json(result);
   });
 
-  // DELETE /api/attachments/:id — S3 + DB 삭제
-  router.delete('/:id', async (req: Request, res: Response) => {
-    const result = await attachmentService.delete(
-      req.user!.sub,
-      req.params.id as string,
-    );
-    res.json(result);
-  });
-
   return router;
 }

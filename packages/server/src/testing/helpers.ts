@@ -133,10 +133,6 @@ export function createMockYjsRepo() {
 export function createMockAttachmentRepo() {
   return {
     create: vi.fn<(data: unknown) => Promise<AttachmentRecord>>(),
-    findById: vi.fn<(id: string) => Promise<AttachmentRecord | null>>(),
-    findByNoteId: vi.fn<(noteId: string) => Promise<AttachmentRecord[]>>(),
-    updateUrl: vi.fn<(id: string, url: string) => Promise<AttachmentRecord>>(),
-    delete: vi.fn<(id: string) => Promise<void>>(),
   };
 }
 
@@ -228,7 +224,6 @@ export function createMockAttachmentService(): {
 } {
   return {
     presign: vi.fn(),
-    delete: vi.fn(),
   };
 }
 

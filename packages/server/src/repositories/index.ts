@@ -42,7 +42,4 @@ export type {
 } from './oauthCode.repository.js';
 
 export { AttachmentRepository } from './attachment.repository.js';
-export type {
-  AttachmentRecord,
-  CreateAttachmentData,
-} from './attachment.repository.js';
+export type { AttachmentRecord } from './attachment.repository.js';

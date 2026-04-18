@@ -5,7 +5,7 @@ import {
   createMockNoteRepo,
   fixtures,
 } from '../testing/helpers.js';
-import { NotFoundError, ForbiddenError } from '../utils/errors.js';
+import { NotFoundError } from '../utils/errors.js';
 
 vi.mock('../utils/config.js', () => ({
   config: {
@@ -27,15 +27,10 @@ vi.mock('../utils/config.js', () => ({
 
 vi.mock('../utils/s3.js', () => ({
   generatePresignedPutUrl: vi.fn().mockResolvedValue('https://s3.amazonaws.com/presigned-url'),
-  deleteS3Object: vi.fn().mockResolvedValue(undefined),
   getCloudFrontUrl: vi.fn((key: string) => `https://images.test.com/${key}`),
-  extractS3KeyFromUrl: vi.fn((url: string) => {
-    const prefix = 'https://images.test.com/';
-    return url.startsWith(prefix) ? url.slice(prefix.length) : null;
-  }),
 }));
 
-import { generatePresignedPutUrl, deleteS3Object } from '../utils/s3.js';
+import { generatePresignedPutUrl } from '../utils/s3.js';
 
 describe('AttachmentService', () => {
   let attachmentRepo: ReturnType<typeof createMockAttachmentRepo>;
@@ -137,59 +132,4 @@ describe('AttachmentService', () => {
     });
   });
 
-  // ── delete ───────────────────────────────────────────────────────
-
-  describe('delete', () => {
-    it('S3 객체와 DB 레코드를 삭제한다', async () => {
-      const attachment = fixtures.attachment({
-        url: 'https://images.test.com/attachments/note-1/test-uuid.jpg',
-      });
-      attachmentRepo.findById.mockResolvedValue(attachment);
-      noteRepo.findActiveByIdAndUserId.mockResolvedValue(fixtures.note());
-      attachmentRepo.delete.mockResolvedValue(undefined);
-
-      const result = await service.delete('user-1', 'attachment-1');
-
-      expect(deleteS3Object).toHaveBeenCalledWith(
-        'attachments/note-1/test-uuid.jpg',
-      );
-      expect(attachmentRepo.delete).toHaveBeenCalledWith('attachment-1');
-      expect(result).toEqual({ id: 'attachment-1' });
-    });
-
-    it('첨부파일이 없으면 NotFoundError', async () => {
-      attachmentRepo.findById.mockResolvedValue(null);
-
-      await expect(
-        service.delete('user-1', 'no-attachment'),
-      ).rejects.toThrow(NotFoundError);
-    });
-
-    it('노트 소유자가 아니면 ForbiddenError', async () => {
-      attachmentRepo.findById.mockResolvedValue(fixtures.attachment());
-      noteRepo.findActiveByIdAndUserId.mockResolvedValue(null);
-
-      await expect(
-        service.delete('other-user', 'attachment-1'),
-      ).rejects.toThrow(ForbiddenError);
-
-      expect(deleteS3Object).not.toHaveBeenCalled();
-      expect(attachmentRepo.delete).not.toHaveBeenCalled();
-    });
-
-    it('S3 키를 CDN URL에서 추출한다', async () => {
-      const attachment = fixtures.attachment({
-        url: 'https://images.test.com/attachments/note-1/abc-123.png',
-      });
-      attachmentRepo.findById.mockResolvedValue(attachment);
-      noteRepo.findActiveByIdAndUserId.mockResolvedValue(fixtures.note());
-      attachmentRepo.delete.mockResolvedValue(undefined);
-
-      await service.delete('user-1', 'attachment-1');
-
-      expect(deleteS3Object).toHaveBeenCalledWith(
-        'attachments/note-1/abc-123.png',
-      );
-    });
-  });
 });
