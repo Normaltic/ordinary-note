@@ -8,7 +8,6 @@ import {
   createMockOAuthService,
   createMockAttachmentService,
   generateTestAccessToken,
-  fixtures,
 } from '../testing/helpers.js';
 
 vi.mock('../utils/config.js', () => ({
