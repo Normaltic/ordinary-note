@@ -76,7 +76,6 @@ describe('AttachmentService', () => {
       expect(generatePresignedPutUrl).toHaveBeenCalledWith(
         expect.stringMatching(/^attachments\/note-1\/[a-f0-9-]+\.jpg$/),
         'image/jpeg',
-        1024 * 100,
       );
     });
 
@@ -109,7 +108,6 @@ describe('AttachmentService', () => {
       expect(generatePresignedPutUrl).toHaveBeenCalledWith(
         expect.stringMatching(/^attachments\/note-1\/[a-f0-9-]+$/),
         'image/jpeg',
-        1024 * 100,
       );
     });
 

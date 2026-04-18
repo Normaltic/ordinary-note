@@ -21,11 +21,7 @@ export class AttachmentService {
     const ext = this.extractExtension(data.fileName);
     const key = `attachments/${data.noteId}/${crypto.randomUUID()}${ext}`;
 
-    const presignedUrl = await generatePresignedPutUrl(
-      key,
-      data.mimeType,
-      data.fileSize,
-    );
+    const presignedUrl = await generatePresignedPutUrl(key, data.mimeType);
 
     const cdnUrl = getCloudFrontUrl(key);
 
