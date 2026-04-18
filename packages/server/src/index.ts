@@ -9,8 +9,9 @@ import {
   YjsRepository,
   OAuthClientRepository,
   OAuthCodeRepository,
+  AttachmentRepository,
 } from './repositories/index.js';
-import { AuthService, FolderService, NoteService, OAuthService } from './services/index.js';
+import { AuthService, FolderService, NoteService, OAuthService, AttachmentService } from './services/index.js';
 import { createApp } from './app.js';
 import { setupCollaboration } from './collaboration/index.js';
 
@@ -34,12 +35,15 @@ async function main() {
   const oauthClientRepo = new OAuthClientRepository();
   const oauthCodeRepo = new OAuthCodeRepository();
   const oauthService = new OAuthService(oauthClientRepo, oauthCodeRepo, authService);
+  const attachmentRepo = new AttachmentRepository();
+  const attachmentService = new AttachmentService(attachmentRepo, noteRepo);
 
   const app = createApp({
     authService,
     folderService,
     noteService,
     oauthService,
+    attachmentService,
     getCollaboration: () => collaboration,
   });
   const httpServer = createServer(app);

@@ -25,4 +25,9 @@ export const config = {
     refreshExpiresIn: '14d',
     refreshMaxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in ms
   },
+  aws: {
+    region: optional('AWS_REGION', 'ap-northeast-2'),
+    s3ImagesBucket: required('S3_IMAGES_BUCKET'),
+    cloudfrontImagesDomain: required('CLOUDFRONT_IMAGES_DOMAIN'),
+  },
 } as const;

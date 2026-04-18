@@ -18,11 +18,13 @@ import type {
 } from '../repositories/yjs.repository.js';
 import type { OAuthClientRecord } from '../repositories/oauthClient.repository.js';
 import type { OAuthCodeRecord } from '../repositories/oauthCode.repository.js';
+import type { AttachmentRecord } from '../repositories/attachment.repository.js';
 import type { CollaborationServer } from '../collaboration/index.js';
 import type { AuthService } from '../services/auth.service.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
 import type { OAuthService } from '../services/oauth.service.js';
+import type { AttachmentService } from '../services/attachment.service.js';
 import { generateAccessToken } from '../utils/jwt.js';
 import type { AccessTokenPayload } from '../utils/jwt.js';
 
@@ -128,6 +130,16 @@ export function createMockYjsRepo() {
   };
 }
 
+export function createMockAttachmentRepo() {
+  return {
+    create: vi.fn<(data: unknown) => Promise<AttachmentRecord>>(),
+    findById: vi.fn<(id: string) => Promise<AttachmentRecord | null>>(),
+    findByNoteId: vi.fn<(noteId: string) => Promise<AttachmentRecord[]>>(),
+    updateUrl: vi.fn<(id: string, url: string) => Promise<AttachmentRecord>>(),
+    delete: vi.fn<(id: string) => Promise<void>>(),
+  };
+}
+
 // ── Mock AuthService ─────────────────────────────────────────────────
 
 export function createMockAuthService(): {
@@ -208,6 +220,15 @@ export function createMockOAuthCodeRepo(): {
     findByCodeHash: vi.fn(),
     markUsed: vi.fn(),
     deleteExpired: vi.fn(),
+  };
+}
+
+export function createMockAttachmentService(): {
+  [K in keyof AttachmentService]: ReturnType<typeof vi.fn>;
+} {
+  return {
+    presign: vi.fn(),
+    delete: vi.fn(),
   };
 }
 
@@ -316,6 +337,17 @@ export const fixtures = {
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
     deletedAt: null,
+    ...overrides,
+  }),
+
+  attachment: (overrides?: Partial<AttachmentRecord>): AttachmentRecord => ({
+    id: 'attachment-1',
+    noteId: 'note-1',
+    url: 'https://ordinary-note-images.yunji.kim/attachments/note-1/test-uuid.jpg',
+    fileName: 'photo.jpg',
+    fileSize: 1024 * 100,
+    mimeType: 'image/jpeg',
+    createdAt: new Date('2025-01-01'),
     ...overrides,
   }),
 

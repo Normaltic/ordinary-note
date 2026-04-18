@@ -19,3 +19,4 @@ export type {
   CreateNoteRequest,
   UpdateNoteRequest,
 } from '../schemas/note.schema.js';
+export type { PresignRequest } from '../schemas/attachment.schema.js';

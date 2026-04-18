@@ -39,6 +39,7 @@ describe('Auth Routes', () => {
       folderService: {} as never,
       noteService: {} as never,
       oauthService: createMockOAuthService() as never,
+      attachmentService: {} as never,
       getCollaboration: (() => ({})) as never,
     });
   });
