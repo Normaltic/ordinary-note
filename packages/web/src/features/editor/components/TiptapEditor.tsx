@@ -10,17 +10,21 @@ import Collaboration from '@tiptap/extension-collaboration';
 import { lowlight } from '../extensions/lowlight';
 import { SlashCommands } from '../extensions/slash-commands';
 import { slashCommandRender } from '../extensions/slash-command-render';
+import { ImageNode, ImageUpload } from '../extensions/image-upload';
 import { CodeBlockView } from './CodeBlockView';
+import { ImagePlaceholderView } from './ImagePlaceholderView';
 import { TableMenu } from './TableMenu';
 import { EditorBubbleMenu } from './EditorBubbleMenu';
 import { EditorDragHandle } from './EditorDragHandle';
+import { uploadImage } from '../../../lib/api/attachments';
 import type { Doc } from 'yjs';
 
 interface TiptapEditorProps {
   ydoc: Doc;
+  noteId: string;
 }
 
-export function TiptapEditor({ ydoc }: TiptapEditorProps) {
+export function TiptapEditor({ ydoc, noteId }: TiptapEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ undoRedo: false, codeBlock: false }),
@@ -40,6 +44,14 @@ export function TiptapEditor({ ydoc }: TiptapEditorProps) {
       }),
       SlashCommands.configure({
         suggestion: { render: slashCommandRender },
+      }),
+      ImageNode,
+      ImageUpload.configure({
+        uploadFn: (file: File) => uploadImage(noteId, file),
+      }).extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(ImagePlaceholderView);
+        },
       }),
       TaskList,
       TaskItem.configure({ nested: true }),

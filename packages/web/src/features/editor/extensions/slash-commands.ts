@@ -90,6 +90,25 @@ const slashCommands: SlashCommandItem[] = [
       editor.chain().focus().deleteRange(range).setHorizontalRule().run();
     },
   },
+  {
+    title: '이미지',
+    keywords: ['image', 'img', '사진', 'photo'],
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).run();
+
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/jpeg,image/png,image/gif,image/webp';
+      input.multiple = true;
+      input.onchange = () => {
+        if (!input.files) return;
+        Array.from(input.files).forEach((file) => {
+          editor.commands.handleImageUpload(file);
+        });
+      };
+      input.click();
+    },
+  },
 ];
 
 export const SlashCommands = Extension.create({

@@ -87,7 +87,7 @@ function EditorContent({ noteId, noteTitle, onDelete }: EditorContentProps) {
         className="mb-4 w-full border-none bg-transparent text-3xl font-bold text-text-primary placeholder-text-muted outline-none"
       />
 
-      <TiptapEditor ydoc={ydoc} />
+      <TiptapEditor ydoc={ydoc} noteId={noteId} />
 
       <ConfirmDialog
         open={confirmOpen}
