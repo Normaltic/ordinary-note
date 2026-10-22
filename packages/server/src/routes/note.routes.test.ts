@@ -43,7 +43,7 @@ describe('Note Routes', () => {
       noteService: mockNoteService as never,
       oauthService: createMockOAuthService() as never,
       attachmentService: {} as never,
-      getCollaboration: (() => ({})) as never,
+      noteContentService: {} as never,
     });
     token = generateTestAccessToken();
   });

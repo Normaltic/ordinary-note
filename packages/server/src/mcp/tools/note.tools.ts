@@ -1,15 +1,13 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { CollaborationServer } from '../../collaboration/index.js';
 import type { NoteService } from '../../services/note.service.js';
+import type { NoteContentService } from '../../services/note-content.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
-import { yFragmentToMarkdown } from '../../utils/markdown/yjs-to-markdown.js';
-import { applyContentUpdates } from '../../utils/markdown/content-updater.js';
 
 export function registerNoteTools(
   server: McpServer,
   noteService: NoteService,
-  getCollaboration: () => CollaborationServer,
+  noteContentService: NoteContentService,
 ): void {
   server.tool(
     'list_notes',
@@ -31,19 +29,10 @@ export function registerNoteTools(
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
         const note = await noteService.getById(userId, noteId);
-
-        // Yjs 문서에서 마크다운 변환
-        let contentMarkdown = '';
-        const collaboration = getCollaboration();
-        const connection = await collaboration.openDirectConnection(noteId);
-        try {
-          await connection.transact((doc) => {
-            const fragment = doc.getXmlFragment('default');
-            contentMarkdown = yFragmentToMarkdown(fragment);
-          });
-        } finally {
-          await connection.disconnect();
-        }
+        const contentMarkdown = await noteContentService.getMarkdown(
+          userId,
+          noteId,
+        );
 
         return jsonResult({
           id: note.id,
@@ -200,18 +189,7 @@ export function registerNoteTools(
     async ({ noteId, content_updates }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
-        await noteService.getById(userId, noteId);
-
-        const collaboration = getCollaboration();
-        const connection = await collaboration.openDirectConnection(noteId);
-        try {
-          await connection.transact((doc) => {
-            const fragment = doc.getXmlFragment('default');
-            applyContentUpdates(fragment, content_updates);
-          });
-        } finally {
-          await connection.disconnect();
-        }
+        await noteContentService.applyUpdates(userId, noteId, content_updates);
 
         return jsonResult({ edited: true, id: noteId });
       }),

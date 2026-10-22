@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import type { AuthService } from '../services/auth.service.js';
-import type { CollaborationServer } from '../collaboration/index.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
+import type { NoteContentService } from '../services/note-content.service.js';
 import type { OAuthService } from '../services/oauth.service.js';
 import type { AttachmentService } from '../services/attachment.service.js';
 import { createAuthRoutes } from './auth.routes.js';
@@ -17,7 +17,7 @@ export type AppServices = {
   noteService: NoteService;
   oauthService: OAuthService;
   attachmentService: AttachmentService;
-  getCollaboration: () => CollaborationServer;
+  noteContentService: NoteContentService;
 };
 
 export function createRouter(services: AppServices) {
@@ -28,13 +28,7 @@ export function createRouter(services: AppServices) {
     '/folders',
     createFolderRoutes(services.folderService, services.noteService),
   );
-  router.use(
-    '/notes',
-    createContentRoutes({
-      noteService: services.noteService,
-      getCollaboration: services.getCollaboration,
-    }),
-  );
+  router.use('/notes', createContentRoutes(services.noteContentService));
   router.use('/notes', createNoteRoutes(services.noteService));
   router.use('/attachments', createAttachmentRoutes(services.attachmentService));
 

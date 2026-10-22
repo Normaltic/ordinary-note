@@ -1,12 +1,8 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import type { NoteService } from '../services/note.service.js';
-import type { CollaborationServer } from '../collaboration/index.js';
+import type { NoteContentService } from '../services/note-content.service.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../utils/validate.js';
-import { yFragmentToMarkdown } from '../utils/markdown/yjs-to-markdown.js';
-import { markdownToYFragment } from '../utils/markdown/markdown-to-yjs.js';
-import { applyContentUpdates } from '../utils/markdown/content-updater.js';
 
 const contentUpdateSchema = z.object({
   content_updates: z.array(
@@ -21,13 +17,7 @@ const markdownBodySchema = z.object({
   markdown: z.string(),
 });
 
-type ContentDeps = {
-  noteService: NoteService;
-  getCollaboration: () => CollaborationServer;
-};
-
-export function createContentRoutes(deps: ContentDeps) {
-  const { noteService, getCollaboration } = deps;
+export function createContentRoutes(noteContentService: NoteContentService) {
   const router: Router = Router();
   const auth = authenticate('mcp');
 
@@ -36,20 +26,7 @@ export function createContentRoutes(deps: ContentDeps) {
     const userId = req.user!.sub;
     const noteId = req.params.id as string;
 
-    await noteService.getById(userId, noteId);
-
-    const collaboration = getCollaboration();
-    const connection = await collaboration.openDirectConnection(noteId);
-    let markdown = '';
-    try {
-      await connection.transact((doc) => {
-        const fragment = doc.getXmlFragment('default');
-        markdown = yFragmentToMarkdown(fragment);
-      });
-    } finally {
-      await connection.disconnect();
-    }
-
+    const markdown = await noteContentService.getMarkdown(userId, noteId);
     res.json({ noteId, markdown });
   });
 
@@ -66,22 +43,7 @@ export function createContentRoutes(deps: ContentDeps) {
       markdown = data.markdown;
     }
 
-    await noteService.getById(userId, noteId);
-
-    const collaboration = getCollaboration();
-    const connection = await collaboration.openDirectConnection(noteId);
-    try {
-      await connection.transact((doc) => {
-        const fragment = doc.getXmlFragment('default');
-        // Clear existing content
-        fragment.delete(0, fragment.length);
-        // Insert new content
-        markdownToYFragment(markdown, fragment);
-      });
-    } finally {
-      await connection.disconnect();
-    }
-
+    await noteContentService.replace(userId, noteId, markdown);
     res.json({ noteId, replaced: true });
   });
 
@@ -91,19 +53,7 @@ export function createContentRoutes(deps: ContentDeps) {
     const noteId = req.params.id as string;
 
     const data = validate(contentUpdateSchema, req.body);
-    await noteService.getById(userId, noteId);
-
-    const collaboration = getCollaboration();
-    const connection = await collaboration.openDirectConnection(noteId);
-    try {
-      await connection.transact((doc) => {
-        const fragment = doc.getXmlFragment('default');
-        applyContentUpdates(fragment, data.content_updates);
-      });
-    } finally {
-      await connection.disconnect();
-    }
-
+    await noteContentService.applyUpdates(userId, noteId, data.content_updates);
     res.json({ noteId, edited: true });
   });
 

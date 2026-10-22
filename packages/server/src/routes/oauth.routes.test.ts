@@ -43,7 +43,7 @@ describe('OAuth Routes', () => {
       noteService: createMockNoteService() as never,
       oauthService: mockOAuthService as never,
       attachmentService: {} as never,
-      getCollaboration: (() => ({})) as never,
+      noteContentService: {} as never,
     });
   });
 

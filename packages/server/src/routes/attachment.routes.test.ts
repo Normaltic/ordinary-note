@@ -43,7 +43,7 @@ describe('Attachment Routes', () => {
       noteService: createMockNoteService() as never,
       oauthService: createMockOAuthService() as never,
       attachmentService: mockAttachmentService as never,
-      getCollaboration: (() => ({})) as never,
+      noteContentService: {} as never,
     });
     token = generateTestAccessToken();
   });

@@ -11,7 +11,14 @@ import {
   OAuthCodeRepository,
   AttachmentRepository,
 } from './repositories/index.js';
-import { AuthService, FolderService, NoteService, OAuthService, AttachmentService } from './services/index.js';
+import {
+  AuthService,
+  FolderService,
+  NoteService,
+  OAuthService,
+  AttachmentService,
+  NoteContentService,
+} from './services/index.js';
 import { createApp } from './app.js';
 import { setupCollaboration } from './collaboration/index.js';
 
@@ -37,6 +44,10 @@ async function main() {
   const oauthService = new OAuthService(oauthClientRepo, oauthCodeRepo, authService);
   const attachmentRepo = new AttachmentRepository();
   const attachmentService = new AttachmentService(attachmentRepo, noteRepo);
+  const noteContentService = new NoteContentService(
+    noteService,
+    () => collaboration,
+  );
 
   const app = createApp({
     authService,
@@ -44,7 +55,7 @@ async function main() {
     noteService,
     oauthService,
     attachmentService,
-    getCollaboration: () => collaboration,
+    noteContentService,
   });
   const httpServer = createServer(app);
 

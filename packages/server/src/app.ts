@@ -38,7 +38,7 @@ export function createApp(services: AppServices): Express {
       createMcpServer({
         folderService: services.folderService,
         noteService: services.noteService,
-        getCollaboration: services.getCollaboration,
+        noteContentService: services.noteContentService,
       }),
     ),
   );

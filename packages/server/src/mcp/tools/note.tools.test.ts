@@ -17,6 +17,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { registerNoteTools } from './note.tools.js';
+import { NoteContentService } from '../../services/note-content.service.js';
 import {
   createMockCollaboration,
   createMockNoteService,
@@ -50,12 +51,16 @@ describe('Note Tools', () => {
     noteService = createMockNoteService();
     mockCollaboration = createMockCollaboration();
     mcpServer = new McpServer({ name: 'test', version: '0.0.1' });
+    const typedNoteService = noteService as unknown as Parameters<
+      typeof registerNoteTools
+    >[1];
     registerNoteTools(
       mcpServer,
-      noteService as unknown as Parameters<typeof registerNoteTools>[1],
-      (() => mockCollaboration) as unknown as Parameters<
-        typeof registerNoteTools
-      >[2],
+      typedNoteService,
+      new NoteContentService(
+        typedNoteService,
+        () => mockCollaboration as never,
+      ),
     );
 
     [clientTransport, serverTransport] = createAuthTransport();
