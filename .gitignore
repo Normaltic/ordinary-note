@@ -6,6 +6,10 @@ dist
 .DS_Store
 packages/server/prisma/dev.db
 packages/server/prisma/dev.db-journal
+packages/server/prisma/dev.db-shm
+packages/server/prisma/dev.db-wal
+*.tsbuildinfo
+.mcp.json
 
 # Deploy configs (actual values)
 deploy/ecosystem.config.cjs
