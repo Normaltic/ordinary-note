@@ -67,8 +67,12 @@ describe('Folder Tools', () => {
     const tree = [{ id: 'f1', name: 'Root', children: [], noteCount: 0 }];
     folderService.getTree.mockResolvedValue(tree);
 
-    const result = await client.callTool({ name: 'list_folders', arguments: {} });
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const result = await client.callTool({
+      name: 'list_folders',
+      arguments: {},
+    });
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(JSON.parse(text)).toEqual(tree);
   });
 
@@ -80,9 +84,12 @@ describe('Folder Tools', () => {
       name: 'create_folder',
       arguments: { name: 'New' },
     });
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(JSON.parse(text).name).toBe('New');
-    expect(folderService.create).toHaveBeenCalledWith('user-1', { name: 'New' });
+    expect(folderService.create).toHaveBeenCalledWith('user-1', {
+      name: 'New',
+    });
   });
 
   it('create_folder — parentId를 전달한다', async () => {
@@ -109,7 +116,8 @@ describe('Folder Tools', () => {
       name: 'update_folder',
       arguments: { folderId: 'folder-1', name: 'Updated' },
     });
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(JSON.parse(text).name).toBe('Updated');
     expect(folderService.update).toHaveBeenCalledWith('user-1', 'folder-1', {
       name: 'Updated',
@@ -123,7 +131,8 @@ describe('Folder Tools', () => {
       name: 'delete_folder',
       arguments: { folderId: 'folder-1' },
     });
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
     expect(JSON.parse(text)).toEqual({ deleted: true, id: 'folder-1' });
   });
 
@@ -145,9 +154,16 @@ describe('Folder Tools', () => {
     const { NotFoundError } = await import('../../utils/errors.js');
     folderService.getTree.mockRejectedValue(new NotFoundError('Folder'));
 
-    const result = await client.callTool({ name: 'list_folders', arguments: {} });
+    const result = await client.callTool({
+      name: 'list_folders',
+      arguments: {},
+    });
     expect(result.isError).toBe(true);
-    const text = (result.content as Array<{ type: string; text: string }>)[0].text;
-    expect(text).toBe('Folder not found');
+    const text = (result.content as Array<{ type: string; text: string }>)[0]
+      .text;
+    expect(JSON.parse(text).error).toEqual({
+      code: 'RESOURCE_NOT_FOUND',
+      message: 'Folder not found',
+    });
   });
 });

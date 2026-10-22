@@ -53,7 +53,9 @@ describe('Note Tools', () => {
     registerNoteTools(
       mcpServer,
       noteService as unknown as Parameters<typeof registerNoteTools>[1],
-      (() => mockCollaboration) as unknown as Parameters<typeof registerNoteTools>[2],
+      (() => mockCollaboration) as unknown as Parameters<
+        typeof registerNoteTools
+      >[2],
     );
 
     [clientTransport, serverTransport] = createAuthTransport();
@@ -180,9 +182,7 @@ describe('Note Tools', () => {
   });
 
   it('search_notes — 노트를 검색한다 (folderName 포함)', async () => {
-    const notes = [
-      { ...fixtures.note(), folder: { name: 'My Notes' } },
-    ];
+    const notes = [{ ...fixtures.note(), folder: { name: 'My Notes' } }];
     noteService.search.mockResolvedValue(notes);
 
     const result = await client.callTool({
@@ -200,7 +200,10 @@ describe('Note Tools', () => {
 
   it('list_deleted_notes — 삭제된 노트 목록을 반환한다', async () => {
     const notes = [
-      { ...fixtures.note({ deletedAt: new Date() }), folder: { name: 'My Notes' } },
+      {
+        ...fixtures.note({ deletedAt: new Date() }),
+        folder: { name: 'My Notes' },
+      },
     ];
     noteService.getDeleted.mockResolvedValue(notes);
 
@@ -291,7 +294,9 @@ describe('Note Tools', () => {
     );
     expect(parsed).toEqual({ edited: true, id: 'note-1' });
     expect(noteService.getById).toHaveBeenCalledWith('user-1', 'note-1');
-    expect(mockCollaboration.openDirectConnection).toHaveBeenCalledWith('note-1');
+    expect(mockCollaboration.openDirectConnection).toHaveBeenCalledWith(
+      'note-1',
+    );
     expect(mockTransact).toHaveBeenCalled();
     expect(mockDisconnect).toHaveBeenCalled();
   });
@@ -304,9 +309,7 @@ describe('Note Tools', () => {
       name: 'edit_note',
       arguments: {
         noteId: 'nonexistent',
-        content_updates: [
-          { old_content: 'test', new_content: 'replacement' },
-        ],
+        content_updates: [{ old_content: 'test', new_content: 'replacement' }],
       },
     });
 
@@ -325,6 +328,9 @@ describe('Note Tools', () => {
     expect(result.isError).toBe(true);
     const text = (result.content as Array<{ type: string; text: string }>)[0]
       .text;
-    expect(text).toBe('Note not found');
+    expect(JSON.parse(text).error).toEqual({
+      code: 'RESOURCE_NOT_FOUND',
+      message: 'Note not found',
+    });
   });
 });

@@ -32,9 +32,9 @@ describe('MCP utils', () => {
     });
 
     it('토큰이 없으면 에러를 throw한다', () => {
-      expect(() =>
-        getUserId({ token: '', clientId: '', scopes: [] }),
-      ).toThrow('Missing auth info');
+      expect(() => getUserId({ token: '', clientId: '', scopes: [] })).toThrow(
+        'Missing auth info',
+      );
     });
 
     it('잘못된 토큰이면 에러를 throw한다', () => {
@@ -48,9 +48,7 @@ describe('MCP utils', () => {
         { sub: 'user-1', email: 'test@test.com' },
         'web',
       );
-      expect(() =>
-        getUserId({ token, clientId: '', scopes: [] }),
-      ).toThrow();
+      expect(() => getUserId({ token, clientId: '', scopes: [] })).toThrow();
     });
   });
 
@@ -63,34 +61,51 @@ describe('MCP utils', () => {
       expect(result.isError).toBeUndefined();
     });
 
-    it('AppError를 isError 결과로 변환한다', async () => {
+    function parseError(result: Awaited<ReturnType<typeof withErrorHandling>>) {
+      const { text } = result.content[0] as { type: 'text'; text: string };
+      return JSON.parse(text).error;
+    }
+
+    it('AppError를 code/message를 담은 구조화 에러로 변환한다', async () => {
       const result = await withErrorHandling(async () => {
         throw new NotFoundError('Note');
       });
       expect(result.isError).toBe(true);
-      expect(result.content[0]).toEqual({
-        type: 'text',
-        text: 'Note not found',
+      expect(parseError(result)).toEqual({
+        code: 'RESOURCE_NOT_FOUND',
+        message: 'Note not found',
       });
     });
 
-    it('AppError의 details를 메시지에 포함한다', async () => {
+    it('AppError의 details를 포함한다', async () => {
       const result = await withErrorHandling(async () => {
         throw new ValidationError('old_content를 찾을 수 없습니다');
       });
       expect(result.isError).toBe(true);
-      expect(result.content[0]).toEqual({
-        type: 'text',
-        text: 'Invalid request: old_content를 찾을 수 없습니다',
+      expect(parseError(result)).toEqual({
+        code: 'VALIDATION_FAILED',
+        message: 'Invalid request',
+        details: 'old_content를 찾을 수 없습니다',
       });
     });
 
-    it('일반 에러는 re-throw한다', async () => {
-      await expect(
-        withErrorHandling(async () => {
-          throw new Error('unexpected');
-        }),
-      ).rejects.toThrow('unexpected');
+    it('일반 에러는 내부 메시지를 숨기고 SERVER_INTERNAL로 변환한다', async () => {
+      const result = await withErrorHandling(async () => {
+        throw new Error('db connection lost');
+      });
+      expect(result.isError).toBe(true);
+      expect(parseError(result)).toEqual({
+        code: 'SERVER_INTERNAL',
+        message: 'Internal server error',
+      });
+    });
+
+    it('인증 실패는 AUTH 코드로 변환한다', async () => {
+      const result = await withErrorHandling(async () => {
+        getUserId({ token: 'invalid-token', clientId: '', scopes: [] });
+        return jsonResult({});
+      });
+      expect(parseError(result).code).toBe('AUTH_INVALID_TOKEN');
     });
   });
 
