@@ -11,8 +11,8 @@ export function registerNoteTools(
 ): void {
   server.tool(
     'list_notes',
-    '폴더의 노트 목록을 조회합니다',
-    { folderId: z.string() },
+    '폴더에 직접 포함된 노트 목록을 조회합니다 (본문 제외, 하위 폴더 미포함)',
+    { folderId: z.string().describe('폴더 ID (list_folders로 조회)') },
     async ({ folderId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -23,8 +23,12 @@ export function registerNoteTools(
 
   server.tool(
     'get_note',
-    '노트 상세 정보를 조회합니다',
-    { noteId: z.string() },
+    '노트 상세 정보와 본문(contentMarkdown)을 조회합니다',
+    {
+      noteId: z
+        .string()
+        .describe('노트 ID (list_notes 또는 search_notes로 조회)'),
+    },
     async ({ noteId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -51,8 +55,8 @@ export function registerNoteTools(
     'create_note',
     '새 노트를 생성합니다. content를 지정하면 본문까지 한 번에 작성합니다',
     {
-      folderId: z.string(),
-      title: z.string().optional(),
+      folderId: z.string().describe('노트를 만들 폴더 ID'),
+      title: z.string().optional().describe('노트 제목 (생략 시 빈 제목)'),
       content: z.string().optional().describe('노트 본문 (마크다운)'),
     },
     async ({ content, ...args }, { authInfo }) =>
@@ -71,7 +75,7 @@ export function registerNoteTools(
     '노트 본문 전체를 마크다운으로 교체합니다. 기존 본문은 모두 삭제됩니다. ' +
       '일부만 수정할 때는 edit_note를 사용하세요',
     {
-      noteId: z.string(),
+      noteId: z.string().describe('노트 ID'),
       content: z.string().describe('새 본문 전체 (마크다운)'),
     },
     async ({ noteId, content }, { authInfo }) =>
@@ -84,11 +88,14 @@ export function registerNoteTools(
 
   server.tool(
     'update_note',
-    '노트 정보를 수정합니다',
+    '노트의 제목·핀 고정 여부를 수정합니다. 본문은 write_note/edit_note를 사용하세요',
     {
-      noteId: z.string(),
-      title: z.string().optional(),
-      isPinned: z.boolean().optional(),
+      noteId: z.string().describe('노트 ID'),
+      title: z.string().optional().describe('새 제목'),
+      isPinned: z
+        .boolean()
+        .optional()
+        .describe('핀 고정 여부 (고정 시 목록 상단에 표시)'),
     },
     async ({ noteId, ...data }, { authInfo }) =>
       withErrorHandling(async () => {
@@ -100,8 +107,8 @@ export function registerNoteTools(
 
   server.tool(
     'delete_note',
-    '노트를 삭제합니다',
-    { noteId: z.string() },
+    '노트를 휴지통으로 이동합니다 (restore_note로 복원 가능)',
+    { noteId: z.string().describe('노트 ID') },
     async ({ noteId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -113,7 +120,10 @@ export function registerNoteTools(
   server.tool(
     'move_note',
     '노트를 다른 폴더로 이동합니다',
-    { noteId: z.string(), folderId: z.string() },
+    {
+      noteId: z.string().describe('노트 ID'),
+      folderId: z.string().describe('이동할 대상 폴더 ID'),
+    },
     async ({ noteId, folderId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -124,8 +134,11 @@ export function registerNoteTools(
 
   server.tool(
     'search_notes',
-    '노트를 검색합니다',
-    { query: z.string(), limit: z.number().optional() },
+    '제목과 본문에서 검색어를 포함한 노트를 최근 수정순으로 찾습니다',
+    {
+      query: z.string().describe('검색어 (부분 일치, 대소문자 구분 없음)'),
+      limit: z.number().optional().describe('최대 결과 수 (기본 20)'),
+    },
     async ({ query, limit }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -143,7 +156,7 @@ export function registerNoteTools(
   server.tool(
     'list_deleted_notes',
     '삭제된 노트(휴지통) 목록을 조회합니다',
-    { limit: z.number().optional() },
+    { limit: z.number().optional().describe('최대 결과 수 (기본 50)') },
     async ({ limit }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -160,8 +173,8 @@ export function registerNoteTools(
 
   server.tool(
     'restore_note',
-    '삭제된 노트를 복원합니다',
-    { noteId: z.string() },
+    '휴지통의 노트를 복원합니다',
+    { noteId: z.string().describe('노트 ID (list_deleted_notes로 조회)') },
     async ({ noteId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -172,8 +185,8 @@ export function registerNoteTools(
 
   server.tool(
     'permanent_delete_note',
-    '삭제된 노트를 영구 삭제합니다',
-    { noteId: z.string() },
+    '휴지통의 노트를 영구 삭제합니다. 되돌릴 수 없습니다',
+    { noteId: z.string().describe('노트 ID (list_deleted_notes로 조회)') },
     async ({ noteId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
@@ -184,7 +197,7 @@ export function registerNoteTools(
 
   server.tool(
     'empty_trash',
-    '휴지통의 모든 노트를 영구 삭제합니다',
+    '휴지통의 모든 노트를 영구 삭제합니다. 되돌릴 수 없습니다',
     {},
     async (_args, { authInfo }) =>
       withErrorHandling(async () => {
@@ -201,7 +214,7 @@ export function registerNoteTools(
       '고유한 매칭을 위해 주변 블록을 충분히 포함하세요. ' +
       '본문 전체를 바꿀 때는 write_note를 사용하세요.',
     {
-      noteId: z.string(),
+      noteId: z.string().describe('노트 ID'),
       content_updates: z.array(
         z.object({
           old_content: z.string().describe('현재 문서에서 매칭할 마크다운 텍스트'),
