@@ -12,6 +12,7 @@ import { SlashCommands } from '../extensions/slash-commands';
 import { slashCommandRender } from '../extensions/slash-command-render';
 import { ImageNode, ImageUpload } from '../extensions/image-upload';
 import { TabGuard } from '../extensions/tab-guard';
+import { ClipboardHtml } from '../extensions/clipboard-html';
 import { CodeBlockView } from './CodeBlockView';
 import { ImagePlaceholderView } from './ImagePlaceholderView';
 import { TableMenu } from './TableMenu';
@@ -57,6 +58,7 @@ export function TiptapEditor({ ydoc, noteId }: TiptapEditorProps) {
       TaskList,
       TaskItem.configure({ nested: true }),
       TabGuard,
+      ClipboardHtml,
       Collaboration.configure({ document: ydoc }),
     ],
   });
