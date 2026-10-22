@@ -5,7 +5,8 @@ import FolderIcon from '../../assets/icons/folder.svg?react';
 import FileIcon from '../../assets/icons/file.svg?react';
 
 interface FolderContentColumnProps {
-  folderId: string;
+  /** null이면 루트(최상위 폴더 목록) */
+  folderId: string | null;
   activeId: string | null;
   onNavigate?: () => void;
   className?: string;
@@ -26,9 +27,13 @@ export function FolderContentColumn({
     <div
       className={`flex shrink-0 flex-col border-r border-border-default bg-bg-sidebar ${className ?? 'w-40'}`}
     >
-      <div className="px-3 py-2 text-sm text-text-primary truncate">
+      <Link
+        to={folderId ? `/folders/${folderId}` : '/'}
+        onClick={onNavigate}
+        className="truncate px-3 py-2 text-sm text-text-primary transition-colors hover:bg-bg-hover"
+      >
         {title}
-      </div>
+      </Link>
       <nav className="flex-1 overflow-y-auto">
         {folders.map((folder) => {
           const isActive = folder.id === activeId;
