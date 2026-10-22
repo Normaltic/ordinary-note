@@ -124,6 +124,18 @@ describe('Folder Tools', () => {
     });
   });
 
+  it('update_folder — parentId는 받지 않는다 (이동은 move_folder)', async () => {
+    folderService.update.mockResolvedValue(fixtures.folder());
+
+    await client.callTool({
+      name: 'update_folder',
+      arguments: { folderId: 'folder-1', name: 'Renamed', parentId: 'other' },
+    });
+    expect(folderService.update).toHaveBeenCalledWith('user-1', 'folder-1', {
+      name: 'Renamed',
+    });
+  });
+
   it('delete_folder — 폴더를 삭제한다', async () => {
     folderService.delete.mockResolvedValue(undefined);
 

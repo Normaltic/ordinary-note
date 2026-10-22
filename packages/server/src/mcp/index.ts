@@ -18,7 +18,7 @@ export function createMcpServer(deps: {
 
   registerFolderTools(server, deps.folderService);
   registerNoteTools(server, deps.noteService, deps.noteContentService);
-  registerResources(server, deps.noteService, deps.folderService);
+  registerResources(server, deps.noteService, deps.noteContentService);
 
   return server;
 }

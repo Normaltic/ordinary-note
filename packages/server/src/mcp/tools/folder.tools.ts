@@ -39,11 +39,10 @@ export function registerFolderTools(
 
   server.tool(
     'update_folder',
-    '폴더 정보를 수정합니다',
+    '폴더 이름·정렬 순서를 수정합니다. 위치 변경은 move_folder를 사용하세요',
     {
       folderId: z.string().describe('수정할 폴더 ID'),
       name: z.string().optional().describe('새 폴더 이름'),
-      parentId: z.string().nullable().optional(),
       sortOrder: z
         .number()
         .optional()

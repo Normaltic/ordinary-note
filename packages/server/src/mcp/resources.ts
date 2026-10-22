@@ -1,13 +1,13 @@
 import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { NoteService } from '../services/note.service.js';
-import type { FolderService } from '../services/folder.service.js';
+import type { NoteContentService } from '../services/note-content.service.js';
 import { getUserId } from './utils.js';
 
 export function registerResources(
   server: McpServer,
   noteService: NoteService,
-  _folderService: FolderService,
+  noteContentService: NoteContentService,
 ): void {
   server.resource(
     'note',
@@ -15,12 +15,16 @@ export function registerResources(
     async (uri, { noteId }, { authInfo }) => {
       const userId = getUserId(authInfo);
       const note = await noteService.getById(userId, noteId as string);
+      const markdown = await noteContentService.getMarkdown(
+        userId,
+        noteId as string,
+      );
       return {
         contents: [
           {
             uri: uri.href,
-            mimeType: 'text/plain',
-            text: `# ${note.title}\n\n${note.contentPlain ?? ''}`,
+            mimeType: 'text/markdown',
+            text: `# ${note.title}\n\n${markdown}`,
           },
         ],
       };
