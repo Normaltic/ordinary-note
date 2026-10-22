@@ -218,6 +218,26 @@ describe('markdownToYFragment', () => {
       const item2 = getChildElement(taskList, 1);
       expect(item2.getAttribute('checked')).toBe('true');
     });
+
+    it('일반 항목과 체크 항목이 섞이면 연속 구간별로 리스트를 분리한다', () => {
+      const fragment = convert('- a\n- [x] done\n- [ ] todo\n- b');
+      expect(fragment.length).toBe(3);
+
+      const [first, tasks, last] = [0, 1, 2].map((i) => getElement(fragment, i));
+      expect(first.nodeName).toBe('bulletList');
+      expect(first.length).toBe(1);
+      expect(tasks.nodeName).toBe('taskList');
+      expect(tasks.length).toBe(2);
+      expect(getChildElement(tasks, 0).getAttribute('checked')).toBe('true');
+      expect(last.nodeName).toBe('bulletList');
+    });
+
+    it('중첩 리스트에서도 혼합 항목을 분리한다', () => {
+      const fragment = convert('- parent\n  - child\n  - [x] nested task');
+      const item = getChildElement(getElement(fragment, 0), 0);
+      const nestedNames = [1, 2].map((i) => getChildElement(item, i).nodeName);
+      expect(nestedNames).toEqual(['bulletList', 'taskList']);
+    });
   });
 
   describe('복합 마크다운', () => {

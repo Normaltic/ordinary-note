@@ -68,23 +68,23 @@ function processBlockTokens(
       }
 
       case 'bullet_list_open': {
-        const { element, endIndex } = processListBlock(
+        const { elements, endIndex } = processListBlock(
           'bulletList',
           tokens,
           i,
         );
-        result.push(element);
+        result.push(...elements);
         i = endIndex + 1;
         break;
       }
 
       case 'ordered_list_open': {
-        const { element, endIndex } = processListBlock(
+        const { elements, endIndex } = processListBlock(
           'orderedList',
           tokens,
           i,
         );
-        result.push(element);
+        result.push(...elements);
         i = endIndex + 1;
         break;
       }
@@ -171,12 +171,14 @@ function processBlockPair(
 /**
  * Process a list block (bulletList or orderedList).
  * Detects task list items (checkbox pattern).
+ * 일반 항목과 체크 항목이 섞인 경우 연속 구간별로 리스트를 분리한다
+ * (tiptap 스키마상 bulletList 안에 taskItem을 둘 수 없음).
  */
 function processListBlock(
   listType: 'bulletList' | 'orderedList',
   tokens: Token[],
   startIndex: number,
-): { element: XmlElement; endIndex: number } {
+): { elements: XmlElement[]; endIndex: number } {
   const closeType = listType === 'bulletList' ? 'bullet_list_close' : 'ordered_list_close';
   let i = startIndex + 1;
   const listItems: Array<{ element: XmlElement; isTask: boolean; checked: boolean }> = [];
@@ -197,27 +199,25 @@ function processListBlock(
     }
   }
 
-  // Determine if this is a task list (all items are tasks)
-  const allTasks = listItems.length > 0 && listItems.every((li) => li.isTask);
+  const elements: XmlElement[] = [];
+  let current: XmlElement | null = null;
+  let currentIsTask = false;
 
-  if (allTasks) {
-    const taskList = new XmlElement('taskList');
-    for (const { element: itemEl, checked } of listItems) {
-      // itemEl is already a taskItem (created directly by processListItem)
-      // unchecked → 속성 미설정 (tiptap default: false)
-      if (checked) {
-        itemEl.setAttribute('checked', 'true');
-      }
-      taskList.push([itemEl]);
+  for (const { element: itemEl, isTask, checked } of listItems) {
+    if (!current || currentIsTask !== isTask) {
+      current = new XmlElement(isTask ? 'taskList' : listType);
+      currentIsTask = isTask;
+      elements.push(current);
     }
-    return { element: taskList, endIndex: i };
+    // itemEl is already a taskItem (created directly by processListItem)
+    // unchecked → 속성 미설정 (tiptap default: false)
+    if (isTask && checked) {
+      itemEl.setAttribute('checked', 'true');
+    }
+    current.push([itemEl]);
   }
 
-  const listElement = new XmlElement(listType);
-  for (const { element: itemEl } of listItems) {
-    listElement.push([itemEl]);
-  }
-  return { element: listElement, endIndex: i };
+  return { elements, endIndex: i };
 }
 
 /**
@@ -278,15 +278,15 @@ function processListItem(
 
     // Nested lists
     if (token.type === 'bullet_list_open') {
-      const { element, endIndex } = processListBlock('bulletList', tokens, i);
-      item.push([element]);
+      const { elements, endIndex } = processListBlock('bulletList', tokens, i);
+      item.push(elements);
       i = endIndex + 1;
       continue;
     }
 
     if (token.type === 'ordered_list_open') {
-      const { element, endIndex } = processListBlock('orderedList', tokens, i);
-      item.push([element]);
+      const { elements, endIndex } = processListBlock('orderedList', tokens, i);
+      item.push(elements);
       i = endIndex + 1;
       continue;
     }
