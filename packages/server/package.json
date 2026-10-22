@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1032.0",
