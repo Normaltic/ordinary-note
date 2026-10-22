@@ -49,13 +49,36 @@ export function registerNoteTools(
 
   server.tool(
     'create_note',
-    '새 노트를 생성합니다',
-    { folderId: z.string(), title: z.string().optional() },
-    async (args, { authInfo }) =>
+    '새 노트를 생성합니다. content를 지정하면 본문까지 한 번에 작성합니다',
+    {
+      folderId: z.string(),
+      title: z.string().optional(),
+      content: z.string().optional().describe('노트 본문 (마크다운)'),
+    },
+    async ({ content, ...args }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
         const note = await noteService.create(userId, args);
+        if (content) {
+          await noteContentService.replace(userId, note.id, content);
+        }
         return jsonResult(note);
+      }),
+  );
+
+  server.tool(
+    'write_note',
+    '노트 본문 전체를 마크다운으로 교체합니다. 기존 본문은 모두 삭제됩니다. ' +
+      '일부만 수정할 때는 edit_note를 사용하세요',
+    {
+      noteId: z.string(),
+      content: z.string().describe('새 본문 전체 (마크다운)'),
+    },
+    async ({ noteId, content }, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        await noteContentService.replace(userId, noteId, content);
+        return jsonResult({ replaced: true, id: noteId });
       }),
   );
 
@@ -176,7 +199,7 @@ export function registerNoteTools(
     '노트 본문을 부분 편집합니다. content_updates 배열로 변경할 부분을 지정합니다. ' +
       'old_content는 현재 문서의 마크다운과 정확히 일치해야 하며, 문서 내 유일해야 합니다. ' +
       '고유한 매칭을 위해 주변 블록을 충분히 포함하세요. ' +
-      '빈 문서에 최초 작성 시 old_content를 빈 문자열로 지정합니다.',
+      '본문 전체를 바꿀 때는 write_note를 사용하세요.',
     {
       noteId: z.string(),
       content_updates: z.array(

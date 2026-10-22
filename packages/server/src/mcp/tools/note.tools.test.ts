@@ -12,6 +12,7 @@ vi.mock('../../utils/config.js', () => ({
   },
 }));
 
+import { Doc } from 'yjs';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -138,6 +139,75 @@ describe('Note Tools', () => {
       folderId: 'folder-1',
       title: 'New Note',
     });
+  });
+
+  function mockDocConnection() {
+    const doc = new Doc();
+    const disconnect = vi.fn();
+    mockCollaboration.openDirectConnection.mockResolvedValue({
+      transact: async (fn: (d: unknown) => void) => fn(doc),
+      disconnect,
+    });
+    return { doc, disconnect };
+  }
+
+  it('create_note — content를 지정하면 본문까지 작성한다', async () => {
+    noteService.create.mockResolvedValue(fixtures.note());
+    noteService.getById.mockResolvedValue(fixtures.note());
+    const { doc } = mockDocConnection();
+
+    const result = await client.callTool({
+      name: 'create_note',
+      arguments: { folderId: 'folder-1', title: 'New', content: '# 본문' },
+    });
+
+    expect(result.isError).toBeFalsy();
+    expect(noteService.create).toHaveBeenCalledWith('user-1', {
+      folderId: 'folder-1',
+      title: 'New',
+    });
+    expect(doc.getXmlFragment('default').length).toBeGreaterThan(0);
+  });
+
+  it('create_note — content가 없으면 본문에 접근하지 않는다', async () => {
+    noteService.create.mockResolvedValue(fixtures.note());
+
+    await client.callTool({
+      name: 'create_note',
+      arguments: { folderId: 'folder-1' },
+    });
+
+    expect(mockCollaboration.openDirectConnection).not.toHaveBeenCalled();
+  });
+
+  it('write_note — 본문 전체를 교체한다', async () => {
+    noteService.getById.mockResolvedValue(fixtures.note());
+    const { doc, disconnect } = mockDocConnection();
+
+    const result = await client.callTool({
+      name: 'write_note',
+      arguments: { noteId: 'note-1', content: '새 본문' },
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+
+    expect(parsed).toEqual({ replaced: true, id: 'note-1' });
+    expect(doc.getXmlFragment('default').toString()).toContain('새 본문');
+    expect(disconnect).toHaveBeenCalled();
+  });
+
+  it('write_note — 소유권 없는 노트는 NOT_FOUND 에러를 반환한다', async () => {
+    const { NotFoundError } = await import('../../utils/errors.js');
+    noteService.getById.mockRejectedValue(new NotFoundError('Note'));
+
+    const result = await client.callTool({
+      name: 'write_note',
+      arguments: { noteId: 'nonexistent', content: 'x' },
+    });
+
+    expect(result.isError).toBe(true);
+    expect(mockCollaboration.openDirectConnection).not.toHaveBeenCalled();
   });
 
   it('update_note — 노트를 수정한다', async () => {
