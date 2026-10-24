@@ -115,6 +115,21 @@ export function registerNoteTools(
   );
 
   server.tool(
+    'append_note',
+    '노트 본문 끝에 마크다운을 덧붙입니다. 일지·작업 로그 누적에 사용하세요 (기존 내용 매칭 불필요)',
+    {
+      noteId: z.string().describe('노트 ID'),
+      content: z.string().describe('추가할 내용 (마크다운)'),
+    },
+    async ({ noteId, content }, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        await noteContentService.append(userId, noteId, content);
+        return jsonResult({ appended: true, id: noteId });
+      }),
+  );
+
+  server.tool(
     'update_note',
     '노트의 제목·핀 고정 여부를 수정합니다. 본문은 write_note/edit_note를 사용하세요',
     {

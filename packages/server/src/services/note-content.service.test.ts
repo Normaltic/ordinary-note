@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Doc } from 'yjs';
+import { Doc, type XmlElement } from 'yjs';
 import { NoteContentService } from './note-content.service.js';
 import type { NoteService } from './note.service.js';
 import { createMockCollaboration, fixtures } from '../testing/helpers.js';
@@ -66,6 +66,48 @@ describe('NoteContentService', () => {
 
     expect(markdown).toContain('첫 문단');
     expect(markdown).toContain('수정된 문단');
+  });
+
+  it('append는 기존 본문 뒤에 덧붙인다', async () => {
+    await service.replace('user-1', 'note-1', '# 일지');
+    await service.append('user-1', 'note-1', '- 10/24 운동');
+    await service.append('user-1', 'note-1', '- 10/25 휴식');
+    const markdown = await service.getMarkdown('user-1', 'note-1');
+
+    expect(markdown.indexOf('# 일지')).toBeLessThan(markdown.indexOf('10/24'));
+    expect(markdown.indexOf('10/24')).toBeLessThan(markdown.indexOf('10/25'));
+  });
+
+  it('append는 끝의 리스트와 같은 종류면 이어 붙이고, 다르면 분리한다', async () => {
+    await service.replace('user-1', 'note-1', '- 스쿼트');
+    await service.append('user-1', 'note-1', '- 데드리프트');
+    await service.append('user-1', 'note-1', '- [ ] 러닝');
+    const fragment = doc.getXmlFragment('default');
+
+    expect(fragment.length).toBe(2);
+    const [bullets, tasks] = [0, 1].map((i) => fragment.get(i) as XmlElement);
+    expect(bullets.nodeName).toBe('bulletList');
+    expect(bullets.length).toBe(2);
+    expect(tasks.nodeName).toBe('taskList');
+    expect(await service.getMarkdown('user-1', 'note-1')).toContain(
+      '- 스쿼트\n- 데드리프트',
+    );
+  });
+
+  it('append는 빈 문서의 빈 문단을 대체한다', async () => {
+    await service.replace('user-1', 'note-1', '');
+    await service.append('user-1', 'note-1', '첫 줄');
+    const fragment = doc.getXmlFragment('default');
+
+    expect(fragment.length).toBe(1);
+    expect(fragment.toString()).toContain('첫 줄');
+  });
+
+  it('append에 빈 내용을 주면 문서에 접근하지 않고 ValidationError', async () => {
+    await expect(service.append('user-1', 'note-1', '  \n ')).rejects.toThrow(
+      ValidationError,
+    );
+    expect(noteService.getById).not.toHaveBeenCalled();
   });
 
   it('소유권 검증 실패 시 문서에 접근하지 않는다', async () => {

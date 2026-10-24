@@ -239,6 +239,27 @@ describe('Note Tools', () => {
     expect(disconnect).toHaveBeenCalled();
   });
 
+  it('append_note — 본문 끝에 덧붙인다', async () => {
+    noteService.getById.mockResolvedValue(fixtures.note());
+    const { doc } = mockDocConnection();
+
+    await client.callTool({
+      name: 'write_note',
+      arguments: { noteId: 'note-1', content: '기존' },
+    });
+    const result = await client.callTool({
+      name: 'append_note',
+      arguments: { noteId: 'note-1', content: '추가' },
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+
+    expect(parsed).toEqual({ appended: true, id: 'note-1' });
+    const xml = doc.getXmlFragment('default').toString();
+    expect(xml.indexOf('기존')).toBeLessThan(xml.indexOf('추가'));
+  });
+
   it('write_note — 소유권 없는 노트는 NOT_FOUND 에러를 반환한다', async () => {
     const { NotFoundError } = await import('../../utils/errors.js');
     noteService.getById.mockRejectedValue(new NotFoundError('Note'));
