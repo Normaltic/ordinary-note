@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
+import { output } from '../lib/output.js';
 
 interface ContentUpdate {
   old_content: string;
@@ -14,7 +15,8 @@ export function registerEditCommand(program: Command): void {
     .option('--old <text>', 'Text to find in the note')
     .option('--new <text>', 'Replacement text')
     .option('--updates-file <path>', 'JSON file with [{old_content, new_content}] array')
-    .action(async (noteId: string, opts: { old?: string; new?: string; updatesFile?: string }) => {
+    .option('--json', 'Output as JSON')
+    .action(async (noteId: string, opts: { old?: string; new?: string; updatesFile?: string; json?: boolean }) => {
       let updates: ContentUpdate[];
 
       if (opts.updatesFile) {
@@ -27,10 +29,10 @@ export function registerEditCommand(program: Command): void {
         return process.exit(1);
       }
 
-      await api(`/notes/${noteId}/content`, {
+      const data = await api<{ noteId: string; edited: boolean }>(`/notes/${noteId}/content`, {
         method: 'PATCH',
         body: { content_updates: updates },
       });
-      console.log(`Content updated (${updates.length} edit${updates.length > 1 ? 's' : ''}).`);
+      output(opts.json, { ...data, edits: updates.length }, `Content updated (${updates.length} edit${updates.length > 1 ? 's' : ''}).`);
     });
 }

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
 import { buildImportPlan, chunkNotes } from '../lib/import-plan.js';
+import { output } from '../lib/output.js';
 
 interface BulkResult {
   folders: { path: string; id: string; created: boolean }[];
@@ -69,7 +70,8 @@ export function registerNoteCommands(program: Command): void {
     .description('Create a new note')
     .option('-t, --title <title>', 'Note title')
     .option('-f, --file <path>', 'Initial content from file')
-    .action(async (folderId: string, opts: { title?: string; file?: string }) => {
+    .option('--json', 'Output as JSON')
+    .action(async (folderId: string, opts: { title?: string; file?: string; json?: boolean }) => {
       const body: Record<string, string> = { folderId };
       if (opts.title) body.title = opts.title;
 
@@ -77,7 +79,6 @@ export function registerNoteCommands(program: Command): void {
         method: 'POST',
         body,
       });
-      console.log(`Created: ${data.note.id}  ${data.note.title || '(untitled)'}`);
 
       if (opts.file) {
         const markdown = fs.readFileSync(opts.file, 'utf-8');
@@ -85,8 +86,9 @@ export function registerNoteCommands(program: Command): void {
           method: 'PUT',
           body: { markdown },
         });
-        console.log('Content uploaded.');
       }
+      const created = `Created: ${data.note.id}  ${data.note.title || '(untitled)'}`;
+      output(opts.json, data.note, opts.file ? `${created}\nContent uploaded.` : created);
     });
 
   cmd
@@ -173,31 +175,48 @@ export function registerNoteCommands(program: Command): void {
   cmd
     .command('mv <noteId> <folderId>')
     .description('Move note to another folder')
-    .action(async (noteId: string, folderId: string) => {
-      await api(`/notes/${noteId}`, {
+    .option('--json', 'Output as JSON')
+    .action(async (noteId: string, folderId: string, opts: { json?: boolean }) => {
+      const data = await api<{ note: Note }>(`/notes/${noteId}`, {
         method: 'PATCH',
         body: { folderId },
       });
-      console.log('Moved.');
+      output(opts.json, data.note, 'Moved.');
     });
 
   cmd
     .command('rename <noteId> <title>')
     .description('Rename a note')
-    .action(async (noteId: string, title: string) => {
-      await api(`/notes/${noteId}`, {
+    .option('--json', 'Output as JSON')
+    .action(async (noteId: string, title: string, opts: { json?: boolean }) => {
+      const data = await api<{ note: Note }>(`/notes/${noteId}`, {
         method: 'PATCH',
         body: { title },
       });
-      console.log(`Renamed to: ${title}`);
+      output(opts.json, data.note, `Renamed to: ${title}`);
     });
+
+  for (const [name, isPinned] of [['pin', true], ['unpin', false]] as const) {
+    cmd
+      .command(`${name} <noteId>`)
+      .description(isPinned ? 'Pin a note (shown at the top of lists)' : 'Unpin a note')
+      .option('--json', 'Output as JSON')
+      .action(async (noteId: string, opts: { json?: boolean }) => {
+        const data = await api<{ note: Note }>(`/notes/${noteId}`, {
+          method: 'PATCH',
+          body: { isPinned },
+        });
+        output(opts.json, data.note, isPinned ? 'Pinned.' : 'Unpinned.');
+      });
+  }
 
   cmd
     .command('rm <noteId>')
-    .description('Delete a note')
-    .action(async (noteId: string) => {
-      await api(`/notes/${noteId}`, { method: 'DELETE' });
-      console.log('Deleted.');
+    .description('Delete a note (moves to trash)')
+    .option('--json', 'Output as JSON')
+    .action(async (noteId: string, opts: { json?: boolean }) => {
+      const data = await api<{ id: string }>(`/notes/${noteId}`, { method: 'DELETE' });
+      output(opts.json, data, 'Deleted.');
     });
 
   cmd
@@ -228,27 +247,30 @@ export function registerNoteCommands(program: Command): void {
   cmd
     .command('restore <noteId>')
     .description('Restore a deleted note from trash')
-    .action(async (noteId: string) => {
+    .option('--json', 'Output as JSON')
+    .action(async (noteId: string, opts: { json?: boolean }) => {
       const data = await api<{ note: Note }>(`/notes/${noteId}/restore`, {
         method: 'PATCH',
       });
-      console.log(`Restored: ${data.note.id}  ${data.note.title || '(untitled)'}`);
+      output(opts.json, data.note, `Restored: ${data.note.id}  ${data.note.title || '(untitled)'}`);
     });
 
   cmd
     .command('purge <noteId>')
     .description('Permanently delete a note from trash')
-    .action(async (noteId: string) => {
-      await api(`/notes/${noteId}/permanent`, { method: 'DELETE' });
-      console.log('Permanently deleted.');
+    .option('--json', 'Output as JSON')
+    .action(async (noteId: string, opts: { json?: boolean }) => {
+      const data = await api<{ id: string }>(`/notes/${noteId}/permanent`, { method: 'DELETE' });
+      output(opts.json, data, 'Permanently deleted.');
     });
 
   cmd
     .command('empty-trash')
     .description('Permanently delete all notes in trash')
-    .action(async () => {
-      await api('/notes/trash', { method: 'DELETE' });
-      console.log('Trash emptied.');
+    .option('--json', 'Output as JSON')
+    .action(async (opts: { json?: boolean }) => {
+      const data = await api<{ success: boolean }>('/notes/trash', { method: 'DELETE' });
+      output(opts.json, data, 'Trash emptied.');
     });
 
   program

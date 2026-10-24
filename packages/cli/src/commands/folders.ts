@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
+import { output } from '../lib/output.js';
 
 interface Folder {
   id: string;
@@ -30,7 +31,8 @@ export function registerFolderCommands(program: Command): void {
     .command('create <name>')
     .description('Create a new folder')
     .option('-p, --parent <parentId>', 'Parent folder ID')
-    .action(async (name: string, opts: { parent?: string }) => {
+    .option('--json', 'Output as JSON')
+    .action(async (name: string, opts: { parent?: string; json?: boolean }) => {
       const body: Record<string, string> = { name };
       if (opts.parent) body.parentId = opts.parent;
 
@@ -38,35 +40,38 @@ export function registerFolderCommands(program: Command): void {
         method: 'POST',
         body,
       });
-      console.log(`Created: ${data.folder.id}  ${data.folder.name}`);
+      output(opts.json, data.folder, `Created: ${data.folder.id}  ${data.folder.name}`);
     });
 
   cmd
     .command('mv <folderId> <parentId>')
     .description('Move folder to a new parent (use "root" for top-level)')
-    .action(async (folderId: string, parentId: string) => {
+    .option('--json', 'Output as JSON')
+    .action(async (folderId: string, parentId: string, opts: { json?: boolean }) => {
       const body = { parentId: parentId === 'root' ? null : parentId };
-      await api(`/folders/${folderId}`, { method: 'PATCH', body });
-      console.log('Moved.');
+      const data = await api<{ folder: Folder }>(`/folders/${folderId}`, { method: 'PATCH', body });
+      output(opts.json, data.folder, 'Moved.');
     });
 
   cmd
     .command('rename <folderId> <name>')
     .description('Rename a folder')
-    .action(async (folderId: string, name: string) => {
-      await api(`/folders/${folderId}`, {
+    .option('--json', 'Output as JSON')
+    .action(async (folderId: string, name: string, opts: { json?: boolean }) => {
+      const data = await api<{ folder: Folder }>(`/folders/${folderId}`, {
         method: 'PATCH',
         body: { name },
       });
-      console.log(`Renamed to: ${name}`);
+      output(opts.json, data.folder, `Renamed to: ${name}`);
     });
 
   cmd
     .command('rm <folderId>')
-    .description('Delete a folder')
-    .action(async (folderId: string) => {
-      await api(`/folders/${folderId}`, { method: 'DELETE' });
-      console.log('Deleted.');
+    .description('Delete a folder and its subfolders (notes move to trash)')
+    .option('--json', 'Output as JSON')
+    .action(async (folderId: string, opts: { json?: boolean }) => {
+      const data = await api<{ id: string }>(`/folders/${folderId}`, { method: 'DELETE' });
+      output(opts.json, data, 'Deleted.');
     });
 }
 

@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
+import { output } from '../lib/output.js';
 import { assertNotOption, readMarkdownInput } from '../lib/input.js';
 
 export function registerWriteCommand(program: Command): void {
@@ -8,8 +9,9 @@ export function registerWriteCommand(program: Command): void {
     .description('Replace note content entirely')
     .option('-f, --file <path>', 'Read content from file (use - for stdin)')
     .argument('[content]', 'Inline markdown content (may start with "- ")')
+    .option('--json', 'Output as JSON')
     .allowUnknownOption()
-    .action(async (noteId: string, content: string | undefined, opts: { file?: string }) => {
+    .action(async (noteId: string, content: string | undefined, opts: { file?: string; json?: boolean }) => {
       assertNotOption(content);
       const markdown = await readMarkdownInput(content, opts.file);
       if (markdown === null) {
@@ -17,10 +19,10 @@ export function registerWriteCommand(program: Command): void {
         return process.exit(1);
       }
 
-      await api(`/notes/${noteId}/content`, {
+      const data = await api<{ noteId: string; replaced: boolean }>(`/notes/${noteId}/content`, {
         method: 'PUT',
         body: { markdown },
       });
-      console.log('Content replaced.');
+      output(opts.json, data, 'Content replaced.');
     });
 }

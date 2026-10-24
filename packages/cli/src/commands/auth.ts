@@ -1,6 +1,7 @@
 import type { Command } from 'commander';
 import { loginFlow, loadTokens, clearTokens } from '../lib/auth.js';
 import { getServerUrl } from '../lib/config.js';
+import { output } from '../lib/output.js';
 
 export function registerAuthCommands(program: Command): void {
   program
@@ -29,15 +30,18 @@ export function registerAuthCommands(program: Command): void {
   program
     .command('whoami')
     .description('Show current authentication status')
-    .action(() => {
+    .option('--json', 'Output as JSON')
+    .action((opts: { json?: boolean }) => {
       const tokens = loadTokens();
       if (!tokens) {
-        console.log('Not logged in. Run: ordin login');
+        output(opts.json, { authenticated: false }, 'Not logged in. Run: ordin login');
         return;
       }
       const serverUrl = tokens.server_url ?? getServerUrl();
-      console.log(`Server: ${serverUrl}`);
-      console.log(`Client ID: ${tokens.client_id}`);
-      console.log('Status: authenticated');
+      output(
+        opts.json,
+        { authenticated: true, serverUrl, clientId: tokens.client_id },
+        `Server: ${serverUrl}\nClient ID: ${tokens.client_id}\nStatus: authenticated`,
+      );
     });
 }

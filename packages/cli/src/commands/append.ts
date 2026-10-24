@@ -1,5 +1,6 @@
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
+import { output } from '../lib/output.js';
 import { assertNotOption, readMarkdownInput } from '../lib/input.js';
 
 export function registerAppendCommand(program: Command): void {
@@ -8,8 +9,9 @@ export function registerAppendCommand(program: Command): void {
     .description('Append markdown to the end of a note (adjacent lists of the same type are merged)')
     .option('-f, --file <path>', 'Read content from file (use - for stdin)')
     .argument('[content]', 'Inline markdown content (may start with "- ")')
+    .option('--json', 'Output as JSON')
     .allowUnknownOption()
-    .action(async (noteId: string, content: string | undefined, opts: { file?: string }) => {
+    .action(async (noteId: string, content: string | undefined, opts: { file?: string; json?: boolean }) => {
       assertNotOption(content);
       const markdown = await readMarkdownInput(content, opts.file);
       if (markdown === null) {
@@ -17,10 +19,10 @@ export function registerAppendCommand(program: Command): void {
         return process.exit(1);
       }
 
-      await api(`/notes/${noteId}/content/append`, {
+      const data = await api<{ noteId: string; appended: boolean }>(`/notes/${noteId}/content/append`, {
         method: 'POST',
         body: { markdown },
       });
-      console.log('Content appended.');
+      output(opts.json, data, 'Content appended.');
     });
 }
