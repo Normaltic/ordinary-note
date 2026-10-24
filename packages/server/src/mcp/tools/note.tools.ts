@@ -6,6 +6,7 @@ import type { FolderService } from '../../services/folder.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
 import { buildFolderPathMap } from '../folder-tree.js';
 import { buildSnippet, toNoteSummary } from '../note-summary.js';
+import { bulkCreateNotes } from '../bulk-create.js';
 
 export function registerNoteTools(
   server: McpServer,
@@ -95,6 +96,50 @@ export function registerNoteTools(
           await noteContentService.replace(userId, note.id, content);
         }
         return jsonResult(note);
+      }),
+  );
+
+  // 스키마 인스턴스를 공유하면 JSON Schema 변환 시 $ref가 생기므로 매번 새로 생성
+  const folderPath = () =>
+    z
+      .array(z.string().min(1))
+      .describe('parentFolderId 기준 상대 폴더 경로. 예: ["과업", "S01 개요"]');
+
+  server.tool(
+    'create_notes',
+    '여러 노트를 폴더 구조와 함께 한 번에 생성합니다. 경로상 폴더가 없으면 만들고 같은 이름이 있으면 재사용합니다. ' +
+      '항목별로 독립 처리되며 실패한 항목만 error로 표시됩니다 (실패 항목만 재시도하세요). 요청 전체 1MB 이내',
+    {
+      parentFolderId: z.string().describe('기준 폴더 ID (list_folders로 조회)'),
+      notes: z
+        .array(
+          z.object({
+            title: z.string().optional().describe('노트 제목'),
+            content: z.string().optional().describe('노트 본문 (마크다운)'),
+            folder: folderPath()
+              .optional()
+              .describe(
+                '노트를 둘 폴더 경로 (생략 시 parentFolderId 바로 아래)',
+              ),
+          }),
+        )
+        .max(100)
+        .describe('생성할 노트 (최대 100개)'),
+      folders: z
+        .array(folderPath())
+        .max(100)
+        .optional()
+        .describe('노트 없이 만들 폴더 경로 목록'),
+    },
+    async (args, { authInfo }) =>
+      withErrorHandling(async () => {
+        const userId = getUserId(authInfo);
+        const result = await bulkCreateNotes(
+          { folderService, noteService, noteContentService },
+          userId,
+          args,
+        );
+        return jsonResult(result);
       }),
   );
 
