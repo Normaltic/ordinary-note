@@ -2,6 +2,8 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { FolderService } from '../../services/folder.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
+import { compactTree, findFolderNode } from '../folder-tree.js';
+import { NotFoundError } from '../../utils/errors.js';
 
 export function registerFolderTools(
   server: McpServer,
@@ -9,13 +11,33 @@ export function registerFolderTools(
 ): void {
   server.tool(
     'list_folders',
-    '전체 폴더 트리 구조를 조회합니다. 다른 도구에 필요한 folderId를 얻을 때 사용합니다',
-    {},
-    async (_args, { authInfo }) =>
+    '폴더 트리 구조를 조회합니다. 다른 도구에 필요한 folderId를 얻을 때 사용합니다. ' +
+      '트리가 크면 rootId·depth로 범위를 좁히세요',
+    {
+      rootId: z
+        .string()
+        .optional()
+        .describe('이 폴더를 루트로 한 하위 트리만 조회 (생략 시 전체)'),
+      depth: z
+        .number()
+        .int()
+        .min(1)
+        .optional()
+        .describe(
+          '포함할 단계 수 (1 = 루트 노드만). 잘린 노드는 children 대신 childCount 표시',
+        ),
+    },
+    async ({ rootId, depth }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
         const tree = await folderService.getTree(userId);
-        return jsonResult(tree);
+        let roots = tree;
+        if (rootId) {
+          const root = findFolderNode(tree, rootId);
+          if (!root) throw new NotFoundError('Folder');
+          roots = [root];
+        }
+        return jsonResult(compactTree(roots, depth));
       }),
   );
 

@@ -45,7 +45,7 @@ export function errorResult(
     content: [
       {
         type: 'text',
-        text: JSON.stringify({ error: { code, message, details } }, null, 2),
+        text: JSON.stringify({ error: { code, message, details } }),
       },
     ],
   };
@@ -65,6 +65,7 @@ export async function withErrorHandling(
   }
 }
 
+/** 토큰 절감을 위해 들여쓰기 없이 직렬화 */
 export function jsonResult(data: unknown): CallToolResult {
-  return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  return { content: [{ type: 'text', text: JSON.stringify(data) }] };
 }

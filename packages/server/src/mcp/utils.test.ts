@@ -115,7 +115,7 @@ describe('MCP utils', () => {
       expect(result.content).toHaveLength(1);
       expect(result.content[0]).toEqual({
         type: 'text',
-        text: JSON.stringify({ id: '1', name: 'test' }, null, 2),
+        text: JSON.stringify({ id: '1', name: 'test' }),
       });
     });
 

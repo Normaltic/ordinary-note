@@ -63,17 +63,86 @@ describe('Folder Tools', () => {
     await mcpServer.close();
   });
 
-  it('list_folders — 폴더 트리를 반환한다', async () => {
-    const tree = [{ id: 'f1', name: 'Root', children: [], noteCount: 0 }];
-    folderService.getTree.mockResolvedValue(tree);
+  const tree = [
+    {
+      id: 'root',
+      name: 'Root',
+      parentId: null,
+      sortOrder: 0,
+      noteCount: 1,
+      children: [
+        {
+          id: 'a',
+          name: 'A',
+          parentId: 'root',
+          sortOrder: 0,
+          noteCount: 2,
+          children: [
+            {
+              id: 'a1',
+              name: 'A1',
+              parentId: 'a',
+              sortOrder: 0,
+              noteCount: 3,
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+  ];
 
+  async function listFolders(args: Record<string, unknown> = {}) {
+    folderService.getTree.mockResolvedValue(tree);
     const result = await client.callTool({
       name: 'list_folders',
-      arguments: {},
+      arguments: args,
     });
     const text = (result.content as Array<{ type: string; text: string }>)[0]
       .text;
-    expect(JSON.parse(text)).toEqual(tree);
+    return { result, parsed: JSON.parse(text) };
+  }
+
+  it('list_folders — parentId·sortOrder 없이 축약된 트리를 반환한다', async () => {
+    const { parsed } = await listFolders();
+    expect(parsed).toEqual([
+      {
+        id: 'root',
+        name: 'Root',
+        noteCount: 1,
+        children: [
+          {
+            id: 'a',
+            name: 'A',
+            noteCount: 2,
+            children: [{ id: 'a1', name: 'A1', noteCount: 3 }],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('list_folders — depth로 단계를 제한하고 childCount를 표시한다', async () => {
+    const { parsed } = await listFolders({ depth: 2 });
+    expect(parsed[0].children[0]).toEqual({
+      id: 'a',
+      name: 'A',
+      noteCount: 2,
+      childCount: 1,
+    });
+  });
+
+  it('list_folders — rootId 하위 트리만 반환한다', async () => {
+    const { parsed } = await listFolders({ rootId: 'a', depth: 1 });
+    expect(parsed).toEqual([
+      { id: 'a', name: 'A', noteCount: 2, childCount: 1 },
+    ]);
+  });
+
+  it('list_folders — 없는 rootId는 NOT_FOUND', async () => {
+    const { result, parsed } = await listFolders({ rootId: 'nope' });
+    expect(result.isError).toBe(true);
+    expect(parsed.error.code).toBe('RESOURCE_NOT_FOUND');
   });
 
   it('create_folder — 새 폴더를 생성한다', async () => {
