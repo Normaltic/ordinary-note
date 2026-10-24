@@ -13,6 +13,12 @@ import { registerInfoCommand } from './commands/info.js';
 import { registerDiffCommand } from './commands/diff.js';
 import { registerUtilCommands } from './commands/utils.js';
 
+// 파이프 상대가 먼저 닫혀도(| head 등) 에러 없이 종료
+process.stdout.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EPIPE') process.exit(0);
+  throw err;
+});
+
 const program = new Command();
 
 program
