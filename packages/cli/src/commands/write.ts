@@ -1,25 +1,18 @@
-import fs from 'node:fs';
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
+import { assertNotOption, readMarkdownInput } from '../lib/input.js';
 
 export function registerWriteCommand(program: Command): void {
   program
     .command('write <noteId>')
     .description('Replace note content entirely')
     .option('-f, --file <path>', 'Read content from file (use - for stdin)')
-    .argument('[content]', 'Inline markdown content')
+    .argument('[content]', 'Inline markdown content (may start with "- ")')
+    .allowUnknownOption()
     .action(async (noteId: string, content: string | undefined, opts: { file?: string }) => {
-      let markdown: string;
-
-      if (opts.file) {
-        if (opts.file === '-') {
-          markdown = await readStdin();
-        } else {
-          markdown = fs.readFileSync(opts.file, 'utf-8');
-        }
-      } else if (content) {
-        markdown = content;
-      } else {
+      assertNotOption(content);
+      const markdown = await readMarkdownInput(content, opts.file);
+      if (markdown === null) {
         console.error('Provide content via --file or as an argument.');
         return process.exit(1);
       }
@@ -30,13 +23,4 @@ export function registerWriteCommand(program: Command): void {
       });
       console.log('Content replaced.');
     });
-}
-
-function readStdin(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    process.stdin.on('data', (chunk: Buffer) => chunks.push(chunk));
-    process.stdin.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
-    process.stdin.on('error', reject);
-  });
 }

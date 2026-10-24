@@ -17,8 +17,28 @@ export function registerNoteCommands(program: Command): void {
   cmd
     .command('ls <folderId>')
     .description('List notes in a folder')
+    .option('-r, --recursive', 'Include notes in all subfolders (newest first, with folder path)')
     .option('--json', 'Output as JSON')
-    .action(async (folderId: string, opts: { json?: boolean }) => {
+    .action(async (folderId: string, opts: { recursive?: boolean; json?: boolean }) => {
+      if (opts.recursive) {
+        const data = await api<{ notes: (Note & { folderPath: string | null })[] }>(
+          `/folders/${folderId}/notes?recursive=true`,
+        );
+        if (opts.json) {
+          console.log(JSON.stringify(data.notes, null, 2));
+          return;
+        }
+        if (data.notes.length === 0) {
+          console.log('No notes in this folder tree.');
+          return;
+        }
+        for (const note of data.notes) {
+          const pin = note.isPinned ? ' [pinned]' : '';
+          console.log(`${note.id}  ${note.folderPath ?? ''} / ${note.title || '(untitled)'}${pin}`);
+        }
+        return;
+      }
+
       const data = await api<{ notes: Note[] }>(`/folders/${folderId}/children`);
       if (opts.json) {
         console.log(JSON.stringify(data.notes, null, 2));
@@ -144,12 +164,14 @@ export function registerNoteCommands(program: Command): void {
     .command('search <query>')
     .description('Search notes')
     .option('-l, --limit <n>', 'Max results', '20')
+    .option('--folder <folderId>', 'Search only within this folder and its subfolders')
     .option('--json', 'Output as JSON')
-    .action(async (query: string, opts: { limit: string; json?: boolean }) => {
+    .action(async (query: string, opts: { limit: string; folder?: string; json?: boolean }) => {
       const params = new URLSearchParams({
         query,
         limit: opts.limit,
       });
+      if (opts.folder) params.set('folderId', opts.folder);
       const data = await api<{ notes: (Note & { folderName?: string | null })[] }>(
         `/notes/search?${params.toString()}`,
       );
