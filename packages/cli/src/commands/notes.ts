@@ -1,6 +1,16 @@
 import fs from 'node:fs';
 import type { Command } from 'commander';
 import { api } from '../lib/api.js';
+import { buildImportPlan, chunkNotes } from '../lib/import-plan.js';
+
+interface BulkResult {
+  folders: { path: string; id: string; created: boolean }[];
+  notes: ({ index: number; id: string } | { index: number; id?: string; error: { code: string; message: string } })[];
+}
+
+// 서버 제한: 요청당 노트·폴더 100개, 본문 1MB
+const BULK_MAX_ITEMS = 100;
+const BULK_MAX_BYTES = 900_000;
 
 interface Note {
   id: string;
@@ -77,6 +87,87 @@ export function registerNoteCommands(program: Command): void {
         });
         console.log('Content uploaded.');
       }
+    });
+
+  cmd
+    .command('import <dir>')
+    .description('Upload a local directory: subdirectories → folders, *.md → notes (title = file name)')
+    .requiredOption('--to <folderId>', 'Target folder ID')
+    .option('--no-wrap', 'Import directory contents directly, without a folder for the directory itself')
+    .option('--dry-run', 'Show what would be created without uploading')
+    .option('--json', 'Output as JSON')
+    .action(async (dir: string, opts: { to: string; wrap: boolean; dryRun?: boolean; json?: boolean }) => {
+      let plan: ReturnType<typeof buildImportPlan>;
+      try {
+        plan = buildImportPlan(dir, opts.wrap);
+      } catch (e) {
+        console.error(`Error: ${(e as Error).message}`);
+        return process.exit(1);
+      }
+
+      if (opts.dryRun) {
+        if (opts.json) {
+          console.log(JSON.stringify({
+            notes: plan.notes.map(({ folder, title, file }) => ({ folder, title, file })),
+            emptyFolders: plan.emptyFolders,
+          }, null, 2));
+          return;
+        }
+        for (const note of plan.notes) {
+          console.log(`${[...note.folder, note.title].join(' / ')}  ← ${note.file}`);
+        }
+        for (const folder of plan.emptyFolders) console.log(`${folder.join(' / ')} /  (empty folder)`);
+        console.log(`\n${plan.notes.length} notes, ${plan.emptyFolders.length} empty folders (dry run)`);
+        return;
+      }
+
+      if (plan.notes.length === 0 && plan.emptyFolders.length === 0) {
+        console.log('Nothing to import.');
+        return;
+      }
+
+      // 노트 청크 뒤에 빈 폴더 청크를 보낸다. 폴더는 서버가 경로로 재사용하므로 청크 간 중복 생성 없음
+      const requests: { notes: typeof plan.notes; folders: string[][] }[] = chunkNotes(
+        plan.notes, BULK_MAX_ITEMS, BULK_MAX_BYTES,
+      ).map((notes) => ({ notes, folders: [] }));
+      for (let i = 0; i < plan.emptyFolders.length; i += BULK_MAX_ITEMS) {
+        requests.push({ notes: [], folders: plan.emptyFolders.slice(i, i + BULK_MAX_ITEMS) });
+      }
+
+      const createdFolders = new Set<string>();
+      const created: { id: string; file: string }[] = [];
+      const failed: { file: string; id?: string; error: { code: string; message: string } }[] = [];
+
+      for (const [i, req] of requests.entries()) {
+        if (!opts.json && requests.length > 1) {
+          console.error(`[${i + 1}/${requests.length}] ${req.notes.length} notes, ${req.folders.length} folders`);
+        }
+        const res = await api<BulkResult>('/notes/bulk', {
+          method: 'POST',
+          body: {
+            parentFolderId: opts.to,
+            notes: req.notes.map(({ folder, title, content }) => ({ folder, title, content })),
+            folders: req.folders,
+          },
+        });
+        for (const f of res.folders) if (f.created) createdFolders.add(f.path);
+        for (const result of res.notes) {
+          const file = req.notes[result.index].file;
+          if ('error' in result) failed.push({ file, id: result.id, error: result.error });
+          else created.push({ id: result.id, file });
+        }
+      }
+
+      if (opts.json) {
+        console.log(JSON.stringify({ created, failed, foldersCreated: [...createdFolders] }, null, 2));
+      } else {
+        console.log(`Imported ${created.length} notes (${createdFolders.size} new folders).`);
+        for (const f of failed) {
+          const partial = f.id ? ` (note ${f.id} created without content)` : '';
+          console.error(`  ✗ ${f.file}: ${f.error.code} ${f.error.message}${partial}`);
+        }
+      }
+      if (failed.length > 0) process.exit(1);
     });
 
   cmd
