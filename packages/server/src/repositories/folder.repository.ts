@@ -10,6 +10,9 @@ export type FolderRecord = {
   updatedAt: Date;
 };
 
+// 휴지통(soft delete) 노트는 개수에서 제외
+const activeNotes = { where: { deletedAt: null } } as const;
+
 export type FolderWithCounts = FolderRecord & {
   _count: {
     children: number;
@@ -50,7 +53,7 @@ export class FolderRepository {
   async findAllByUserId(userId: string): Promise<FolderWithCounts[]> {
     return prisma.folder.findMany({
       where: { userId },
-      include: { _count: { select: { children: true, notes: true } } },
+      include: { _count: { select: { children: true, notes: activeNotes } } },
       orderBy: { sortOrder: 'asc' },
     });
   }
@@ -61,7 +64,7 @@ export class FolderRepository {
   ): Promise<FolderWithCounts[]> {
     return prisma.folder.findMany({
       where: { userId, parentId },
-      include: { _count: { select: { children: true, notes: true } } },
+      include: { _count: { select: { children: true, notes: activeNotes } } },
       orderBy: { sortOrder: 'asc' },
     });
   }
