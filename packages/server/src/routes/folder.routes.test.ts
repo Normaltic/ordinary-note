@@ -156,6 +156,60 @@ describe('Folder Routes', () => {
     });
   });
 
+  // ── GET /api/folders/:id/notes ───────────────────────────────────
+
+  describe('GET /api/folders/:id/notes', () => {
+    const tree = [
+      {
+        id: 'folder-1',
+        name: 'Root',
+        parentId: null,
+        sortOrder: 0,
+        noteCount: 0,
+        children: [
+          {
+            id: 'folder-2',
+            name: 'Sub',
+            parentId: 'folder-1',
+            sortOrder: 0,
+            noteCount: 1,
+            children: [],
+          },
+        ],
+      },
+    ];
+
+    it('성공: recursive=true면 하위 폴더 노트를 folderPath와 함께 반환', async () => {
+      mockFolderService.getTree.mockResolvedValue(tree);
+      mockNoteService.getByFolderIdRecursive.mockResolvedValue([
+        fixtures.note({ id: 'n1', folderId: 'folder-2' }),
+      ]);
+
+      const res = await request(app)
+        .get('/api/folders/folder-1/notes?recursive=true')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.notes).toEqual([
+        expect.objectContaining({ id: 'n1', folderPath: 'Root/Sub' }),
+      ]);
+      expect(res.body.notes[0].contentPlain).toBeUndefined();
+      expect(mockNoteService.getByFolderId).not.toHaveBeenCalled();
+    });
+
+    it('성공: recursive 없으면 직접 포함된 노트만', async () => {
+      mockFolderService.getTree.mockResolvedValue(tree);
+      mockNoteService.getByFolderId.mockResolvedValue([]);
+
+      const res = await request(app)
+        .get('/api/folders/folder-1/notes')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(mockNoteService.getByFolderIdRecursive).not.toHaveBeenCalled();
+    });
+  });
+
   // ── PATCH /api/folders/:id ───────────────────────────────────────
 
   describe('PATCH /api/folders/:id', () => {

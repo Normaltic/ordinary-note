@@ -9,6 +9,7 @@ import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../utils/validate.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
+import { buildFolderPathMap } from '../utils/folder-tree.js';
 
 export function createFolderRoutes(
   folderService: FolderService,
@@ -59,6 +60,33 @@ export function createFolderRoutes(
     }));
 
     res.json({ folders, notes: noteSummaries });
+  });
+
+  // GET /api/folders/:id/notes?recursive=true — 폴더(및 하위 폴더) 노트 목록 + 폴더 경로
+  router.get('/:id/notes', async (req: Request, res: Response) => {
+    const userId = req.user!.sub;
+    const folderId = req.params.id as string;
+    const recursive = req.query.recursive === 'true';
+
+    const [notes, tree] = await Promise.all([
+      recursive
+        ? noteService.getByFolderIdRecursive(userId, folderId)
+        : noteService.getByFolderId(userId, folderId),
+      folderService.getTree(userId),
+    ]);
+    const paths = buildFolderPathMap(tree);
+
+    res.json({
+      notes: notes.map((n) => ({
+        id: n.id,
+        title: n.title,
+        folderId: n.folderId,
+        folderPath: paths.get(n.folderId) ?? null,
+        isPinned: n.isPinned,
+        createdAt: n.createdAt.toISOString(),
+        updatedAt: n.updatedAt.toISOString(),
+      })),
+    });
   });
 
   // PATCH /api/folders/:id — update folder

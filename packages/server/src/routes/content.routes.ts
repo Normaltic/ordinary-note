@@ -17,6 +17,12 @@ const markdownBodySchema = z.object({
   markdown: z.string(),
 });
 
+/** text/markdown 본문 또는 JSON { markdown } */
+function readMarkdownBody(req: Request): string {
+  if (req.is('text/markdown')) return req.body as string;
+  return validate(markdownBodySchema, req.body).markdown;
+}
+
 export function createContentRoutes(noteContentService: NoteContentService) {
   const router: Router = Router();
   const auth = authenticate('mcp');
@@ -35,17 +41,24 @@ export function createContentRoutes(noteContentService: NoteContentService) {
     const userId = req.user!.sub;
     const noteId = req.params.id as string;
 
-    let markdown: string;
-    if (req.is('text/markdown')) {
-      markdown = req.body as string;
-    } else {
-      const data = validate(markdownBodySchema, req.body);
-      markdown = data.markdown;
-    }
-
+    const markdown = readMarkdownBody(req);
     await noteContentService.replace(userId, noteId, markdown);
     res.json({ noteId, replaced: true });
   });
+
+  // POST /api/notes/:id/content/append — 본문 끝에 추가
+  router.post(
+    '/:id/content/append',
+    auth,
+    async (req: Request, res: Response) => {
+      const userId = req.user!.sub;
+      const noteId = req.params.id as string;
+
+      const markdown = readMarkdownBody(req);
+      await noteContentService.append(userId, noteId, markdown);
+      res.json({ noteId, appended: true });
+    },
+  );
 
   // PATCH /api/notes/:id/content — 부분 수정
   router.patch('/:id/content', auth, async (req: Request, res: Response) => {

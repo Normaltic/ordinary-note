@@ -225,6 +225,45 @@ describe('Note Routes', () => {
     });
   });
 
+  // ── GET /api/notes/search ────────────────────────────────────────
+
+  describe('GET /api/notes/search', () => {
+    it('성공: folderId 없이 전체 범위 검색', async () => {
+      mockNoteService.search.mockResolvedValue([]);
+
+      const res = await request(app)
+        .get('/api/notes/search?query=react&limit=5')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(mockNoteService.search).toHaveBeenCalledWith(
+        'user-1',
+        'react',
+        5,
+        undefined,
+      );
+    });
+
+    it('성공: folderId로 범위 제한', async () => {
+      mockNoteService.search.mockResolvedValue([
+        { ...fixtures.note(), folder: { name: 'Dev' } },
+      ]);
+
+      const res = await request(app)
+        .get('/api/notes/search?query=react&folderId=folder-1')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.notes[0].folderName).toBe('Dev');
+      expect(mockNoteService.search).toHaveBeenCalledWith(
+        'user-1',
+        'react',
+        20,
+        'folder-1',
+      );
+    });
+  });
+
   // ── GET /api/notes/:id ───────────────────────────────────────────
 
   describe('GET /api/notes/:id', () => {

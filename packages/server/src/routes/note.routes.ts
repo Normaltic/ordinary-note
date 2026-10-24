@@ -8,7 +8,7 @@ export function createNoteRoutes(noteService: NoteService) {
   const router: Router = Router();
   router.use(authenticate(['web', 'mcp']));
 
-  // GET /api/notes/search?query=...&limit=... — search notes
+  // GET /api/notes/search?query=...&limit=...&folderId=... — search notes (folderId: 하위 폴더 포함 범위)
   router.get('/search', async (req: Request, res: Response) => {
     const query = req.query.query as string;
     if (!query) {
@@ -16,7 +16,13 @@ export function createNoteRoutes(noteService: NoteService) {
       return;
     }
     const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
-    const notes = await noteService.search(req.user!.sub, query, limit);
+    const folderId = (req.query.folderId as string | undefined) || undefined;
+    const notes = await noteService.search(
+      req.user!.sub,
+      query,
+      limit,
+      folderId,
+    );
     res.json({
       notes: notes.map((n) => ({
         ...n,
