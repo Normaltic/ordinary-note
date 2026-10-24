@@ -3,16 +3,17 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { NoteService } from '../../services/note.service.js';
 import type { NoteContentService } from '../../services/note-content.service.js';
 import type { FolderService } from '../../services/folder.service.js';
+import type { BulkNoteService } from '../../services/bulk-note.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
-import { buildFolderPathMap } from '../folder-tree.js';
+import { buildFolderPathMap } from '../../utils/folder-tree.js';
 import { buildSnippet, toNoteSummary } from '../note-summary.js';
-import { bulkCreateNotes } from '../bulk-create.js';
 
 export function registerNoteTools(
   server: McpServer,
   noteService: NoteService,
   noteContentService: NoteContentService,
   folderService: FolderService,
+  bulkNoteService: BulkNoteService,
 ): void {
   async function getFolderPaths(userId: string) {
     return buildFolderPathMap(await folderService.getTree(userId));
@@ -134,11 +135,7 @@ export function registerNoteTools(
     async (args, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
-        const result = await bulkCreateNotes(
-          { folderService, noteService, noteContentService },
-          userId,
-          args,
-        );
+        const result = await bulkNoteService.create(userId, args);
         return jsonResult(result);
       }),
   );

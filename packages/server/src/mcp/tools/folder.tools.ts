@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { FolderService } from '../../services/folder.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
-import { compactTree, findFolderNode } from '../folder-tree.js';
+import { compactTree, findFolderNode } from '../../utils/folder-tree.js';
 import { NotFoundError } from '../../utils/errors.js';
 
 export function registerFolderTools(

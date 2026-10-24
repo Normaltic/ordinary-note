@@ -85,6 +85,7 @@ describe('Note Tools', () => {
         () => mockCollaboration as never,
       ),
       folderService as unknown as Parameters<typeof registerNoteTools>[3],
+      {} as Parameters<typeof registerNoteTools>[4],
     );
 
     [clientTransport, serverTransport] = createAuthTransport();

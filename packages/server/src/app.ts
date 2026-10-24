@@ -39,6 +39,7 @@ export function createApp(services: AppServices): Express {
         folderService: services.folderService,
         noteService: services.noteService,
         noteContentService: services.noteContentService,
+        bulkNoteService: services.bulkNoteService,
       }),
     ),
   );

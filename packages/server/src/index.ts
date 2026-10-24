@@ -18,6 +18,7 @@ import {
   OAuthService,
   AttachmentService,
   NoteContentService,
+  BulkNoteService,
 } from './services/index.js';
 import { createApp } from './app.js';
 import { setupCollaboration } from './collaboration/index.js';
@@ -48,6 +49,11 @@ async function main() {
     noteService,
     () => collaboration,
   );
+  const bulkNoteService = new BulkNoteService(
+    folderService,
+    noteService,
+    noteContentService,
+  );
 
   const app = createApp({
     authService,
@@ -56,6 +62,7 @@ async function main() {
     oauthService,
     attachmentService,
     noteContentService,
+    bulkNoteService,
   });
   const httpServer = createServer(app);
 

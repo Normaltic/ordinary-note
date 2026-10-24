@@ -4,3 +4,4 @@ export { NoteService } from './note.service.js';
 export { OAuthService } from './oauth.service.js';
 export { AttachmentService } from './attachment.service.js';
 export { NoteContentService } from './note-content.service.js';
+export { BulkNoteService } from './bulk-note.service.js';

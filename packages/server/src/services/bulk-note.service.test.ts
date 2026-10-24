@@ -12,7 +12,7 @@ vi.mock('../utils/config.js', () => ({
   },
 }));
 
-import { bulkCreateNotes } from './bulk-create.js';
+import { BulkNoteService } from './bulk-note.service.js';
 import {
   createMockFolderService,
   createMockNoteService,
@@ -40,11 +40,11 @@ const tree = [
   },
 ];
 
-describe('bulkCreateNotes', () => {
+describe('BulkNoteService', () => {
   let folderService: ReturnType<typeof createMockFolderService>;
   let noteService: ReturnType<typeof createMockNoteService>;
   let noteContentService: { replace: ReturnType<typeof vi.fn> };
-  let deps: Parameters<typeof bulkCreateNotes>[0];
+  let service: BulkNoteService;
 
   beforeEach(() => {
     folderService = createMockFolderService();
@@ -66,11 +66,15 @@ describe('bulkCreateNotes', () => {
       async (_userId: string, data: { folderId: string }) =>
         fixtures.note({ id: `note-${++noteSeq}`, folderId: data.folderId }),
     );
-    deps = { folderService, noteService, noteContentService } as never;
+    service = new BulkNoteService(
+      folderService as never,
+      noteService as never,
+      noteContentService as never,
+    );
   });
 
   it('기존 폴더는 재사용하고 없는 경로는 한 번만 생성한다', async () => {
-    const result = await bulkCreateNotes(deps, 'user-1', {
+    const result = await service.create('user-1', {
       parentFolderId: 'parent',
       notes: [
         { title: 'a', folder: ['S01'] },
@@ -102,7 +106,7 @@ describe('bulkCreateNotes', () => {
   });
 
   it('content가 있는 노트만 본문을 작성한다', async () => {
-    await bulkCreateNotes(deps, 'user-1', {
+    await service.create('user-1', {
       parentFolderId: 'parent',
       notes: [{ title: 'a', content: '# 본문' }, { title: 'b' }],
     });
@@ -122,7 +126,7 @@ describe('bulkCreateNotes', () => {
       .mockResolvedValueOnce(fixtures.note({ id: 'ok-3' }));
     noteContentService.replace.mockRejectedValueOnce(new Error('yjs down'));
 
-    const result = await bulkCreateNotes(deps, 'user-1', {
+    const result = await service.create('user-1', {
       parentFolderId: 'parent',
       notes: [{ title: 'a', content: 'x' }, { title: 'b' }, { title: 'c' }],
     });
@@ -143,7 +147,7 @@ describe('bulkCreateNotes', () => {
   });
 
   it('folders로 노트 없는 폴더를 만든다', async () => {
-    const result = await bulkCreateNotes(deps, 'user-1', {
+    const result = await service.create('user-1', {
       parentFolderId: 'parent',
       notes: [],
       folders: [['빈 폴더']],
@@ -156,7 +160,7 @@ describe('bulkCreateNotes', () => {
 
   it('기준 폴더가 없으면(타인 폴더 포함) NotFoundError', async () => {
     await expect(
-      bulkCreateNotes(deps, 'user-1', { parentFolderId: 'nope', notes: [] }),
+      service.create('user-1', { parentFolderId: 'nope', notes: [] }),
     ).rejects.toThrow(NotFoundError);
     expect(folderService.create).not.toHaveBeenCalled();
   });

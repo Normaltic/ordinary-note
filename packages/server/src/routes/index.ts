@@ -3,6 +3,7 @@ import type { AuthService } from '../services/auth.service.js';
 import type { FolderService } from '../services/folder.service.js';
 import type { NoteService } from '../services/note.service.js';
 import type { NoteContentService } from '../services/note-content.service.js';
+import type { BulkNoteService } from '../services/bulk-note.service.js';
 import type { OAuthService } from '../services/oauth.service.js';
 import type { AttachmentService } from '../services/attachment.service.js';
 import { createAuthRoutes } from './auth.routes.js';
@@ -18,6 +19,7 @@ export type AppServices = {
   oauthService: OAuthService;
   attachmentService: AttachmentService;
   noteContentService: NoteContentService;
+  bulkNoteService: BulkNoteService;
 };
 
 export function createRouter(services: AppServices) {
