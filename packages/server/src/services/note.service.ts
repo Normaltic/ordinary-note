@@ -19,11 +19,17 @@ export class NoteService {
   }
 
   async getByFolderId(userId: string, folderId: string): Promise<NoteRecord[]> {
-    const folder = await this.folderRepo.findById(folderId);
-    if (!folder) throw new NotFoundError('Folder');
-    if (folder.userId !== userId) throw new ForbiddenError();
-
+    await this.assertFolderOwner(userId, folderId);
     return this.noteRepo.findByFolderId(folderId);
+  }
+
+  /** 폴더와 모든 하위 폴더의 노트 (최근 수정순) */
+  async getByFolderIdRecursive(
+    userId: string,
+    folderId: string,
+  ): Promise<NoteRecord[]> {
+    const folderIds = await this.getFolderScope(userId, folderId);
+    return this.noteRepo.findByFolderIds(folderIds);
   }
 
   async create(
@@ -79,8 +85,12 @@ export class NoteService {
     userId: string,
     query: string,
     limit?: number,
+    folderId?: string,
   ) {
-    return this.noteRepo.searchByContent(userId, query, limit);
+    const folderIds = folderId
+      ? await this.getFolderScope(userId, folderId)
+      : undefined;
+    return this.noteRepo.searchByContent(userId, query, limit, folderIds);
   }
 
   async getRecent(userId: string, limit?: number) {
@@ -122,5 +132,21 @@ export class NoteService {
 
   async emptyTrash(userId: string): Promise<void> {
     await this.noteRepo.permanentDeleteAllByUserId(userId);
+  }
+
+  private async assertFolderOwner(userId: string, folderId: string) {
+    const folder = await this.folderRepo.findById(folderId);
+    if (!folder) throw new NotFoundError('Folder');
+    if (folder.userId !== userId) throw new ForbiddenError();
+  }
+
+  /** 폴더 자신 + 모든 하위 폴더 ID */
+  private async getFolderScope(
+    userId: string,
+    folderId: string,
+  ): Promise<string[]> {
+    await this.assertFolderOwner(userId, folderId);
+    const descendantIds = await this.folderRepo.findDescendantIds(folderId);
+    return [folderId, ...descendantIds];
   }
 }

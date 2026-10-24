@@ -2,22 +2,50 @@ import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { NoteService } from '../../services/note.service.js';
 import type { NoteContentService } from '../../services/note-content.service.js';
+import type { FolderService } from '../../services/folder.service.js';
 import { getUserId, withErrorHandling, jsonResult } from '../utils.js';
+import { buildFolderPathMap } from '../folder-tree.js';
+import { buildSnippet, toNoteSummary } from '../note-summary.js';
 
 export function registerNoteTools(
   server: McpServer,
   noteService: NoteService,
   noteContentService: NoteContentService,
+  folderService: FolderService,
 ): void {
+  async function getFolderPaths(userId: string) {
+    return buildFolderPathMap(await folderService.getTree(userId));
+  }
+
   server.tool(
     'list_notes',
-    '폴더에 직접 포함된 노트 목록을 조회합니다 (본문 제외, 하위 폴더 미포함)',
-    { folderId: z.string().describe('폴더 ID (list_folders로 조회)') },
-    async ({ folderId }, { authInfo }) =>
+    '폴더의 노트 목록을 조회합니다 (본문 제외). recursive로 하위 폴더 노트까지 한 번에 조회합니다',
+    {
+      folderId: z.string().describe('폴더 ID (list_folders로 조회)'),
+      recursive: z
+        .boolean()
+        .optional()
+        .describe(
+          'true면 모든 하위 폴더의 노트 포함, 최근 수정순 + folderPath 표시 (기본 false)',
+        ),
+    },
+    async ({ folderId, recursive }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
-        const notes = await noteService.getByFolderId(userId, folderId);
-        return jsonResult(notes);
+        if (!recursive) {
+          const notes = await noteService.getByFolderId(userId, folderId);
+          return jsonResult(notes.map(toNoteSummary));
+        }
+        const [notes, paths] = await Promise.all([
+          noteService.getByFolderIdRecursive(userId, folderId),
+          getFolderPaths(userId),
+        ]);
+        return jsonResult(
+          notes.map((n) => ({
+            ...toNoteSummary(n),
+            folderPath: paths.get(n.folderId) ?? null,
+          })),
+        );
       }),
   );
 
@@ -134,20 +162,28 @@ export function registerNoteTools(
 
   server.tool(
     'search_notes',
-    '제목과 본문에서 검색어를 포함한 노트를 최근 수정순으로 찾습니다',
+    '제목과 본문에서 검색어를 포함한 노트를 최근 수정순으로 찾습니다. ' +
+      '결과에는 본문 대신 검색어 주변 발췌(snippet)가 포함됩니다',
     {
       query: z.string().describe('검색어 (부분 일치, 대소문자 구분 없음)'),
       limit: z.number().optional().describe('최대 결과 수 (기본 20)'),
+      folderId: z
+        .string()
+        .optional()
+        .describe('이 폴더와 하위 폴더 안에서만 검색 (생략 시 전체)'),
     },
-    async ({ query, limit }, { authInfo }) =>
+    async ({ query, limit, folderId }, { authInfo }) =>
       withErrorHandling(async () => {
         const userId = getUserId(authInfo);
-        const notes = await noteService.search(userId, query, limit);
+        const [notes, paths] = await Promise.all([
+          noteService.search(userId, query, limit, folderId),
+          getFolderPaths(userId),
+        ]);
         return jsonResult(
           notes.map((n) => ({
-            ...n,
-            folderName: n.folder?.name ?? null,
-            folder: undefined,
+            ...toNoteSummary(n),
+            folderPath: paths.get(n.folderId) ?? null,
+            snippet: buildSnippet(n.contentPlain, query),
           })),
         );
       }),
@@ -163,9 +199,9 @@ export function registerNoteTools(
         const notes = await noteService.getDeleted(userId, limit);
         return jsonResult(
           notes.map((n) => ({
-            ...n,
+            ...toNoteSummary(n),
             folderName: n.folder?.name ?? null,
-            folder: undefined,
+            deletedAt: n.deletedAt,
           })),
         );
       }),

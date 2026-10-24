@@ -55,6 +55,13 @@ export class NoteRepository {
     });
   }
 
+  async findByFolderIds(folderIds: string[]): Promise<NoteRecord[]> {
+    return prisma.note.findMany({
+      where: { folderId: { in: folderIds }, deletedAt: null },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
   async softDelete(id: string): Promise<void> {
     await prisma.note.update({
       where: { id },
@@ -105,11 +112,13 @@ export class NoteRepository {
     userId: string,
     query: string,
     limit = 20,
+    folderIds?: string[],
   ): Promise<(NoteRecord & { folder: { name: string } | null })[]> {
     return prisma.note.findMany({
       where: {
         userId,
         deletedAt: null,
+        ...(folderIds && { folderId: { in: folderIds } }),
         OR: [
           { title: { contains: query } },
           { contentPlain: { contains: query } },

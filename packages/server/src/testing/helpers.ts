@@ -78,6 +78,7 @@ export function createMockNoteRepo() {
     updateContentPlain:
       vi.fn<(id: string, contentPlain: string) => Promise<void>>(),
     findByFolderId: vi.fn<(folderId: string) => Promise<NoteRecord[]>>(),
+    findByFolderIds: vi.fn<(folderIds: string[]) => Promise<NoteRecord[]>>(),
     softDelete: vi.fn<(id: string) => Promise<void>>(),
     softDeleteAndMoveByFolderIds:
       vi.fn<
@@ -169,6 +170,7 @@ export function createMockNoteService(): {
   return {
     getById: vi.fn(),
     getByFolderId: vi.fn(),
+    getByFolderIdRecursive: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),

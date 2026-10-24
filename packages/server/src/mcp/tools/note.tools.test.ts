@@ -21,6 +21,7 @@ import { registerNoteTools } from './note.tools.js';
 import { NoteContentService } from '../../services/note-content.service.js';
 import {
   createMockCollaboration,
+  createMockFolderService,
   createMockNoteService,
   fixtures,
   generateTestAccessToken,
@@ -44,12 +45,33 @@ describe('Note Tools', () => {
   let client: Client;
   let mcpServer: McpServer;
   let noteService: ReturnType<typeof createMockNoteService>;
+  let folderService: ReturnType<typeof createMockFolderService>;
   let mockCollaboration: ReturnType<typeof createMockCollaboration>;
   let clientTransport: InMemoryTransport;
   let serverTransport: InMemoryTransport;
 
   beforeEach(async () => {
     noteService = createMockNoteService();
+    folderService = createMockFolderService();
+    folderService.getTree.mockResolvedValue([
+      {
+        id: 'folder-1',
+        name: 'My Notes',
+        parentId: null,
+        sortOrder: 0,
+        noteCount: 1,
+        children: [
+          {
+            id: 'folder-2',
+            name: 'Sub',
+            parentId: 'folder-1',
+            sortOrder: 0,
+            noteCount: 1,
+            children: [],
+          },
+        ],
+      },
+    ]);
     mockCollaboration = createMockCollaboration();
     mcpServer = new McpServer({ name: 'test', version: '0.0.1' });
     const typedNoteService = noteService as unknown as Parameters<
@@ -62,6 +84,7 @@ describe('Note Tools', () => {
         typedNoteService,
         () => mockCollaboration as never,
       ),
+      folderService as unknown as Parameters<typeof registerNoteTools>[3],
     );
 
     [clientTransport, serverTransport] = createAuthTransport();
@@ -87,10 +110,29 @@ describe('Note Tools', () => {
       (result.content as Array<{ type: string; text: string }>)[0].text,
     );
     expect(parsed).toHaveLength(2);
+    expect(parsed[0].contentPlain).toBeUndefined();
     expect(noteService.getByFolderId).toHaveBeenCalledWith(
       'user-1',
       'folder-1',
     );
+  });
+
+  it('list_notes — recursive면 하위 폴더 노트를 folderPath와 함께 반환한다', async () => {
+    noteService.getByFolderIdRecursive.mockResolvedValue([
+      fixtures.note({ id: 'n-sub', folderId: 'folder-2' }),
+    ]);
+
+    const result = await client.callTool({
+      name: 'list_notes',
+      arguments: { folderId: 'folder-1', recursive: true },
+    });
+    const parsed = JSON.parse(
+      (result.content as Array<{ type: string; text: string }>)[0].text,
+    );
+    expect(parsed).toEqual([
+      expect.objectContaining({ id: 'n-sub', folderPath: 'My Notes/Sub' }),
+    ]);
+    expect(noteService.getByFolderId).not.toHaveBeenCalled();
   });
 
   it('get_note — 노트 상세 정보를 반환한다 (contentMarkdown 포함)', async () => {
@@ -256,21 +298,37 @@ describe('Note Tools', () => {
     });
   });
 
-  it('search_notes — 노트를 검색한다 (folderName 포함)', async () => {
-    const notes = [{ ...fixtures.note(), folder: { name: 'My Notes' } }];
+  it('search_notes — 본문 대신 snippet과 folderPath를 반환한다', async () => {
+    const notes = [
+      {
+        ...fixtures.note({
+          folderId: 'folder-2',
+          contentPlain: `${'앞'.repeat(100)} 검색어 ${'뒤'.repeat(100)}`,
+        }),
+        folder: { name: 'Sub' },
+      },
+    ];
     noteService.search.mockResolvedValue(notes);
 
     const result = await client.callTool({
       name: 'search_notes',
-      arguments: { query: 'test', limit: 10 },
+      arguments: { query: '검색어', limit: 10, folderId: 'folder-1' },
     });
     const parsed = JSON.parse(
       (result.content as Array<{ type: string; text: string }>)[0].text,
     );
     expect(parsed).toHaveLength(1);
-    expect(parsed[0].folderName).toBe('My Notes');
+    expect(parsed[0].folderPath).toBe('My Notes/Sub');
+    expect(parsed[0].contentPlain).toBeUndefined();
     expect(parsed[0].folder).toBeUndefined();
-    expect(noteService.search).toHaveBeenCalledWith('user-1', 'test', 10);
+    expect(parsed[0].snippet).toMatch(/^…앞+ 검색어 뒤+…$/);
+    expect(parsed[0].snippet.length).toBeLessThan(140);
+    expect(noteService.search).toHaveBeenCalledWith(
+      'user-1',
+      '검색어',
+      10,
+      'folder-1',
+    );
   });
 
   it('list_deleted_notes — 삭제된 노트 목록을 반환한다', async () => {
@@ -291,6 +349,8 @@ describe('Note Tools', () => {
     );
     expect(parsed).toHaveLength(1);
     expect(parsed[0].folderName).toBe('My Notes');
+    expect(parsed[0].deletedAt).toBeDefined();
+    expect(parsed[0].contentPlain).toBeUndefined();
     expect(noteService.getDeleted).toHaveBeenCalledWith('user-1', 10);
   });
 
